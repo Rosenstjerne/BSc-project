@@ -1,0 +1,63 @@
+var start	#Start of variable declaration for main scope
+	int i;
+	int n;
+	bool b;
+var end		#End of variable declaration for main scope
+
+function void fun(int a) {
+	var start	#Start of variable declaration for function scope
+		int j;
+	var end		#End of variable declaration for function scope
+	j = 0;
+	while(j < a ) {
+		print(j + a);
+		j = j + 1;
+	}
+}
+
+b = True;
+
+if(b == False) {
+	i = 17;
+}
+else { 
+	i = 42;
+}
+
+print(i); #Prints "42"
+
+if(i > 30) {
+	fun(6);
+}
+
+b = !b;
+print(b); #Prints "False"
+
+function int max(int a, int b) {
+	if(a >= b) {
+		return a;
+	}
+	else {
+		return b;
+	}
+}
+
+n = 5;
+i = n + 2;
+
+print(max(i, n)); #Prints "7"
+
+
+i = 0;
+while(True){
+	if(i < 3) {
+		continue;
+	}
+	elif(i < 6) {
+		print(i);
+		continue;
+	}
+	else {
+		break;
+	}
+}
