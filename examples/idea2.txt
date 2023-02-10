@@ -1,0 +1,55 @@
+class person{
+	var int id;
+	var int age;
+	var bool isMale;
+}
+
+var int i;
+var int j;
+var int[] list;
+var bool b;
+var person flemming;
+
+if(!b) { # will be true
+	print(1);
+}
+
+flemming = new person;
+flemming.id = 42;
+flemming.age = 150;
+flemming.isMale = false;
+
+list = new int[10];
+i = 0;
+j = 5;
+while (i<list.size) {
+	list[i] = j;
+	j = j * 2;
+	i = i + 1;
+}
+
+function null doStuff(var person p) {
+	print(person.id + person.age);
+	return;
+}
+
+b = true;
+j = 5;
+while (b) {
+	if (j < 1) {
+		break;
+	}
+	elif (j < 3) {
+		print(j);
+		continue;
+	}
+	else {
+		continue;
+	}
+}
+
+{
+	var int a = 15;
+	print(a);
+}
+print(a) #ERROR
