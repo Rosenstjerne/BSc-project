@@ -33,6 +33,8 @@ function null doStuff(var person p) {
 	return;
 }
 
+doStuff(flemming);
+
 b = true;
 j = 5;
 while (b) {
