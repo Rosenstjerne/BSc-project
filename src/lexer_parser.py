@@ -1,5 +1,12 @@
 
 
+import ply.lex as lex
+import ply.yacc as yacc
+
+import interfacing_parser
+import AST
+from error import error_message
+
 reserved = {
         'if': 'IF',
         'elif': 'ELIF',
@@ -15,7 +22,7 @@ reserved = {
         }
 
 tokens = (
-    'IDENT', 'INT', 'BOOL', #Types
+    'IDENT', 'INT', 'BOOL', 'ARRAY', #Types
     'PLUS', 'MINUS', 'MULTIPLY', 'DIVIDE', 'MODULO', # arithmatic int operators
     'EQ', 'NEQ', 'LT', 'GT', 'LTE', 'GTE', # comparisons
     'AND', 'OR', 'NOT', # bool operators
@@ -54,6 +61,51 @@ def t_IDENT(t):
     t.type = reserved.get(t.value,'IDENT')
     return t
 
+def t_INT(t):
+    r'\d+'
+    try:
+        t.value = int(t.value)
+    except ValueError:
+        error_message("Lexical analyser",f"Something went lexing the integer. Value to large.",t.lexer.lineno)
+        t.value = 0
+    if value > int('0x7FFFFFFFFFFFFFFF', 16):
+        error_message("Lexical analyser",f"Something went lexing the integer. Value to large.",t.lexer.lineno)
+        t.value = 0
+    return t
+
+def t_BOOL(t):
+    r'(true)|(false)' #Cathes a few variations og the name
+    try:
+        t.value = bool(t.value)
+    except ValueError:
+        error_message("Lexical analyser",f"Something went lexing the boolean.",t.lexer.lineno)
+        t.value = False
+    return t
+
+def t_newline(t):
+    r'\n+'
+    t.lexer.lineno += t.value.count("\n")
+
 def t_COMMENT(t):
     r'\#.*'
     pass
+
+def t_COMMENTBLOCK(t):
+    r'\#\*([a-zA-Z0-9\n\ \*]|(\#\*))*\*\#' #Doesn't work with nested comment blocks. Works like comment blocks in C buth with # in stead of /
+    t.lexer.loneno += t.value.count("\n") #Might take up some lines, so we need to keep track of them
+
+def t_error(t):
+    error_message("Lexical analyser",f"Illigal character '{t.value[0]}'.",t.lexer.lineno)
+
+# Ignored charecters
+t_ignore = " \t\r"
+
+# PARSING RULES AND BUILDING AST
+#TODO: When the AST is finished: make the parsing rules
+
+
+# Builds the lexer 
+lexer = lex.lex()
+
+# Builds the parser
+parser = yacc.yacc()
