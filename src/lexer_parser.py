@@ -57,7 +57,7 @@ t_GTE = r'>='
 
 
 def t_IDENT(t):
-    r'[a-zA-Z][a-zA-Z0-9]*'
+    r'[a-zA-Z_][a-zA-Z0-9_]*'
     t.type = reserved.get(t.value,'IDENT')
     return t
 
@@ -68,7 +68,7 @@ def t_INT(t):
     except ValueError:
         error_message("Lexical analyser",f"Something went lexing the integer. Value to large.",t.lexer.lineno)
         t.value = 0
-    if value > int('0x7FFFFFFFFFFFFFFF', 16):
+    if t.value > int('0x7FFFFFFFFFFFFFFF', 16):
         error_message("Lexical analyser",f"Something went lexing the integer. Value to large.",t.lexer.lineno)
         t.value = 0
     return t
@@ -91,7 +91,7 @@ def t_COMMENT(t):
     pass
 
 def t_COMMENTBLOCK(t):
-    r'\#\*([a-zA-Z0-9\n\ \*]|(\#\*))*\*\#' #Doesn't work with nested comment blocks. Works like comment blocks in C buth with # in stead of /
+    r'\#\*([a-zA-Z0-9_\n\ \*]|(\#\*))*\*\#' #Doesn't work with nested comment blocks. Works like comment blocks in C buth with # in stead of /
     t.lexer.loneno += t.value.count("\n") #Might take up some lines, so we need to keep track of them
 
 def t_error(t):
