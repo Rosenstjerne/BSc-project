@@ -20,36 +20,45 @@ from errors import error_message
 
 reserved = {
     'if': 'IF',
-    'then': 'THEN',
     'else': 'ELSE',
     'while': 'WHILE',
-    'do': 'DO',
     'function': 'FUNCTION',
-    'return': 'RETURN',
     'var': 'VAR',
-    'print': 'PRINT'
+    'break': 'BREAK',
+    'print': 'PRINT',
+    'class': 'CLASS',
+    'return': 'RETURN',
+    'new': 'NEW'
 }
 
 
 tokens = (
-    'IDENT', 'INT',
-    'PLUS', 'MINUS', 'TIMES', 'DIVIDE',
-    'LPAREN', 'RPAREN', 'LCURL', 'RCURL',
-    'EQ', 'NEQ', 'LT', 'GT', 'LTE', 'GTE',
-    'ASSIGN', 'COMMA', 'SEMICOL',
+    'IDENT', 'INT', 'BOOL', 'ARRAY', #Types
+    'PLUS', 'MINUS', 'MULTIPLY', 'DIVIDE', 'MODULO', # arithmatic int operators
+    'EQ', 'NEQ', 'LT', 'GT', 'LTE', 'GTE', # comparisons
+    'AND', 'OR', 'NOT', # bool operators
+    'LPAREN', 'RPAREN', 'LCURL', 'RCURL', 'LBRAC', 'RBRAC', # parenthesis / brackets
+    'ASSIGN', 'COMMA', 'SEMICOLON', 'DOT' # other
 ) + tuple(reserved.values())
 
 t_PLUS = r'\+'
 t_MINUS = r'-'
-t_TIMES = r'\*'
+t_MULTIPLY = r'\*'
 t_DIVIDE = r'/'
+t_MODULO = r'%'
+t_AND = r'&&'
+t_OR = r'\|\|'
+t_NOT = r'!'
 t_ASSIGN = r'='
 t_COMMA = r','
-t_SEMICOL = r';'
+t_DOT = r'\.'
+t_SEMICOLON = r';'
 t_LPAREN = r'\('
 t_RPAREN = r'\)'
 t_LCURL = r'{'
 t_RCURL = r'}'
+t_LBRAC = r'\['
+t_RBRAC = r'\]'
 t_EQ = r'=='
 t_NEQ = r'!='
 t_LT = r'<'
@@ -72,12 +81,18 @@ def t_INT(t):
         error_message("Lexical Analysis",
                       f"Integer value too large.",
                       t.lexer.lineno)
-        t.value = 0
     if t.value > int('0x7FFFFFFFFFFFFFFF', 16):
         error_message("Lexical Analysis",
                       f"Integer value too large.",
                       t.lexer.lineno)
-        t.value = 0
+    return t
+
+def t_BOOL(t):
+    r'(true)|(false)' #Cathes a few variations og the name
+    try:
+        t.value = bool(t.value)
+    except ValueError:
+        error_message("Lexical analyser",f"Something went lexing the boolean.",t.lexer.lineno)
     return t
 
 
@@ -94,6 +109,10 @@ def t_COMMENT(t):
     r'\#.*'
     pass
 
+def t_COMMENTBLOCK(t):
+    r'\#\*([a-zA-Z0-9_\n\ \*]|(\#\*))*\*\#' #Doesn't work with nested comment blocks. Works like comment blocks in C buth with # in stead of /
+    t.lexer.loneno += t.value.count("\n") #Might take up some lines, so we need to keep track of them
+
 
 def t_error(t):
     error_message("Lexical Analysis",
@@ -108,6 +127,9 @@ precedence = (
     ('right', 'EQ', 'NEQ', 'LT', 'GT', 'LTE', 'GTE'),
     ('left', 'PLUS', 'MINUS'),
     ('left', 'TIMES', 'DIVIDE'),
+    ('right', 'MODULO'),
+    ('nonassoc', 'OR'),
+    ('nonassoc', 'AND')
 )
 
 
@@ -123,9 +145,25 @@ def p_empty(t):
 
 
 def p_body(t):
-    'body : optional_variables_declaration_list optional_functions_declaration_list statement_list'
-    t[0] = AST.body(t[1], t[2], t[3], t.lexer.lineno)
+    'body : optional_class_declaration_list optional_variables_declaration_list optional_functions_declaration_list statement_list'
+    t[0] = AST.body(t[1], t[2], t[3], t[4], t.lexer.lineno)
 
+def p_optional_class_declaration_list(t):
+    '''optional_class_declaration_list : empty
+                                       | class_declaration_list'''
+    t[0] = t[1]
+
+def p_class_declaration_list(t):
+    '''class_declaration_list : class_declaration
+                              | class_declaration class_declaration_list'''
+    if len(t) == 2:
+        t[0] = AST.class_declaration_list(t[1], None, t.lexer.lineno)
+    else:
+        t[0] = AST.class_declaration_list(t[1], t[2], t.lexer.lineno)
+
+def p_class_declaration(t):
+    '''class_declaration : CLASS IDENT LCURL variables_declaration_list RCURL'''
+    t[0] = AST.class_declaration(t[2], t[4], t.lexer.lineno)
 
 def p_optional_variables_declaration_list(t):
     '''optional_variables_declaration_list : empty
@@ -211,14 +249,19 @@ def p_statement_assignment(t):
     t[0] = AST.statement_assignment(t[1], t[3], t.lexer.lineno)
 
 
+def p_statement_ifthen(t):
+    'statement_ifthen : IF LPAREN expression RPAREN statement'
+    t[0] = AST.statement_ifthen(t[3], t[5], t.lexer.lineno)
+
+
 def p_statement_ifthenelse(t):
-    'statement_ifthenelse : IF expression THEN statement ELSE statement'
-    t[0] = AST.statement_ifthenelse(t[2], t[4], t[6], t.lexer.lineno)
+    'statement_ifthenelse : IF LPAREN expression RPAREN statement ELSE statement'
+    t[0] = AST.statement_ifthenelse(t[3], t[5], t[7], t.lexer.lineno)
 
 
 def p_statement_while(t):
-    'statement_while :  WHILE expression DO statement'
-    t[0] = AST.statement_while(t[2], t[4], t.lexer.lineno)
+    'statement_while :  WHILE LPAREN expression RPAREN statement'
+    t[0] = AST.statement_while(t[3], t[5], t.lexer.lineno)
 
 
 def p_statement_compound(t):
@@ -237,17 +280,26 @@ def p_statement_list(t):
 
 def p_expression(t):
     '''expression : expression_integer
+                  | expression_boolean
                   | expression_identifier
                   | expression_call
                   | expression_binop
-                  | expression_group'''
+                  | expression_group
+                  | expression_neg'''
     t[0] = t[1]
 
 
 def p_expression_integer(t):
     'expression_integer : INT'
-    t[0] = AST.expression_integer(t[1], t.lexer.lineno)
+    t[0] = AST.expression_integer(t[1], t.lexer.lineno) 
 
+def p_expression_boolean(t):
+    'expression_boolean : BOOL'
+    t[0] = AST.expression_boolean(t[1], t.lexer.lineno) 
+
+def p_expression_neg(t):
+    'expression_neg : NOT expression'
+    t[0] = AST.expression_neg(t[2], t.lexer.lineno)
 
 def p_expression_identifier(t):
     'expression_identifier : IDENT'
@@ -269,7 +321,9 @@ def p_expression_binop(t):
                         | expression LT expression
                         | expression GT expression
                         | expression LTE expression
-                        | expression GTE expression'''
+                        | expression GTE expression
+                        | expression AND expression
+                        | expression OR expression'''
     t[0] = AST.expression_binop(t[2], t[1], t[3], t.lexer.lineno)
 
 

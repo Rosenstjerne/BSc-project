@@ -8,10 +8,11 @@
 
 
 class body:
-    def __init__(self, variables_decl, functions_decl, stm_list, lineno):
+    def __init__(self, class_list, variables_decl, functions_decl, stm_list, lineno):
         self.variables_decl = variables_decl
         self.functions_decl = functions_decl
         self.stm_list = stm_list
+        self.class_list = class_list
         self.lineno = lineno
 
     def accept(self, visitor):
@@ -25,6 +26,29 @@ class body:
         self.stm_list.accept(visitor)
         visitor.postVisit(self)
 
+class class_declaration_list:
+    def __init__(self, decl, next_, lineno):
+        self.decl = decl
+        self.next = next_
+        self.lineno = lineno
+
+    def accept(self, visitor):
+        visitor.preVisit(self)
+        self.decl.accept(visitor)
+        if self.next:
+            self.next.accept(visitor)
+        visitor.postVisit(self)
+
+class class_declaration:
+    def __init__(self, name, var_list, lineno):
+        self.name = name
+        self.var_list = var_list
+        self.lineno = lineno
+
+    def accept(self, visitor):
+        visitor.preVisit(self)
+        self.var_list.accept(visitor)
+        visitor.postVisit(self)
 
 class variables_declaration_list:
     def __init__(self, decl, next_, lineno):
@@ -130,6 +154,20 @@ class statement_assignment:
         visitor.postVisit(self)
 
 
+class statement_ifthen:
+    def __init__(self, exp, then_part, lineno):
+        self.exp = exp
+        self.then_part = then_part
+        self.lineno = lineno
+
+    def accept(self, visitor):
+        visitor.preVisit(self)
+        self.exp.accept(visitor)
+        visitor.midVisit(self)
+        self.then_part.accept(visitor)
+        visitor.postVisit(self)
+
+
 class statement_ifthenelse:
     def __init__(self, exp, then_part, else_part, lineno):
         self.exp = exp
@@ -145,6 +183,7 @@ class statement_ifthenelse:
         visitor.postMidVisit(self)
         self.else_part.accept(visitor)
         visitor.postVisit(self)
+
 
 
 class statement_while:
@@ -183,6 +222,23 @@ class expression_integer:
     def accept(self, visitor):
         visitor.postVisit(self)
 
+class expression_boolean:
+    def __init__(self, b, lineno):
+        self.boolean = b
+        self.lineno = lineno
+
+    def accept(self, visitor):
+        visitor.postVisit(self)
+
+class expression_neg:
+    def __init__(self, exp, lineno):
+        self.exp = exp
+        self.lineno = lineno
+
+    def accept(self, visitor):
+        visitor.preVisit(self)
+        self.exp.accept(visitor)
+        visitor.postVisit(self)
 
 class expression_identifier:
     def __init__(self, identifier, lineno):
