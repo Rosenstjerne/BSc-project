@@ -171,14 +171,23 @@ def p_optional_variables_declaration_list(t):
     t[0] = t[1]
 
 
-def p_variables_declaration_list(t):
-    '''variables_declaration_list : VAR variables_list
-                                  | VAR variables_list variables_declaration_list'''
-    if len(t) == 3:
-        t[0] = AST.variables_declaration_list(t[2], None, t.lexer.lineno)
+def p_int_variables_declaration_list(t):
+    '''variables_declaration_list : VAR variable_type variables_list
+                                  | VAR variable_type variables_list variables_declaration_list'''
+    if len(t) == 4:
+        t[0] = AST.variables_declaration_list(t[2], t[3], None, t.lexer.lineno)
     else:
-        t[0] = AST.variables_declaration_list(t[2], t[3], t.lexer.lineno)
+        t[0] = AST.variables_declaration_list(t[2], t[3], t[4], t.lexer.lineno)
 
+def p_variable_type(t):
+    '''variable_type : BOOL
+                     | INT
+                     | IDENT
+                     | variable_type LBRAC RBRAC'''
+    if len(t) == 4:
+        t[0] = t[1] + t[2] + t[3]
+    else:
+        t[0] = t[1]
 
 def p_variables_list(t):
     '''variables_list : IDENT
@@ -228,6 +237,7 @@ def p_statement(t):
     '''statement : statement_return
                  | statement_print
                  | statement_assignment
+                 | statement_ifthen
                  | statement_ifthenelse
                  | statement_while
                  | statement_compound'''
@@ -265,7 +275,7 @@ def p_statement_while(t):
 
 
 def p_statement_compound(t):
-    'statement_compound :  LCURL statement_list RCURL'
+    'statement_compound :  LCURL body RCURL'
     t[0] = t[2]
 
 

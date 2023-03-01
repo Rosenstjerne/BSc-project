@@ -51,7 +51,8 @@ class class_declaration:
         visitor.postVisit(self)
 
 class variables_declaration_list:
-    def __init__(self, decl, next_, lineno):
+    def __init__(self, vtype, decl, next_, lineno):
+        self.vtype = vtype
         self.decl = decl
         self.next = next_
         self.lineno = lineno
