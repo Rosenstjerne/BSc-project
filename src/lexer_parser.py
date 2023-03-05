@@ -28,7 +28,10 @@ reserved = {
     'print': 'PRINT',
     'class': 'CLASS',
     'return': 'RETURN',
-    'new': 'NEW'
+    'new': 'NEW',
+    'int': '_INT',
+    'bool': '_BOOL',
+    'null': 'NULL'
 }
 
 
@@ -136,7 +139,7 @@ precedence = (
 # First production identifies the start symbol
 def p_program(t):
     'program : body'
-    interfacing_parser.the_program = AST.function("main", None, t[1], t.lexer.lineno)
+    interfacing_parser.the_program = AST.function("null", "main", None, t[1], t.lexer.lineno)
 
 
 def p_empty(t):
@@ -180,8 +183,9 @@ def p_int_variables_declaration_list(t):
         t[0] = AST.variables_declaration_list(t[2], t[3], t[4], t.lexer.lineno)
 
 def p_variable_type(t):
-    '''variable_type : BOOL
-                     | INT
+    '''variable_type : _BOOL
+                     | _INT
+                     | NULL
                      | IDENT
                      | variable_type LBRAC RBRAC'''
     if len(t) == 4:
@@ -214,8 +218,8 @@ def p_functions_declaration_list(t):
 
 
 def p_function(t):
-    'function : FUNCTION IDENT LPAREN optional_parameter_list RPAREN LCURL body RCURL'
-    t[0] = AST.function(t[2], t[4], t[7], t.lexer.lineno)
+    'function : FUNCTION variable_type IDENT LPAREN optional_parameter_list RPAREN LCURL body RCURL'
+    t[0] = AST.function(t[2], t[3], t[5], t[8], t.lexer.lineno)
 
 
 def p_optional_parameter_list(t):
@@ -225,12 +229,12 @@ def p_optional_parameter_list(t):
 
 
 def p_parameter_list(t):
-    '''parameter_list : IDENT
-                      | IDENT COMMA parameter_list'''
+    '''parameter_list : variable_type IDENT
+                      | variable_type IDENT COMMA parameter_list'''
     if len(t) == 2:
-        t[0] = AST.parameter_list(t[1], None, t.lexer.lineno)
+        t[0] = AST.parameter_list(t[1], t[2], None, t.lexer.lineno)
     else:
-        t[0] = AST.parameter_list(t[1], t[3], t.lexer.lineno)
+        t[0] = AST.parameter_list(t[1], t[2], t[4], t.lexer.lineno)
 
 
 def p_statement(t):
@@ -250,8 +254,8 @@ def p_statement_return(t):
 
 
 def p_statement_print(t):
-    'statement_print : PRINT expression SEMICOL'
-    t[0] = AST.statement_print(t[2], t.lexer.lineno)
+    'statement_print : PRINT LPAREN expression RPAREN SEMICOL'
+    t[0] = AST.statement_print(t[3], t.lexer.lineno)
 
 
 def p_statement_assignment(t):
@@ -295,7 +299,10 @@ def p_expression(t):
                   | expression_call
                   | expression_binop
                   | expression_group
-                  | expression_neg'''
+                  | expression_neg
+                  | expression_new
+                  | expression_index
+                  | expression_dot'''
     t[0] = t[1]
 
 
@@ -346,6 +353,18 @@ def p_optional_expression_list(t):
     '''optional_expression_list : empty
                                 | expression_list'''
     t[0] = t[1]
+
+def p_expression_new(t):
+    'expression_new : NEW variable_type'
+    t[0] = AST.expression_new(t[2], t.lineno)
+
+def p_expression_index(t):
+    'expression_index : expression LBRAC expression RBRAC'
+    t[0] = AST.expression_index(t[1], t[3], t.lineno)
+
+def p_expression_dot(t):
+    'expression_dot = expression DOT IDENT'
+    t[0] = AST.expression_dot(t[1], t[3], t.lineno)
 
 
 def p_expression_list(t):
