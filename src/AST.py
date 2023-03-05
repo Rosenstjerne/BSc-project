@@ -290,6 +290,17 @@ class statement_while:
         s += indent(self.while_part)
         return s
 
+class statement_break:
+    def __init__(self, lineno):
+        self.lineno = lineno
+
+    def accept(self, visitor):
+        visitor.postVisit(self)
+
+    def __str__(self) -> str:
+        s = "break;"
+        return s
+
 class statement_list:
     def __init__(self, stm, next_, lineno):
         self.stm = stm

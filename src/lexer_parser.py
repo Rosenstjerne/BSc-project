@@ -36,7 +36,7 @@ reserved = {
 
 
 tokens = (
-    'IDENT', 'INT', 'BOOL', 'ARRAY', #Types
+    'IDENT', 'INT', 'BOOL', #Types
     'PLUS', 'MINUS', 'MULTIPLY', 'DIVIDE', 'MODULO', # arithmatic int operators
     'EQ', 'NEQ', 'LT', 'GT', 'LTE', 'GTE', # comparisons
     'AND', 'OR', 'NOT', # bool operators
@@ -129,7 +129,7 @@ def t_error(t):
 precedence = (
     ('right', 'EQ', 'NEQ', 'LT', 'GT', 'LTE', 'GTE'),
     ('left', 'PLUS', 'MINUS'),
-    ('left', 'TIMES', 'DIVIDE'),
+    ('left', 'MULTIPLY', 'DIVIDE'),
     ('right', 'MODULO'),
     ('nonassoc', 'OR'),
     ('nonassoc', 'AND')
@@ -244,22 +244,23 @@ def p_statement(t):
                  | statement_ifthen
                  | statement_ifthenelse
                  | statement_while
-                 | statement_compound'''
+                 | statement_compound
+                 | statement_break'''
     t[0] = t[1]
 
 
 def p_statement_return(t):
-    'statement_return : RETURN expression SEMICOL'
+    'statement_return : RETURN expression SEMICOLON'
     t[0] = AST.statement_return(t[2], t.lexer.lineno)
 
 
 def p_statement_print(t):
-    'statement_print : PRINT LPAREN expression RPAREN SEMICOL'
+    'statement_print : PRINT LPAREN expression RPAREN SEMICOLON'
     t[0] = AST.statement_print(t[3], t.lexer.lineno)
 
 
 def p_statement_assignment(t):
-    'statement_assignment : IDENT ASSIGN expression SEMICOL'
+    'statement_assignment : IDENT ASSIGN expression SEMICOLON'
     t[0] = AST.statement_assignment(t[1], t[3], t.lexer.lineno)
 
 
@@ -274,12 +275,16 @@ def p_statement_ifthenelse(t):
 
 
 def p_statement_while(t):
-    'statement_while :  WHILE LPAREN expression RPAREN statement'
+    'statement_while : WHILE LPAREN expression RPAREN statement'
     t[0] = AST.statement_while(t[3], t[5], t.lexer.lineno)
+
+def p_statement_break(t):
+    'statement_break : BREAK'
+    t[0] = AST.statement_break(t.lineno)
 
 
 def p_statement_compound(t):
-    'statement_compound :  LCURL body RCURL'
+    'statement_compound : LCURL body RCURL'
     t[0] = t[2]
 
 
@@ -331,8 +336,9 @@ def p_expression_call(t):
 def p_expression_binop(t):
     '''expression_binop : expression PLUS expression
                         | expression MINUS expression
-                        | expression TIMES expression
+                        | expression MULTIPLY expression
                         | expression DIVIDE expression
+                        | expression MODULO expression
                         | expression EQ expression
                         | expression NEQ expression
                         | expression LT expression
@@ -363,7 +369,7 @@ def p_expression_index(t):
     t[0] = AST.expression_index(t[1], t[3], t.lineno)
 
 def p_expression_dot(t):
-    'expression_dot = expression DOT IDENT'
+    'expression_dot : expression DOT IDENT'
     t[0] = AST.expression_dot(t[1], t[3], t.lineno)
 
 
