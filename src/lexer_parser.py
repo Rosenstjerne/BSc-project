@@ -127,12 +127,17 @@ def t_error(t):
 # PARSING RULES AND BUILDING THE AST
 
 precedence = (
+    ('left', 'LPAREN', 'RPAREN'),
+    ('left', 'IF', 'ELSE'),
+    ('left', 'AND'),
+    ('left', 'OR'),
+    ('right', 'NOT'),
     ('right', 'EQ', 'NEQ', 'LT', 'GT', 'LTE', 'GTE'),
+    ('left', 'MODULO'),
     ('left', 'PLUS', 'MINUS'),
     ('left', 'MULTIPLY', 'DIVIDE'),
-    ('right', 'MODULO'),
-    ('nonassoc', 'OR'),
-    ('nonassoc', 'AND')
+    ('right', 'NEW'),
+    ('right', 'ASSIGN')
 )
 
 
@@ -175,12 +180,12 @@ def p_optional_variables_declaration_list(t):
 
 
 def p_int_variables_declaration_list(t):
-    '''variables_declaration_list : VAR variable_type variables_list
-                                  | VAR variable_type variables_list variables_declaration_list'''
-    if len(t) == 4:
+    '''variables_declaration_list : VAR variable_type variables_list SEMICOLON
+                                  | VAR variable_type variables_list SEMICOLON variables_declaration_list'''
+    if len(t) == 5:
         t[0] = AST.variables_declaration_list(t[2], t[3], None, t.lexer.lineno)
     else:
-        t[0] = AST.variables_declaration_list(t[2], t[3], t[4], t.lexer.lineno)
+        t[0] = AST.variables_declaration_list(t[2], t[3], t[5], t.lexer.lineno)
 
 def p_variable_type(t):
     '''variable_type : _BOOL
@@ -231,7 +236,7 @@ def p_optional_parameter_list(t):
 def p_parameter_list(t):
     '''parameter_list : variable_type IDENT
                       | variable_type IDENT COMMA parameter_list'''
-    if len(t) == 2:
+    if len(t) == 3:
         t[0] = AST.parameter_list(t[1], t[2], None, t.lexer.lineno)
     else:
         t[0] = AST.parameter_list(t[1], t[2], t[4], t.lexer.lineno)
@@ -241,11 +246,12 @@ def p_statement(t):
     '''statement : statement_return
                  | statement_print
                  | statement_assignment
-                 | statement_ifthen
                  | statement_ifthenelse
+                 | statement_ifthen
                  | statement_while
                  | statement_compound
-                 | statement_break'''
+                 | statement_break
+                 | statement_expression'''
     t[0] = t[1]
 
 
@@ -260,18 +266,25 @@ def p_statement_print(t):
 
 
 def p_statement_assignment(t):
-    'statement_assignment : IDENT ASSIGN expression SEMICOLON'
+    'statement_assignment : variable ASSIGN expression SEMICOLON'
     t[0] = AST.statement_assignment(t[1], t[3], t.lexer.lineno)
 
+def p_normal_variable(t):
+    'variable : IDENT'
+    t[0] = t[1]
 
-def p_statement_ifthen(t):
-    'statement_ifthen : IF LPAREN expression RPAREN statement'
-    t[0] = AST.statement_ifthen(t[3], t[5], t.lexer.lineno)
+def p_dot_varable(t):
+    'variable : expression DOT IDENT'
+    t[0] = AST.dot_variable(t[1], t[3], t.lineno)
 
 
 def p_statement_ifthenelse(t):
     'statement_ifthenelse : IF LPAREN expression RPAREN statement ELSE statement'
     t[0] = AST.statement_ifthenelse(t[3], t[5], t[7], t.lexer.lineno)
+
+def p_statement_ifthen(t):
+    'statement_ifthen : IF LPAREN expression RPAREN statement'
+    t[0] = AST.statement_ifthen(t[3], t[5], t.lexer.lineno)
 
 
 def p_statement_while(t):
@@ -279,8 +292,12 @@ def p_statement_while(t):
     t[0] = AST.statement_while(t[3], t[5], t.lexer.lineno)
 
 def p_statement_break(t):
-    'statement_break : BREAK'
+    'statement_break : BREAK SEMICOLON'
     t[0] = AST.statement_break(t.lineno)
+
+def p_statement_expression(t):
+    'statement_expression : expression SEMICOLON'
+    t[0] = t[1]
 
 
 def p_statement_compound(t):
@@ -306,8 +323,7 @@ def p_expression(t):
                   | expression_group
                   | expression_neg
                   | expression_new
-                  | expression_index
-                  | expression_dot'''
+                  | expression_index'''
     t[0] = t[1]
 
 
@@ -324,7 +340,7 @@ def p_expression_neg(t):
     t[0] = AST.expression_neg(t[2], t.lexer.lineno)
 
 def p_expression_identifier(t):
-    'expression_identifier : IDENT'
+    'expression_identifier : variable'
     t[0] = AST.expression_identifier(t[1], t.lexer.lineno)
 
 
@@ -367,11 +383,6 @@ def p_expression_new(t):
 def p_expression_index(t):
     'expression_index : expression LBRAC expression RBRAC'
     t[0] = AST.expression_index(t[1], t[3], t.lineno)
-
-def p_expression_dot(t):
-    'expression_dot : expression DOT IDENT'
-    t[0] = AST.expression_dot(t[1], t[3], t.lineno)
-
 
 def p_expression_list(t):
     '''expression_list : expression

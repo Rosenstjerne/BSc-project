@@ -28,10 +28,13 @@ class body:
 
     def __str__(self):
         s = ""
-        s += self.class_decl + "\n"
-        s += self.variables_decl + "\n"
-        s += self.functions_decl + "\n"
-        s += self.stm_list
+        if self.class_decl:
+            s += toStr(self.class_decl) + "\n"
+        if self.variables_decl:
+            s += toStr(self.variables_decl) + "\n"
+        if self.functions_decl:
+            s += toStr(self.functions_decl) + "\n"
+        s += toStr(self.stm_list)
         return s
 
 
@@ -50,8 +53,8 @@ class class_declaration_list:
 
     def __str__(self):
         s = ""
-        s += self.decl + "\n"
-        s += self.next
+        s += toStr(self.decl) + "\n"
+        s += toStr(self.next)
         return s
 
 
@@ -68,8 +71,8 @@ class class_declaration:
 
     def __str__(self):
         s = "class "
-        s += self.name + " {\n"
-        s += indent(self.var_list)
+        s += toStr(self.name) + " {\n"
+        s += indent(toStr(self.var_list))
         s += "}"
         return s
 
@@ -89,9 +92,10 @@ class variables_declaration_list:
         visitor.postVisit(self)
 
     def __str__(self):
-        s = "var " + self.vtype
-        s += self.decl + "\n"
-        s += self.next
+        s = "var " + self.vtype + " "
+        s += toStr(self.decl) + ";\n"
+        if self.next:
+            s += toStr(self.next)
         return s
 
 
@@ -110,8 +114,8 @@ class functions_declaration_list:
 
     def __str__(self) -> str:
         s = ""
-        s += self.decl + "\n"
-        s += self.next
+        s += toStr(self.decl) + "\n"
+        s += toStr(self.next)
         return s
 
 
@@ -132,9 +136,9 @@ class function:
         visitor.postVisit(self)
 
     def __str__(self) -> str:
-        s = "function " + self.r_type + " " + self.name + "(" + self.par_list + ") {"
-        s += self.body
-        s += "}"
+        s = "function " + toStr(self.r_type) + " " + toStr(self.name) + "(" + toStr(self.par_list) + ") {\n"
+        s += indent(toStr(self.body))
+        s += "\n}"
         return s
 
 
@@ -153,10 +157,10 @@ class parameter_list:
 
     def __str__(self) -> str:
         s = ""
-        s += self.ptype + " "
-        s += self.parameter
+        s += toStr(self.ptype) + " "
+        s += toStr(self.parameter)
         if self.next:
-            s += ", " + self.next
+            s += ", " + toStr(self.next)
         return s
 
 class variables_list:
@@ -173,9 +177,9 @@ class variables_list:
 
     def __str__(self) -> str:
         s = ""
-        s += self.variable
+        s += toStr(self.variable)
         if self.next:
-            s += ", " + self.next
+            s += ", " + toStr(self.next)
         return s
 
 
@@ -191,7 +195,7 @@ class statement_return:
 
     def __str__(self) -> str:
         s = "return "
-        s += self.exp + ";"
+        s += toStr(self.exp) + ";"
         return s
 
 
@@ -207,7 +211,7 @@ class statement_print:
 
     def __str__(self) -> str:
         s = "print("
-        s += self.exp + ");"
+        s += toStr(self.exp) + ");"
         return s
 
 
@@ -224,7 +228,7 @@ class statement_assignment:
 
     def __str__(self) -> str:
         s = ""
-        s += self.lhs + " = " + self.rhs + ";"
+        s += toStr(self.lhs) + " = " + toStr(self.rhs) + ";"
         return s
 
 
@@ -242,8 +246,10 @@ class statement_ifthen:
         visitor.postVisit(self)
 
     def __str__(self) -> str:
-        s = "if(" + self.exp + ")\n"
-        s += indent(self.then_part)
+        s = "if(" + toStr(self.exp) + ")\n"
+        s += "#begin if\n"
+        s += indent(toStr(self.then_part)) + "\n"
+        s += "#end if"
         return s
 
 
@@ -264,10 +270,13 @@ class statement_ifthenelse:
         visitor.postVisit(self)
 
     def __str__(self) -> str:
-        s = "if(" + self.exp + ")\n"
-        s += indent(self.then_part) + "\n"
+        s = "if(" + toStr(self.exp) + ")\n"
+        s += "#bein if\n"
+        s += indent(toStr(self.then_part)) + "\n"
+        s += "#end if\n#begin else\n"       
         s += "else\n"
-        s += indent(self.else_part)
+        s += indent(toStr(self.else_part)) + "\n"
+        s += "#end else"
         return s
 
 
@@ -286,8 +295,9 @@ class statement_while:
 
 
     def __str__(self) -> str:
-        s = "while(" + self.exp + ")\n"
-        s += indent(self.while_part)
+        s = "while(" + toStr(self.exp) + ") {\n#begin while\n"
+        s += indent(toStr(self.while_part)) + "\n}\n"
+        s += "#end while\n"
         return s
 
 class statement_break:
@@ -316,8 +326,8 @@ class statement_list:
 
     def __str__(self) -> str:
         s = ""
-        s += self.stm + "\n"
-        s += self.next
+        s += toStr(self.stm) + "\n"
+        s += toStr(self.next)
         return s
 
 
@@ -331,7 +341,7 @@ class expression_integer:
 
     def __str__(self) -> str:
         s = ""
-        s += self.integer
+        s += toStr(self.integer)
         return s
 
 
@@ -345,7 +355,7 @@ class expression_boolean:
 
     def __str__(self) -> str:
         s = ""
-        s += self.boolean
+        s += toStr(self.boolean)
         return s
 
 
@@ -360,7 +370,7 @@ class expression_neg:
         visitor.postVisit(self)
 
     def __str__(self) -> str:
-        s = "not " + self.exp
+        s = "(not " + toStr(self.exp) + ")"
         return s
 
 
@@ -374,7 +384,7 @@ class expression_identifier:
 
     def __str__(self) -> str:
         s = ""
-        s += self.identifier
+        s += toStr(self.identifier)
         return s
 
 class expression_index:
@@ -389,11 +399,11 @@ class expression_index:
         visitor.postVisit(self)
 
     def __str__(self) -> str:
-        s = ""
-        s += self.exp + "[" + self.index + "]"
+        s = "("
+        s += toStr(self.exp) + "[" + toStr(self.index) + "])"
         return s
 
-class expression_dot:
+class dot_variable:
     def __init__(self, exp, elm, lineno):
         self.exp = exp
         self.elm = elm 
@@ -405,8 +415,8 @@ class expression_dot:
         visitor.postVisit(self)
 
     def __str__(self) -> str:
-        s = ""
-        s += self.exp + "." + self.elm
+        s = "("
+        s += toStr(self.exp) + "." + toStr(self.elm) + ")"
         return s
 
 class expression_call:
@@ -423,7 +433,7 @@ class expression_call:
 
     def __str__(self) -> str:
         s = ""
-        s += self.name + "(" + self.exp_list + ")"
+        s += toStr(self.name) + "(" + toStr(self.exp_list) + ")"
         return s
 
 
@@ -442,8 +452,9 @@ class expression_binop:
         visitor.postVisit(self)
 
     def __str__(self) -> str:
-        s = ""
-        s += self.lhs + " " + self.op + " " + self.rhs
+        s = "("
+        s += toStr(self.lhs) + " " + toStr(self.op) + " " + toStr(self.rhs)
+        s += ")"
         return s
 
 
@@ -456,7 +467,7 @@ class expression_new:
         visitor.postVisit(self)
 
     def __str__(self) -> str:
-        s = "new " + self.r_type
+        s = "(new " + toStr(self.r_type) + ")"
         return s
 
 
@@ -476,12 +487,19 @@ class expression_list:
 
     def __str__(self) -> str:
         s = ""
-        s += self.exp
-        s += self.next
+        s += toStr(self.exp)
+        if self.next:
+            s += ", " + toStr(self.next)
         return s
 
 def indent(s, i : int = 1) -> str:
     if s:
         return "\t" * i + str(s).replace("\n","\n" + "\t" * i)
+    else:
+        return ""
+
+def toStr(node):
+    if node:
+        return str(node)
     else:
         return ""
