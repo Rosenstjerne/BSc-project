@@ -20,8 +20,8 @@ import getopt
 import interfacing_parser
 from errors import error_message
 from lexer_parser import parser
-# from symbols import ASTSymbolVisitor
-# from type_checking import ASTTypeCheckingVisitor
+from symbols import ASTSymbolVisitor
+from type_checking import ASTTypeCheckingVisitor
 # from pretty_printer import ASTPrettyPrinterVisitor
 # from ast_printer import ASTTreePrinterVisitor
 # from code_generation import ASTCodeGenerationVisitor
