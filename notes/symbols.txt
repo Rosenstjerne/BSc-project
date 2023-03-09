@@ -1,0 +1,15 @@
+the most remevant thing here would be to differentiate between scopes and give them intermidiate names, maybe mased on their line no
+and also create new (nested?) symbol talbes
+
+for every body we need to :
+  
+  We need to collect all class declerations and save their name, cattegory (class) and also all of its elements, to the current symbol table
+  
+  We need to collect all variable declarations and save their names and types to current symbol table
+  
+  We need to collect all functions and save their names, return types, parameters and their types and the new body of the function in our current syntax table 
+
+  For all the statements we need to chech if any identifier corespond with a legal variable name pressent in its scope. For all bodies found here 
+  we also save the body to our current symbol table and give it an intermidiate name (based on the line no?)
+
+We need to save the root of the symbol table so we can use it again in type checking. 
