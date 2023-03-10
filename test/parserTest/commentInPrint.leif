@@ -1,0 +1,7 @@
+var int a,b;
+var bool c;
+a = 1;
+b = 2;
+c = true;
+
+print(a #* this should not be printed *#);

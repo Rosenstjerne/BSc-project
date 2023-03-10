@@ -1,11 +1,11 @@
 Comment test
-- test of multi line comment, special symbols
-- test of print with a comment block inside "print(1 #* comment *# +2)"
-- test of print with a comment block before parenthesis "print #* ree *#(1+2)"
-- test of print with a comment block after parenthesis "print(1+2)#* ree *#"
-- test of multiline comment as a single line #* *#
-- test of  #* hej # hej *# var int a;
-- test of  #* hej # hej *# var int a; # var int b;
+- DONE test of multi line comment, special symbols
+- DONE test of print with a comment block inside "print(1 #* comment *# +2)"
+- DONE test of print with a comment block before parenthesis "print #* ree *#(1+2)"
+- DONE test of print with a comment block after parenthesis "print(1+2)#* ree *#"
+- DONE test of multiline comment as a single line #* *#
+- DONE test of  #* hej # hej *# var int a;
+- DONE test of  #* hej # hej *# var int a; # var int b;
 
 class test
 -

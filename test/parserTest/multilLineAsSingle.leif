@@ -1,0 +1,10 @@
+var int a,b;
+var bool c;
+a = 1;
+b = 2;
+c = true;
+
+
+#* this should still work *#
+
+print(1);
