@@ -1,0 +1,72 @@
+Comment test
+- test of multi line comment, special symbols
+- test of print with a comment block inside "print(1 #* comment *# +2)"
+- test of print with a comment block before parenthesis "print #* ree *#(1+2)"
+- test of print with a comment block after parenthesis "print(1+2)#* ree *#"
+- test of multiline comment as a single line #* *#
+- test of  #* hej # hej *# var int a;
+- test of  #* hej # hej *# var int a; # var int b;
+
+class test
+-
+
+nested class test
+-
+
+recurive class test
+-
+
+dot operator test
+
+array test
+- array test with classes
+- array instantiation test
+- nested arrays test
+- array indexing
+- array of simple Types
+
+print test
+-
+
+expression test
+- operator
+- unary operator
+- binop operator
+- ident to expression 
+- parenthesis expression
+- logical / boolean expression
+- arithmatic / integer expression 
+- new non simple type expression 
+- precedence test
+- function class 
+- function class with parameters
+- function class with parameters and return type
+
+function test
+- function with parameters
+- function with parameters and return type
+- nested fynction
+- fuction with class declerations 
+- functions with variable declerations
+- functions with non-simple returntype / parameters
+- recurive function
+
+If statement test
+- DONE if statement
+- DONE nested if statement
+- DONE nested if else statement
+- DONE chaining if else statement
+
+while loops test 
+- simple while 
+- break of while
+- continue of while
+- ranging over an array 
+- ranging over an array with break
+- nesting while loops 
+
+assignment test
+- simple assignment
+- assignment with expression
+- assignment with function call
+- instantiation of new non simple types

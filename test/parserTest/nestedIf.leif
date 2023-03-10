@@ -1,0 +1,13 @@
+var int a,b;
+a = 1;
+b = 2;
+
+if (a == 1)
+    if (b == 2) 
+        print(a+b);
+
+if (2 == b) {
+    if (1 == a) {
+        print(b-a);
+    }
+}

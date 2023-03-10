@@ -322,6 +322,7 @@ def p_expression(t):
                   | expression_binop
                   | expression_group
                   | expression_neg
+                  | expression_negative
                   | expression_new
                   | expression_index'''
     t[0] = t[1]
@@ -338,6 +339,11 @@ def p_expression_boolean(t):
 def p_expression_neg(t):
     'expression_neg : NOT expression'
     t[0] = AST.expression_neg(t[2], t.lexer.lineno)
+
+def p_expression_negative(t):
+    'expression_negative : MINUS expression'
+    t[0] = AST.expression_negative(t[2], t.lexer.lineno)
+    
 
 def p_expression_identifier(t):
     'expression_identifier : variable'

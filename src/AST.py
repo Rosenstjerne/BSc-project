@@ -344,6 +344,20 @@ class expression_integer:
         s += toStr(self.integer)
         return s
 
+class expression_negative:
+    def __init__(self, exp, lineno):
+        self.exp = exp
+        self.lineno = lineno
+
+    def accept(self, visitor):
+        visitor.preVisit(self)
+        self.exp.accept(visitor)
+        visitor.postVisit(self)
+
+    def __str__(self) -> str:
+        s = "(-" + toStr(self.exp) + ")"
+        return s
+
 
 class expression_boolean:
     def __init__(self, b, lineno):
