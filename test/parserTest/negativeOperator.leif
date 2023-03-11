@@ -1,0 +1,7 @@
+var int a,b,c;
+a = 5;
+b = (-a);
+c = -b;
+print(b); # should print -5
+print(c); # should print 5
+

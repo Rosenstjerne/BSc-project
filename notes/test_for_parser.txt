@@ -32,12 +32,12 @@ expression test
 - operator
 - unary operator
 - binop operator
-- ident to expression 
-- parenthesis expression
-- logical / boolean expression
+- DONE ident to expression 
+- DONE parenthesis expression
+- DONE logical / boolean expression
 - arithmatic / integer expression 
 - new non simple type expression 
-- precedence test
+- DONE precedence test
 - function class 
 - function class with parameters
 - function class with parameters and return type
