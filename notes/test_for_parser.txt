@@ -35,7 +35,7 @@ expression test
 - DONE ident to expression 
 - DONE parenthesis expression
 - DONE logical / boolean expression
-- arithmatic / integer expression 
+- DONE arithmatic / integer expression 
 - new non simple type expression 
 - DONE precedence test
 - function class 
@@ -58,12 +58,12 @@ If statement test
 - DONE chaining if else statement
 
 while loops test 
-- simple while 
-- break of while
-- continue of while
-- ranging over an array 
-- ranging over an array with break
-- nesting while loops 
+- DONE simple while 
+- DONE break of while
+- DONE continue of while
+- DONE ranging over an array 
+- DONE ranging over an array with break
+- DONE nesting while loops 
 
 assignment test
 - simple assignment
