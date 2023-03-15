@@ -1,0 +1,15 @@
+class Person {
+  var int name;
+  var int age;
+}
+
+function int greet(Person p) {
+  return p.name + p.age;
+}
+
+var Person john;
+john = new Person;
+john.name = 1;
+john.age = 30;
+
+print(greet(john));

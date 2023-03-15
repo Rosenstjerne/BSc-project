@@ -8,15 +8,25 @@ Comment test
 - DONE test of  #* hej # hej *# var int a; # var int b;
 
 class test
--
+- class with instance variables
+- Class with instance methods
+- Class with constructor
+- Class with static methods
+- Class inheritance
+- Class with private instance variables and getter/setter methods
 
 nested class test
--
+- Nested class with instance variables
+- Nested class with instance methods
+- Nested class with constructor
 
 recurive class test
 -
 
 dot operator test
+- Accessing instance variables using the dot operator
+- Calling instance methods using the dot operator
+- Accessing nested class using the dot operator
 
 array test
 - array test with classes
@@ -29,27 +39,23 @@ print test
 -
 
 expression test
-- operator
-- unary operator
-- binop operator
+- DONE unary operator
+- DONE binop operator
 - DONE ident to expression 
 - DONE parenthesis expression
 - DONE logical / boolean expression
 - DONE arithmatic / integer expression 
-- new non simple type expression 
+- DONE new non simple type expression 
 - DONE precedence test
-- function class 
-- function class with parameters
-- function class with parameters and return type
 
 function test
-- function with parameters
-- function with parameters and return type
-- nested fynction
-- fuction with class declerations 
-- functions with variable declerations
-- functions with non-simple returntype / parameters
-- recurive function
+- DONE function with parameters
+- DONE function with parameters and return type
+- DONE nested fynction
+- DONE fuction with class declerations 
+- DONE functions with variable declerations
+- DONE functions with non-simple returntype / parameters
+- DONE recurive function
 
 If statement test
 - DONE if statement
@@ -66,7 +72,7 @@ while loops test
 - DONE nesting while loops 
 
 assignment test
-- simple assignment
-- assignment with expression
-- assignment with function call
-- instantiation of new non simple types
+- DONE simple assignment
+- DONE assignment with expression
+- DONE assignment with function call
+- DONE instantiation of new non simple types
