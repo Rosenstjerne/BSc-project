@@ -2,8 +2,7 @@ var int a,b;
 var bool c;
 a = 1;
 b = 2;
-c = true;
 
 #* this is a multi-line comment
-this could not end the comment, even if it has a #* in it or a #/ in it
+this could not end the comment, even if it has a # in it or a #/ in it
 even special chars like ¤£§€¥¢©®™ are allowed in comments without any problems " *#

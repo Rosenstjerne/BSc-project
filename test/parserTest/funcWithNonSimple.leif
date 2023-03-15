@@ -3,6 +3,8 @@ class Pair {
   var int second;
 }
 
+var int x, y;
+var Pair myPair;
 function Pair createPair(int a, int b) {
   var Pair p;
   p = new Pair;
@@ -11,11 +13,9 @@ function Pair createPair(int a, int b) {
   return p;
 }
 
-var int x, y;
 x = 7;
 y = 9;
 
-var Pair myPair;
 myPair = createPair(x, y);
 print(myPair.first);
 print(myPair.second);

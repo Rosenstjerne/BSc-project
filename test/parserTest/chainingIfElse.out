@@ -1,0 +1,33 @@
+function null main() {
+	var int a, b;
+	
+	a = 1;
+	b = 2;
+	if((a > b))
+	#bein if
+		print(1);
+		
+	#end if
+	#begin else
+	else
+		if((a < b))
+		#bein if
+			print(2);
+			
+		#end if
+		#begin else
+		else
+			if((a == b))
+			#bein if
+				print(3);
+				
+			#end if
+			#begin else
+			else
+				print(4);
+				
+			#end else
+		#end else
+	#end else
+	
+}

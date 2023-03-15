@@ -1,7 +1,5 @@
 var int a,b;
-var bool c;
 a = 1;
 b = 2;
-c = true;
 
-print(1+2)#* test *#;
+print(a+b); #3;

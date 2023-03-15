@@ -4,8 +4,8 @@ class Calculator {
   }
 }
 
+var int result;
 var Calculator calc;
 calc = new Calculator;
-var int result;
 result = calc.add(3, 4);
 print(result);

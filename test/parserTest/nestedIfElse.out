@@ -1,0 +1,41 @@
+function null main() {
+	var int a, b;
+	
+	a = 1;
+	b = 2;
+	if((a == 1))
+	#bein if
+		if((b == 2))
+		#bein if
+			print((a + b));
+		#end if
+		#begin else
+		else
+			print((a - b));
+		#end else
+	#end if
+	#begin else
+	else
+		print((a * b));
+	#end else
+	if((2 == b))
+	#bein if
+		if((1 == a))
+		#bein if
+			print((b - a));
+			
+		#end if
+		#begin else
+		else
+			print((a - b));
+			
+		#end else
+		
+	#end if
+	#begin else
+	else
+		print((a * b));
+		
+	#end else
+	
+}

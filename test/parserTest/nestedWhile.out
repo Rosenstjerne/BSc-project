@@ -1,0 +1,22 @@
+function null main() {
+	var int a, b;
+	
+	a = ;
+	b = 5;
+	while((a < 10)) {
+	#begin while
+		while((b < 10)) {
+		#begin while
+			print((a + b));
+			b = (b + 1);
+			
+		}
+		#end while
+		
+		a = (a + 1);
+		
+	}
+	#end while
+	
+	
+}

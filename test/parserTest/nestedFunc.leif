@@ -1,3 +1,4 @@
+var int input, output;
 function int outer(int x) {
   function int inner(int y) {
     return y * 2;
@@ -6,7 +7,6 @@ function int outer(int x) {
   return inner(x) + 1;
 }
 
-var int input, output;
 input = 3;
 output = outer(input);
 print(output);

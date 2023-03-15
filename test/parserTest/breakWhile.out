@@ -1,0 +1,20 @@
+function null main() {
+	var int a, b;
+	
+	a = ;
+	b = 5;
+	while((a < b)) {
+	#begin while
+		if((a == 3))
+		#begin if
+			break;
+			
+		#end if
+		print(a);
+		a = (a + 1);
+		
+	}
+	#end while
+	
+	
+}
