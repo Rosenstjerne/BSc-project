@@ -1,18 +1,14 @@
 #!/bin/bash
 
-# Set the command for running the compiler.py script
+# This script runs all the tests in the parserTest directory and saves the output to .out files
 COMPILER_COMMAND="python ../src/compiler.py -a -i"
-
-# Set the path to the parserTest directory
 PARSER_TEST_DIR="./parserTest"
 
-# Find all the test files with .leif extension in the parserTest directory
+# Get all the test files
 TEST_FILES=$(find $PARSER_TEST_DIR -name "*.leif")
 
-# Create a log file to store the output and errors
+# Set the log file name
 LOG_FILE="testLog.txt"
-
-# Start by clearing the log file content
 echo "" > $LOG_FILE
 
 # Initialize counters for total tests and successful tests
