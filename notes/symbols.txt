@@ -13,3 +13,19 @@ for every body we need to :
   we also save the body to our current symbol table and give it an intermidiate name (based on the line no?)
 
 We need to save the root of the symbol table so we can use it again in type checking. 
+
+_______________________________________________________________________________
+
+Class collection
+  
+  We first collect the class name and store it (maybe in some other type list for the table)
+  Then we shold collect the variables inside. They are currently not diferent from normal varables.
+
+  
+  class attibutes / inside variables collection
+    We should make sure we dont save theese as normal variables, but make sure we save them as such we can only acces them by the dot operator
+
+    Likewise one should not be able to call the dot operator with an ident that is not a member of a valid class
+    
+
+

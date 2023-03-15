@@ -6,6 +6,7 @@
 # times, relative to the recursive traversals of the children. See
 # the module visitors_base for how concrete visitors are dispatched.
 
+simpleTypes = {'int','bool'}
 
 class body:
     def __init__(self, class_decl, variables_decl, functions_decl, stm_list, lineno):
@@ -17,9 +18,12 @@ class body:
 
     def accept(self, visitor):
         visitor.preVisit(self)
+        if self.class_decl:
+            self.class_decl.accept(visitor)
+        visitor.preMidVisit(self)
         if self.variables_decl:
             self.variables_decl.accept(visitor)
-        visitor.preMidVisit(self)
+        visitor.midVisit(self)
         if self.functions_decl:
             self.functions_decl.accept(visitor)
         visitor.postMidVisit(self)
@@ -87,6 +91,7 @@ class variables_declaration_list:
     def accept(self, visitor):
         visitor.preVisit(self)
         self.decl.accept(visitor)
+        visitor.midVisit(self)
         if self.next:
             self.next.accept(visitor)
         visitor.postVisit(self)
@@ -120,8 +125,8 @@ class functions_declaration_list:
 
 
 class function:
-    def __init__(self, r_type, name, par_list, body, lineno):
-        self.r_type = r_type
+    def __init__(self, rtype, name, par_list, body, lineno):
+        self.rtype = rtype
         self.name = name
         self.par_list = par_list
         self.body = body
@@ -136,7 +141,7 @@ class function:
         visitor.postVisit(self)
 
     def __str__(self) -> str:
-        s = "function " + toStr(self.r_type) + " " + toStr(self.name) + "(" + toStr(self.par_list) + ") {\n"
+        s = "function " + toStr(self.rtype) + " " + toStr(self.name) + "(" + toStr(self.par_list) + ") {\n"
         s += indent(toStr(self.body))
         s += "\n}"
         return s
@@ -144,7 +149,7 @@ class function:
 
 class parameter_list:
     def __init__(self, ptype, parameter, next_, lineno):
-        self.ptype = ptype
+        self.vtype = vtype
         self.parameter = parameter
         self.next = next_
         self.lineno = lineno
@@ -157,7 +162,7 @@ class parameter_list:
 
     def __str__(self) -> str:
         s = ""
-        s += toStr(self.ptype) + " "
+        s += toStr(self.vtype) + " "
         s += toStr(self.parameter)
         if self.next:
             s += ", " + toStr(self.next)
