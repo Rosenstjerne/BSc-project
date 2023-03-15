@@ -148,7 +148,7 @@ class function:
 
 
 class parameter_list:
-    def __init__(self, ptype, parameter, next_, lineno):
+    def __init__(self, vtype, parameter, next_, lineno):
         self.vtype = vtype
         self.parameter = parameter
         self.next = next_
@@ -389,7 +389,7 @@ class expression_neg:
         visitor.postVisit(self)
 
     def __str__(self) -> str:
-        s = "(not " + toStr(self.exp) + ")"
+        s = "(! " + toStr(self.exp) + ")"
         return s
 
 
@@ -420,6 +420,18 @@ class expression_index:
     def __str__(self) -> str:
         s = "("
         s += toStr(self.exp) + "[" + toStr(self.index) + "])"
+        return s
+
+class variable:
+    def __init__(self, name, lineno):
+        self.name = name
+        self.lineno = lineno
+
+    def accept(self, visitor):
+        visitor.postVisit(self)
+
+    def __str__(self) -> str:
+        s = self.name
         return s
 
 class dot_variable:
@@ -488,6 +500,25 @@ class expression_new:
     def __str__(self) -> str:
         s = "(new " + toStr(self.r_type) + ")"
         return s
+
+class expression_new_array:
+    def __init__(self, i_type, len, lineno):
+        self.e_type = i_type + "[]"
+        self.i_type = i_type
+        self.root_tpye = i_type.replace("[]","")
+        self.len = len
+        self.lineno = lineno
+
+    def accept(self, visitor):
+        visitor.preVisit(self)
+        len.accept(visitor)
+        visitor.postVisit(self)
+
+    def __str__(self) -> str:
+        s = "new " + self.i_type + "["
+        s += toStr(self.len) + "]"
+        return s
+
 
 
 class expression_list:

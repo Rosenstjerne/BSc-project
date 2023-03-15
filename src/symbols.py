@@ -29,7 +29,6 @@ class SymVal():
         self.level = level
         self.info = info
         self.rtype = vtype
-        self.pClass = pClass
 
 
 class SymbolTable:
@@ -39,7 +38,7 @@ class SymbolTable:
     """
     def __init__(self, parent, lineno):
         self._tab = {}
-        self._types = {'int' : {}, 'bool' : {}}
+        self._types = {}
         self.name = lineno
         self.parent = parent
 
@@ -54,6 +53,14 @@ class SymbolTable:
             return self._tab[name]
         elif self.parent:
             return self.parent.lookup(name)
+        else:
+            return None
+
+    def lookup_table(self, name):
+        if name in self._tab:
+            return self._tab
+        elif self.parent:
+            return self.parent.lookup_table(name)
         else:
             return None
 
@@ -77,6 +84,16 @@ class SymbolTable:
         else:
             return None
 
+    def attibute_lookup(self, name, d = {}):
+        for c, lst in self._types:
+            if name in lst:
+                d[c] = lst
+        if self.parent:
+            self.parent.attibute_lookup(name, d)
+        return d
+                
+
+
 # Symbol Collection
 
 class ASTSymbolVisitor(VisitorsBase):
@@ -84,15 +101,18 @@ class ASTSymbolVisitor(VisitorsBase):
     def __init__(self):
         # The main scope does not have a surrounding scope
         self._current_scope = SymbolTable(None, 0)
+        self._current_scope.insert_type('int', {})
+        self._current_scope.insert_type('bool',{})
         # Have not entered the main scope (level 0) yet:
         self._current_level = 0
 
     def preVisit_body(self, t):
         # Parameters, classes, variables and functions belonge to the scope of the body:
-        self._current_level += 1
-        self._current_scope = SymbolTable(self._current_scope, t.lineno)
         if hasattr(t, 'function'):
             f = t.function
+        else:
+            self._current_level += 1
+            self._current_scope = SymbolTable(self._current_scope, t.lineno)
 
         # Preparing for processing local variables:
         self.variable_offset = 0
@@ -125,8 +145,13 @@ class ASTSymbolVisitor(VisitorsBase):
             self._current_scope.insert(
                 t.name, SymVal(NameCategory.FUNCTION, self._current_level, t, t.rtype))
 
+            self._current_level += 1
+            self._current_scope = SymbolTable(self._current_scope, t.lineno)
+
         # Saves the function declaration to its body in the AST for later use
-        t.body.function = t 
+        t.body.function = t
+        t.parameter_list = {}
+        t.par_list = t.parameter_list
         
         # Preparing for the processing of formal parameters:
         self.parameter_offset = 0
@@ -151,6 +176,7 @@ class ASTSymbolVisitor(VisitorsBase):
                                 self._current_level,
                                 self.parameter_offset,
                                 t.vtype))
+
         self.parameter_offset += 1
 
     def preVisit_variables_declaration_list(self, t):
@@ -203,3 +229,64 @@ class ASTSymbolVisitor(VisitorsBase):
         # creates a dictonary of all the internal attibutes of the class and saves it as the value of said class
        values = {(a.name):(SymVal(NameCategory.VARIABLE,self._current_level,None,a.vtype)) for a in t.attLst} 
        self._current_scope.insert_type(t.name, values)
+
+    def postVisit_variable(self, t):
+        if self._current_scope.lookup(t.name):
+            t.scope = self._current_scope.lookup_table(t.name)
+        else:
+            error_message(
+                "Symbol Collection",
+                f"Variable '{t.name}' was not declared, or is not accesible in this scope",
+                t.lineno)
+
+    def postVisit_dot_variable(self, t): 
+        lst = self._current_scope.attibute_lookup(t.name)
+        if len(lst) > 0:
+            t.possibleParents = lst
+        else:
+            error_message(
+                "Symbol Collection",
+                f"dot attibute '{t.name}' is not an attibute of any declares class accesible in this scope",
+                t.lineno)
+
+    def preVisit_expression_new(self, t):
+        if self._current_scope.type_lookup(t.r_type):
+            t.class_type = self._current_scope.type_lookup(t.r_type)
+        else:
+            error_message(
+                "Symbol Collection",
+                f"Class / type '{t.r_type}' have not been declared, or is not accesible in this scope",
+                t.lineno)
+
+    def preVisit_expression_new_array(self, t):
+        if self._current_scope.type_lookup(t.root_type):
+            t.root_class_type = self._current_scope.type_lookup(t.root_type)
+        else:
+            error_message(
+                "Symbol Collection",
+                f"Class / type '{t.root_type}' have not been declared, or is not accesible in this scope",
+                t.lineno)
+
+    def preVisit_expression_call(self, t):
+        self.exp_offset = 0
+    
+    def postVisit_expression_call(self, t):
+        if self._current_scope.lookup(t.name):
+            f = self._current_scope.lookup(t.name)
+            if f.cat == NameCategory.FUNCTION:
+                pass # Check if the number of parameters are the correct ammout
+            else:
+                error_message(
+                    "Symbol Collection",
+                    f"'{t.root_type}' is not a function",
+                    t.lineno)
+
+        else:
+            error_message(
+                "Symbol Collection",
+                f"Function '{t.root_type}' have not been declared, or is not accesible in this scope",
+                t.lineno)
+
+
+    def preVisit_expression_list(self, t):
+        self.exp_offset += 1

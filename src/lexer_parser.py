@@ -271,7 +271,7 @@ def p_statement_assignment(t):
 
 def p_normal_variable(t):
     'variable : IDENT'
-    t[0] = t[1]
+    t[0] = AST.variable(t[1], t.lineno)
 
 def p_dot_varable(t):
     'variable : expression DOT IDENT'
@@ -347,7 +347,7 @@ def p_expression_negative(t):
 
 def p_expression_identifier(t):
     'expression_identifier : variable'
-    t[0] = AST.expression_identifier(t[1], t.lexer.lineno)
+    t[0] = t[1]
 
 
 def p_expression_call(t):
@@ -382,9 +382,12 @@ def p_optional_expression_list(t):
                                 | expression_list'''
     t[0] = t[1]
 
-def p_expression_new(t):
+def p_expression_new_class(t):
     'expression_new : NEW variable_type'
     t[0] = AST.expression_new(t[2], t.lineno)
+
+def p_expression_new_array(t):
+    'expression_new : NEW variable_type LBRAC expression RBRAC'
 
 def p_expression_index(t):
     'expression_index : expression LBRAC expression RBRAC'
