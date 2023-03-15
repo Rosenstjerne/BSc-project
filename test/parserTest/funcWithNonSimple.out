@@ -1,0 +1,26 @@
+function null main() {
+	class Pair {
+		var int first;
+		var int second;
+		}
+	
+	var int x, y;
+	var Pair myPair;
+	
+	function Pair createPair(int a, int b) {
+		var Pair p;
+		
+		p = (new Pair);
+		(p.first) = a;
+		(p.second) = b;
+		return p;
+		
+	}
+	
+	x = 7;
+	y = 9;
+	myPair = createPair(x, y);
+	print((myPair.first));
+	print((myPair.second));
+	
+}

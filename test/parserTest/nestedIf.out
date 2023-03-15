@@ -1,0 +1,23 @@
+function null main() {
+	var int a, b;
+	
+	a = 1;
+	b = 2;
+	if((a == 1))
+	#begin if
+		if((b == 2))
+		#begin if
+			print((a + b));
+		#end if
+	#end if
+	if((2 == b))
+	#begin if
+		if((1 == a))
+		#begin if
+			print((b - a));
+			
+		#end if
+		
+	#end if
+	
+}

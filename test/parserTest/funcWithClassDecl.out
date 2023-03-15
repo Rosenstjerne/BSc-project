@@ -1,0 +1,19 @@
+function null main() {
+	class Person {
+		var int name;
+		var int age;
+		}
+	
+	var Person john;
+	
+	function int greet(Person p) {
+		return (((p.name) + p).age);
+		
+	}
+	
+	john = (new Person);
+	(john.name) = 1;
+	(john.age) = 30;
+	print(greet(john));
+	
+}

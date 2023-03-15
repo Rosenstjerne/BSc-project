@@ -149,7 +149,7 @@ class function:
 
 class parameter_list:
     def __init__(self, ptype, parameter, next_, lineno):
-        self.vtype = vtype
+        self.vtype = ptype
         self.parameter = parameter
         self.next = next_
         self.lineno = lineno

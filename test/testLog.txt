@@ -1,0 +1,59 @@
+
+Running test: ./parserTest/assigmentWithExp.leif
+Running test: ./parserTest/assigWithFuncCall.leif
+Running test: ./parserTest/binaryOpe.leif
+Running test: ./parserTest/breakArrayWhile.leif
+Running test: ./parserTest/breakWhile.leif
+Running test: ./parserTest/chainingIfElse.leif
+Running test: ./parserTest/commentAfterParan.leif
+Running test: ./parserTest/commentBeforeParan.leif
+
+Error in phase Syntax Analysis, line unknown:
+    Problem detected - check for missing closing braces.
+Running test: ./parserTest/commentInMultiline.leif
+Running test: ./parserTest/commentInPrint.leif
+
+Error in phase Syntax Analysis, line unknown:
+    Problem detected - check for missing closing braces.
+Running test: ./parserTest/continueWhile.leif
+Running test: ./parserTest/declaInComment.leif
+Running test: ./parserTest/funcClass.leif
+
+Error in phase Syntax Analysis, line 2:
+    Problem detected at 'function'.
+Running test: ./parserTest/functionWithParam.leif
+
+Error in phase Syntax Analysis, line 2:
+    Problem detected at '('.
+Running test: ./parserTest/funcWithClassDecl.leif
+Running test: ./parserTest/funcWithNonSimple.leif
+Running test: ./parserTest/funcWithReturn.leif
+Running test: ./parserTest/funcWithVarDecl.leif
+Running test: ./parserTest/identToExp.leif
+Running test: ./parserTest/IfStatement.leif
+Running test: ./parserTest/instNonSimpleType.leif
+Running test: ./parserTest/logicExp.leif
+Running test: ./parserTest/multiCommentLine.leif
+
+Error in phase Set-Up, line 1:
+    The input is not in ASCII.
+Running test: ./parserTest/multilLineAsSingle.leif
+Running test: ./parserTest/negativeOperator.leif
+Running test: ./parserTest/nestedFunc.leif
+Running test: ./parserTest/nestedIf.leif
+Running test: ./parserTest/nestedIfElse.leif
+Running test: ./parserTest/nestedWhile.leif
+Running test: ./parserTest/nonSimpleTypeExp.leif
+Running test: ./parserTest/notOperator.leif
+Running test: ./parserTest/parentExp.leif
+Running test: ./parserTest/precedence.leif
+Running test: ./parserTest/rangeOverArrayWhile.leif
+
+Error in phase Syntax Analysis, line 4:
+    Problem detected at '['.
+Running test: ./parserTest/recursiveFunc.leif
+Running test: ./parserTest/simpleAssigment.leif
+Running test: ./parserTest/simpleWhile.leif
+All tests completed.
+failed test: 6  
+Total tests run: 37

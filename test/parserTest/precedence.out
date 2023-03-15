@@ -1,0 +1,6 @@
+function null main() {
+	var int a;
+	
+	a = ((2 + (5 * 3)) + 2);
+	
+}

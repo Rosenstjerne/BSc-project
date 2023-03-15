@@ -1,0 +1,9 @@
+function null main() {
+	var int a, b, c;
+	
+	a = 5;
+	b = a;
+	c = (a + b);
+	print(c);
+	
+}

@@ -1,8 +1,8 @@
+var int a, b, result;
 function int multiply(int x, int y) {
   return x * y;
 }
 
-var int a, b, result;
 a = 4;
 b = 6;
 result = multiply(a, b);

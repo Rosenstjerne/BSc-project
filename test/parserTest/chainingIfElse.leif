@@ -2,10 +2,6 @@ var int a,b;
 a = 1;
 b = 2;
 
-#* 
-    chaining if else statement 
-    this is a comment
-*#
 
 if(a>b){
     print(1);

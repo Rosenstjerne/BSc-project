@@ -1,0 +1,18 @@
+function null main() {
+	var int num1, num2, result;
+	
+	function int addAndMultiply(int x, int y) {
+		var int sum, product;
+		
+		sum = (x + y);
+		product = (x * y);
+		return (sum + product);
+		
+	}
+	
+	num1 = 3;
+	num2 = 5;
+	result = addAndMultiply(num1, num2);
+	print(result);
+	
+}

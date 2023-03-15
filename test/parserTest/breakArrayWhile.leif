@@ -1,7 +1,6 @@
 var int a,b;
 var int [] c;
 c = new int[5];
-c = [1,2,3,4,5];
 a = 0;
 b = 5;
 
