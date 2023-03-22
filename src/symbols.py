@@ -14,7 +14,6 @@ class NameCategory(Enum):
     """Categories for the names (symbols) collected and inserted into
        the symbol table.
     """
-    CLASS = auto()
     VARIABLE = auto()
     PARAMETER = auto()
     FUNCTION = auto()
@@ -131,8 +130,9 @@ class ASTSymbolVisitor(VisitorsBase):
 
     def postVisit_body(self, t):
         # Returning to the outer scope after function processing is completed:
-        self._current_scope = self._current_scope.parent
-        self._current_level -= 1
+        if self._current_scope.parent is not None:
+            self._current_scope = self._current_scope.parent
+            self._current_level -= 1
 
     def preVisit_function(self, t):
         # The name of the function belongs to the surrounding scope:
@@ -182,10 +182,12 @@ class ASTSymbolVisitor(VisitorsBase):
     def preVisit_variables_declaration_list(self, t):
         # propagates the type to the inner declarations for later use
         t.decl.vtype = t.vtype
-        if hasattr(t, "parentClass"):
-            t.decl.parentClass = t.parentClass
+        if hasattr(t, "attLst"):
+            t.decl.attLst = t.attLst
             if t.next:
-                t.next.parentClass = t.parentClass
+                t.next.attLst = t.attLst
+
+
 
     def preVisit_variables_list(self, t):  # TODO: We need to know weather we are in a class or in a body. We also need to know the type
         # Recording local variable names in the symbol table:
@@ -240,14 +242,7 @@ class ASTSymbolVisitor(VisitorsBase):
                 t.lineno)
 
     def postVisit_dot_variable(self, t): 
-        lst = self._current_scope.attibute_lookup(t.name)
-        if len(lst) > 0:
-            t.possibleParents = lst
-        else:
-            error_message(
-                "Symbol Collection",
-                f"dot attibute '{t.name}' is not an attibute of any declares class accesible in this scope",
-                t.lineno)
+        t.scope = self._current_scope
 
     def preVisit_expression_new(self, t):
         if self._current_scope.type_lookup(t.r_type):
@@ -271,20 +266,26 @@ class ASTSymbolVisitor(VisitorsBase):
         self.exp_offset = 0
     
     def postVisit_expression_call(self, t):
-        if self._current_scope.lookup(t.name):
-            f = self._current_scope.lookup(t.name)
+        f = self._current_scope.lookup(t.name)
+        if f is not None:
             if f.cat == NameCategory.FUNCTION:
-                pass # Check if the number of parameters are the correct ammout
+                if f.info.number_of_parameters == self.exp_offset:
+                    t.number_of_parameters = self.exp_offset
+                    t.rtype = f.info.rtype
+                else:
+                    error_message("Symbol Collection",
+                                  f"'{t.name}', takes {f.info.number_of_parameters} arguments but only {self.exp_offset} was given",
+                                  t.lineno)
             else:
                 error_message(
                     "Symbol Collection",
-                    f"'{t.root_type}' is not a function",
+                    f"'{t.name}' is not a function",
                     t.lineno)
 
         else:
             error_message(
                 "Symbol Collection",
-                f"Function '{t.root_type}' have not been declared, or is not accesible in this scope",
+                f"Function '{t.name}' have not been declared, or is not accesible in this scope",
                 t.lineno)
 
 
