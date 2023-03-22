@@ -189,7 +189,7 @@ class ASTSymbolVisitor(VisitorsBase):
 
 
 
-    def preVisit_variables_list(self, t):  # TODO: We need to know weather we are in a class or in a body. We also need to know the type
+    def preVisit_variables_list(self, t):  
         # Recording local variable names in the symbol table:
         if self._current_scope.lookup_this_scope(t.variable):
             error_message(
