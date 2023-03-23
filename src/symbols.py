@@ -83,12 +83,12 @@ class SymbolTable:
         else:
             return None
 
-    def attibute_lookup(self, name, d = {}):
+    def atribute_lookup(self, name, d = {}):
         for c, lst in self._types:
             if name in lst:
                 d[c] = lst
         if self.parent:
-            self.parent.attibute_lookup(name, d)
+            self.parent.atribute_lookup(name, d)
         return d
                 
 
@@ -102,27 +102,48 @@ class ASTSymbolVisitor(VisitorsBase):
         self._current_scope = SymbolTable(None, 0)
         self._current_scope.insert_type('int', {})
         self._current_scope.insert_type('bool',{})
+        self._current_scope.insert_type('null',{})
         # Have not entered the main scope (level 0) yet:
         self._current_level = 0
 
     def preVisit_body(self, t):
         # Parameters, classes, variables and functions belonge to the scope of the body:
         if hasattr(t, 'function'):
-            f = t.function
+            pass
         else:
             self._current_level += 1
             self._current_scope = SymbolTable(self._current_scope, t.lineno)
 
         # Preparing for processing local variables:
+        t.scope = self._current_scope
         self.variable_offset = 0
         
 
     def preMidVisit_body(self, t):
-        pass
+        for atribute in [a for a in [c for b , c in self._current_scope._types]]:
+            atribute.type_scope = self._current_scope.type_lookup(atribute.rtype)
+            if atribute.type_scope is not None:
+                pass
+            else:
+                error_message(
+                        "Symbol Collection",
+                        f"Type '{atribute.rtype}', for class atribute '{atribute.info.name}' was not declared in this scope",
+                        atribute.info.lineno
+                        )
 
     def midVisit_body(self, t):
         # Recording the number of local variables:
         t.number_of_variables = self.variable_offset
+        for variable in [b for a , b in self._current_scope._tab]:
+            variable.type_scope = self._current_scope.type_lookup(variable.rtype)
+            if variable.type_scope is not None:
+                pass
+            else:
+                error_message(
+                        "Symbol Collection",
+                        f"Type '{variable.rtype}', for variable '{variable.info.name}' was not declared in this scope",
+                        variable.info.lineno
+                        )
 
         # Saving the current symbol table in the AST for future use:
         t.symbol_table = self._current_scope
@@ -142,6 +163,12 @@ class ASTSymbolVisitor(VisitorsBase):
                     "Symbol Collection",
                     f"Redeclaration of function '{t.name}' in the same scope.",
                     t.lineno)
+            if self._current_scope.type_lookup(t.rtype) is None:
+                error_message(
+                        "Symbol Collection",
+                        f"Return type '{t.rtype}' for function '{t.name}' was not declared in this scope",
+                        t.lineno
+                        )
             self._current_scope.insert(
                 t.name, SymVal(NameCategory.FUNCTION, self._current_level, t, t.rtype))
 
@@ -198,7 +225,7 @@ class ASTSymbolVisitor(VisitorsBase):
                 t.lineno)
 
         # if the variable is part of a class declaration, dont add it to the symbol table 
-        # but rather append it to a attibute list of the parent
+        # but rather append it to a atribute list of the parent
         if hasattr(t, "attLst"):
             t.attLst.append(t)
             if t.next:
@@ -207,8 +234,9 @@ class ASTSymbolVisitor(VisitorsBase):
             self._current_scope.insert(
                 t.variable, SymVal(NameCategory.VARIABLE,
                                    self._current_level,
-                                   self.variable_offset,
+                                   t,
                                    t.vtype))
+            t.variable_offset = self.variable_offset
             self.variable_offset += 1
 
         # Hansd the variable type to the next varaible for later use
@@ -228,8 +256,8 @@ class ASTSymbolVisitor(VisitorsBase):
         t.var_list.attLst = t.attLst
 
     def postVisit_class_declaration(self, t):
-        # creates a dictonary of all the internal attibutes of the class and saves it as the value of said class
-       values = {(a.name):(SymVal(NameCategory.VARIABLE,self._current_level,None,a.vtype)) for a in t.attLst} 
+        # creates a dictonary of all the internal atributes of the class and saves it as the value of said class
+       values = {(a.name):(SymVal(NameCategory.VARIABLE,self._current_level,a,a.vtype)) for a in t.attLst} 
        self._current_scope.insert_type(t.name, values)
 
     def postVisit_variable(self, t):
@@ -249,6 +277,12 @@ class ASTSymbolVisitor(VisitorsBase):
                 t.lineno)
 
     def postVisit_dot_variable(self, t): 
+        if len(self._current_scope.atribute_lookup(t.elm)) == 0:
+            error_message(
+                    "Symbol Collection",
+                    f"The atribute '{t.elm}' does not belong to any class declared in this scope",
+                    t.lineno
+                    )
         t.scope = self._current_scope
 
     def preVisit_expression_new(self, t):
