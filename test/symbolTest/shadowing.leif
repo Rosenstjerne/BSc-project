@@ -1,0 +1,13 @@
+function int shadowed_function() {
+    return 42;
+}
+
+function int test_function() {
+    function int shadowed_function() {
+        return 7;
+    }
+    return shadowed_function();
+}
+
+print(shadowed_function()); # Should print 42
+print(test_function()); # Should print 7

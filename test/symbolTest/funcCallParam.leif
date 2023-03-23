@@ -1,0 +1,9 @@
+var int a, b;
+a = 5;
+b = 10;
+
+function int add(int x, int y) {
+    return x + y;
+}
+
+print(add(a, b)); # Should print 15

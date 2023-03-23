@@ -1,0 +1,12 @@
+class X {
+    var int y;
+}
+
+var int x;
+x = 5;
+
+function int x() {
+    return 42;
+}
+
+# This test should raise an error, as 'x' is used as a variable, class, and function name

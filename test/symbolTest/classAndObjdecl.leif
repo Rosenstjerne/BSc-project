@@ -1,0 +1,12 @@
+class Point {
+    var int x;
+    var int y;
+}
+
+var Point p;
+p = new Point;
+p.x = 3;
+p.y = 4;
+
+print(p.x); # Should print 3
+print(p.y); # Should print 4
