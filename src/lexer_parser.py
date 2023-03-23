@@ -113,7 +113,7 @@ def t_COMMENT(t):
     pass
 
 def t_COMMENTBLOCK(t):
-    r'\#\*([a-zA-Z0-9_\n\ \*]|(\#\*))*\*\#' #Doesn't work with nested comment blocks. Works like comment blocks in C buth with # in stead of /
+    r'\#\*(((?!\*\#).)|\n)*\*\#' #Doesn't work with nested comment blocks. Works like comment blocks in C buth with # in stead of /
     t.lexer.lineno += t.value.count("\n") #Might take up some lines, so we need to keep track of them
 
 
