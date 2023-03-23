@@ -1,0 +1,13 @@
+function null main() {
+	var int num1, num2;
+	
+	function int printSum(int x, int y) {
+		print((x + y));
+		
+	}
+	
+	num1 = 5;
+	num2 = 7;
+	printSum(num1, num2)
+	
+}

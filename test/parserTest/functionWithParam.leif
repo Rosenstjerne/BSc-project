@@ -1,5 +1,5 @@
 var int num1, num2;
-function printSum(int x, int y) {
+function int printSum(int x, int y) {
   print(x + y);
 }
 

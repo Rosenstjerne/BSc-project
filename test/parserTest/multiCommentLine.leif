@@ -5,4 +5,4 @@ b = 2;
 
 #* this is a multi-line comment
 this could not end the comment, even if it has a # in it or a #/ in it
-even special chars like ¤£§€¥¢©®™ are allowed in comments without any problems " *#
+even special chars like #### are allowed in comments without any problems " *#

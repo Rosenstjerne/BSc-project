@@ -1,0 +1,16 @@
+function null main() {
+	var int a, b;
+	var int[] c;
+	
+	a = ;
+	b = 5;
+	while((a < b)) {
+	#begin while
+		print((c[a]));
+		a = (a + 1);
+		
+	}
+	#end while
+	
+	
+}
