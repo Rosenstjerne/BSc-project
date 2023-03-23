@@ -86,9 +86,10 @@ Rule 80    expression_group -> LPAREN expression RPAREN
 Rule 81    optional_expression_list -> empty
 Rule 82    optional_expression_list -> expression_list
 Rule 83    expression_new -> NEW variable_type
-Rule 84    expression_index -> expression LBRAC expression RBRAC
-Rule 85    expression_list -> expression
-Rule 86    expression_list -> expression COMMA expression_list
+Rule 84    expression_new -> NEW variable_type LBRAC expression RBRAC
+Rule 85    expression_index -> expression LBRAC expression RBRAC
+Rule 86    expression_list -> expression
+Rule 87    expression_list -> expression COMMA expression_list
 
 Terminals, with rules where they appear
 
@@ -97,7 +98,7 @@ ASSIGN               : 40
 BOOL                 : 62
 BREAK                : 46
 CLASS                : 8
-COMMA                : 19 28 86
+COMMA                : 19 28 87
 DIVIDE               : 70
 DOT                  : 42
 ELSE                 : 43
@@ -108,7 +109,7 @@ GTE                  : 77
 IDENT                : 8 16 18 19 24 27 28 41 42 66
 IF                   : 43 44
 INT                  : 61
-LBRAC                : 17 84
+LBRAC                : 17 84 85
 LCURL                : 8 24 48
 LPAREN               : 24 39 43 44 45 66 80
 LT                   : 74
@@ -117,13 +118,13 @@ MINUS                : 64 68
 MODULO               : 71
 MULTIPLY             : 69
 NEQ                  : 73
-NEW                  : 83
+NEW                  : 83 84
 NOT                  : 63
 NULL                 : 15
 OR                   : 79
 PLUS                 : 67
 PRINT                : 39
-RBRAC                : 17 84
+RBRAC                : 17 84 85
 RCURL                : 8 24 48
 RETURN               : 38
 RPAREN               : 24 39 43 44 45 66 80
@@ -140,7 +141,7 @@ body                 : 1 24 48
 class_declaration    : 6 7
 class_declaration_list : 5 7
 empty                : 4 9 20 25 81
-expression           : 38 39 40 42 43 44 45 47 63 64 67 67 68 68 69 69 70 70 71 71 72 72 73 73 74 74 75 75 76 76 77 77 78 78 79 79 80 84 84 85 86
+expression           : 38 39 40 42 43 44 45 47 63 64 67 67 68 68 69 69 70 70 71 71 72 72 73 73 74 74 75 75 76 76 77 77 78 78 79 79 80 84 85 85 86 87
 expression_binop     : 55
 expression_boolean   : 52
 expression_call      : 54
@@ -148,7 +149,7 @@ expression_group     : 56
 expression_identifier : 53
 expression_index     : 60
 expression_integer   : 51
-expression_list      : 82 86
+expression_list      : 82 87
 expression_neg       : 57
 expression_negative  : 58
 expression_new       : 59
@@ -173,7 +174,7 @@ statement_print      : 30
 statement_return     : 29
 statement_while      : 34
 variable             : 40 65
-variable_type        : 11 12 17 24 27 28 83
+variable_type        : 11 12 17 24 27 28 83 84
 variables_declaration_list : 8 10 12
 variables_list       : 11 12 19
 
@@ -505,7 +506,8 @@ state 14
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
 
     RETURN          shift and go to state 36
     PRINT           shift and go to state 38
@@ -817,7 +819,8 @@ state 26
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
 
     $end            reduce using rule 49 (statement_list -> statement .)
     RCURL           reduce using rule 49 (statement_list -> statement .)
@@ -1091,7 +1094,8 @@ state 36
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
     (41) variable -> . IDENT
     (42) variable -> . expression DOT IDENT
 
@@ -1133,7 +1137,7 @@ state 37
     (77) expression_binop -> expression . GTE expression
     (78) expression_binop -> expression . AND expression
     (79) expression_binop -> expression . OR expression
-    (84) expression_index -> expression . LBRAC expression RBRAC
+    (85) expression_index -> expression . LBRAC expression RBRAC
 
     SEMICOLON       shift and go to state 71
     DOT             shift and go to state 72
@@ -1194,7 +1198,8 @@ state 39
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
     (41) variable -> . IDENT
     (42) variable -> . expression DOT IDENT
 
@@ -1658,7 +1663,8 @@ state 58
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
     (41) variable -> . IDENT
     (42) variable -> . expression DOT IDENT
 
@@ -1717,7 +1723,8 @@ state 59
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
     (41) variable -> . IDENT
     (42) variable -> . expression DOT IDENT
 
@@ -1745,6 +1752,7 @@ state 59
 state 60
 
     (83) expression_new -> NEW . variable_type
+    (84) expression_new -> NEW . variable_type LBRAC expression RBRAC
     (13) variable_type -> . _BOOL
     (14) variable_type -> . _INT
     (15) variable_type -> . NULL
@@ -1841,7 +1849,7 @@ state 68
     (77) expression_binop -> expression . GTE expression
     (78) expression_binop -> expression . AND expression
     (79) expression_binop -> expression . OR expression
-    (84) expression_index -> expression . LBRAC expression RBRAC
+    (85) expression_index -> expression . LBRAC expression RBRAC
     (42) variable -> expression . DOT IDENT
 
     SEMICOLON       shift and go to state 103
@@ -1977,7 +1985,8 @@ state 73
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
     (41) variable -> . IDENT
     (42) variable -> . expression DOT IDENT
 
@@ -2036,7 +2045,8 @@ state 74
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
     (41) variable -> . IDENT
     (42) variable -> . expression DOT IDENT
 
@@ -2095,7 +2105,8 @@ state 75
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
     (41) variable -> . IDENT
     (42) variable -> . expression DOT IDENT
 
@@ -2154,7 +2165,8 @@ state 76
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
     (41) variable -> . IDENT
     (42) variable -> . expression DOT IDENT
 
@@ -2213,7 +2225,8 @@ state 77
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
     (41) variable -> . IDENT
     (42) variable -> . expression DOT IDENT
 
@@ -2272,7 +2285,8 @@ state 78
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
     (41) variable -> . IDENT
     (42) variable -> . expression DOT IDENT
 
@@ -2331,7 +2345,8 @@ state 79
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
     (41) variable -> . IDENT
     (42) variable -> . expression DOT IDENT
 
@@ -2390,7 +2405,8 @@ state 80
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
     (41) variable -> . IDENT
     (42) variable -> . expression DOT IDENT
 
@@ -2449,7 +2465,8 @@ state 81
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
     (41) variable -> . IDENT
     (42) variable -> . expression DOT IDENT
 
@@ -2508,7 +2525,8 @@ state 82
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
     (41) variable -> . IDENT
     (42) variable -> . expression DOT IDENT
 
@@ -2567,7 +2585,8 @@ state 83
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
     (41) variable -> . IDENT
     (42) variable -> . expression DOT IDENT
 
@@ -2626,7 +2645,8 @@ state 84
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
     (41) variable -> . IDENT
     (42) variable -> . expression DOT IDENT
 
@@ -2685,7 +2705,8 @@ state 85
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
     (41) variable -> . IDENT
     (42) variable -> . expression DOT IDENT
 
@@ -2712,7 +2733,7 @@ state 85
 
 state 86
 
-    (84) expression_index -> expression LBRAC . expression RBRAC
+    (85) expression_index -> expression LBRAC . expression RBRAC
     (51) expression -> . expression_integer
     (52) expression -> . expression_boolean
     (53) expression -> . expression_identifier
@@ -2744,7 +2765,8 @@ state 86
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
     (41) variable -> . IDENT
     (42) variable -> . expression DOT IDENT
 
@@ -2803,7 +2825,8 @@ state 87
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
     (41) variable -> . IDENT
     (42) variable -> . expression DOT IDENT
 
@@ -2844,7 +2867,7 @@ state 88
     (77) expression_binop -> expression . GTE expression
     (78) expression_binop -> expression . AND expression
     (79) expression_binop -> expression . OR expression
-    (84) expression_index -> expression . LBRAC expression RBRAC
+    (85) expression_index -> expression . LBRAC expression RBRAC
     (42) variable -> expression . DOT IDENT
 
     RPAREN          shift and go to state 120
@@ -2899,7 +2922,8 @@ state 89
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
     (41) variable -> . IDENT
     (42) variable -> . expression DOT IDENT
 
@@ -2959,7 +2983,8 @@ state 90
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
     (41) variable -> . IDENT
     (42) variable -> . expression DOT IDENT
 
@@ -3018,7 +3043,8 @@ state 91
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
     (41) variable -> . IDENT
     (42) variable -> . expression DOT IDENT
 
@@ -3078,8 +3104,8 @@ state 94
     (81) optional_expression_list -> . empty
     (82) optional_expression_list -> . expression_list
     (2) empty -> .
-    (85) expression_list -> . expression
-    (86) expression_list -> . expression COMMA expression_list
+    (86) expression_list -> . expression
+    (87) expression_list -> . expression COMMA expression_list
     (51) expression -> . expression_integer
     (52) expression -> . expression_boolean
     (53) expression -> . expression_identifier
@@ -3111,7 +3137,8 @@ state 94
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
     (41) variable -> . IDENT
     (42) variable -> . expression DOT IDENT
 
@@ -3156,7 +3183,7 @@ state 95
     (77) expression_binop -> expression . GTE expression
     (78) expression_binop -> expression . AND expression
     (79) expression_binop -> expression . OR expression
-    (84) expression_index -> expression . LBRAC expression RBRAC
+    (85) expression_index -> expression . LBRAC expression RBRAC
     (42) variable -> expression . DOT IDENT
 
     SEMICOLON       reduce using rule 64 (expression_negative -> MINUS expression .)
@@ -3212,7 +3239,7 @@ state 96
     (77) expression_binop -> expression . GTE expression
     (78) expression_binop -> expression . AND expression
     (79) expression_binop -> expression . OR expression
-    (84) expression_index -> expression . LBRAC expression RBRAC
+    (85) expression_index -> expression . LBRAC expression RBRAC
     (42) variable -> expression . DOT IDENT
 
     SEMICOLON       reduce using rule 63 (expression_neg -> NOT expression .)
@@ -3255,6 +3282,7 @@ state 96
 state 97
 
     (83) expression_new -> NEW variable_type .
+    (84) expression_new -> NEW variable_type . LBRAC expression RBRAC
     (17) variable_type -> variable_type . LBRAC RBRAC
 
     SEMICOLON       reduce using rule 83 (expression_new -> NEW variable_type .)
@@ -3277,14 +3305,14 @@ state 97
     RBRAC           reduce using rule 83 (expression_new -> NEW variable_type .)
     COMMA           reduce using rule 83 (expression_new -> NEW variable_type .)
 
-  ! LBRAC           [ shift and go to state 64 ]
+  ! LBRAC           [ shift and go to state 129 ]
 
 
 state 98
 
     (24) function -> FUNCTION variable_type IDENT . LPAREN optional_parameter_list RPAREN LCURL body RCURL
 
-    LPAREN          shift and go to state 129
+    LPAREN          shift and go to state 130
 
 
 state 99
@@ -3311,7 +3339,7 @@ state 99
     RCURL           reduce using rule 11 (variables_declaration_list -> VAR variable_type variables_list SEMICOLON .)
     VAR             shift and go to state 11
 
-    variables_declaration_list     shift and go to state 130
+    variables_declaration_list     shift and go to state 131
 
 state 100
 
@@ -3347,7 +3375,7 @@ state 101
 
     IDENT           shift and go to state 65
 
-    variables_list                 shift and go to state 131
+    variables_list                 shift and go to state 132
 
 state 102
 
@@ -3435,7 +3463,7 @@ state 105
     (77) expression_binop -> expression . GTE expression
     (78) expression_binop -> expression . AND expression
     (79) expression_binop -> expression . OR expression
-    (84) expression_index -> expression . LBRAC expression RBRAC
+    (85) expression_index -> expression . LBRAC expression RBRAC
     (42) variable -> expression . DOT IDENT
 
     SEMICOLON       reduce using rule 67 (expression_binop -> expression PLUS expression .)
@@ -3491,7 +3519,7 @@ state 106
     (77) expression_binop -> expression . GTE expression
     (78) expression_binop -> expression . AND expression
     (79) expression_binop -> expression . OR expression
-    (84) expression_index -> expression . LBRAC expression RBRAC
+    (85) expression_index -> expression . LBRAC expression RBRAC
     (42) variable -> expression . DOT IDENT
 
     SEMICOLON       reduce using rule 68 (expression_binop -> expression MINUS expression .)
@@ -3547,7 +3575,7 @@ state 107
     (77) expression_binop -> expression . GTE expression
     (78) expression_binop -> expression . AND expression
     (79) expression_binop -> expression . OR expression
-    (84) expression_index -> expression . LBRAC expression RBRAC
+    (85) expression_index -> expression . LBRAC expression RBRAC
     (42) variable -> expression . DOT IDENT
 
     SEMICOLON       reduce using rule 69 (expression_binop -> expression MULTIPLY expression .)
@@ -3603,7 +3631,7 @@ state 108
     (77) expression_binop -> expression . GTE expression
     (78) expression_binop -> expression . AND expression
     (79) expression_binop -> expression . OR expression
-    (84) expression_index -> expression . LBRAC expression RBRAC
+    (85) expression_index -> expression . LBRAC expression RBRAC
     (42) variable -> expression . DOT IDENT
 
     SEMICOLON       reduce using rule 70 (expression_binop -> expression DIVIDE expression .)
@@ -3659,7 +3687,7 @@ state 109
     (77) expression_binop -> expression . GTE expression
     (78) expression_binop -> expression . AND expression
     (79) expression_binop -> expression . OR expression
-    (84) expression_index -> expression . LBRAC expression RBRAC
+    (85) expression_index -> expression . LBRAC expression RBRAC
     (42) variable -> expression . DOT IDENT
 
     SEMICOLON       reduce using rule 71 (expression_binop -> expression MODULO expression .)
@@ -3715,7 +3743,7 @@ state 110
     (77) expression_binop -> expression . GTE expression
     (78) expression_binop -> expression . AND expression
     (79) expression_binop -> expression . OR expression
-    (84) expression_index -> expression . LBRAC expression RBRAC
+    (85) expression_index -> expression . LBRAC expression RBRAC
     (42) variable -> expression . DOT IDENT
 
     SEMICOLON       reduce using rule 72 (expression_binop -> expression EQ expression .)
@@ -3771,7 +3799,7 @@ state 111
     (77) expression_binop -> expression . GTE expression
     (78) expression_binop -> expression . AND expression
     (79) expression_binop -> expression . OR expression
-    (84) expression_index -> expression . LBRAC expression RBRAC
+    (85) expression_index -> expression . LBRAC expression RBRAC
     (42) variable -> expression . DOT IDENT
 
     SEMICOLON       reduce using rule 73 (expression_binop -> expression NEQ expression .)
@@ -3827,7 +3855,7 @@ state 112
     (77) expression_binop -> expression . GTE expression
     (78) expression_binop -> expression . AND expression
     (79) expression_binop -> expression . OR expression
-    (84) expression_index -> expression . LBRAC expression RBRAC
+    (85) expression_index -> expression . LBRAC expression RBRAC
     (42) variable -> expression . DOT IDENT
 
     SEMICOLON       reduce using rule 74 (expression_binop -> expression LT expression .)
@@ -3883,7 +3911,7 @@ state 113
     (77) expression_binop -> expression . GTE expression
     (78) expression_binop -> expression . AND expression
     (79) expression_binop -> expression . OR expression
-    (84) expression_index -> expression . LBRAC expression RBRAC
+    (85) expression_index -> expression . LBRAC expression RBRAC
     (42) variable -> expression . DOT IDENT
 
     SEMICOLON       reduce using rule 75 (expression_binop -> expression GT expression .)
@@ -3939,7 +3967,7 @@ state 114
     (77) expression_binop -> expression . GTE expression
     (78) expression_binop -> expression . AND expression
     (79) expression_binop -> expression . OR expression
-    (84) expression_index -> expression . LBRAC expression RBRAC
+    (85) expression_index -> expression . LBRAC expression RBRAC
     (42) variable -> expression . DOT IDENT
 
     SEMICOLON       reduce using rule 76 (expression_binop -> expression LTE expression .)
@@ -3995,7 +4023,7 @@ state 115
     (77) expression_binop -> expression . GTE expression
     (78) expression_binop -> expression . AND expression
     (79) expression_binop -> expression . OR expression
-    (84) expression_index -> expression . LBRAC expression RBRAC
+    (85) expression_index -> expression . LBRAC expression RBRAC
     (42) variable -> expression . DOT IDENT
 
     SEMICOLON       reduce using rule 77 (expression_binop -> expression GTE expression .)
@@ -4051,7 +4079,7 @@ state 116
     (77) expression_binop -> expression . GTE expression
     (78) expression_binop -> expression . AND expression
     (79) expression_binop -> expression . OR expression
-    (84) expression_index -> expression . LBRAC expression RBRAC
+    (85) expression_index -> expression . LBRAC expression RBRAC
     (42) variable -> expression . DOT IDENT
 
     SEMICOLON       reduce using rule 78 (expression_binop -> expression AND expression .)
@@ -4107,7 +4135,7 @@ state 117
     (77) expression_binop -> expression . GTE expression
     (78) expression_binop -> expression . AND expression
     (79) expression_binop -> expression . OR expression
-    (84) expression_index -> expression . LBRAC expression RBRAC
+    (85) expression_index -> expression . LBRAC expression RBRAC
     (42) variable -> expression . DOT IDENT
 
     SEMICOLON       reduce using rule 79 (expression_binop -> expression OR expression .)
@@ -4149,7 +4177,7 @@ state 117
 
 state 118
 
-    (84) expression_index -> expression LBRAC expression . RBRAC
+    (85) expression_index -> expression LBRAC expression . RBRAC
     (67) expression_binop -> expression . PLUS expression
     (68) expression_binop -> expression . MINUS expression
     (69) expression_binop -> expression . MULTIPLY expression
@@ -4163,10 +4191,10 @@ state 118
     (77) expression_binop -> expression . GTE expression
     (78) expression_binop -> expression . AND expression
     (79) expression_binop -> expression . OR expression
-    (84) expression_index -> expression . LBRAC expression RBRAC
+    (85) expression_index -> expression . LBRAC expression RBRAC
     (42) variable -> expression . DOT IDENT
 
-    RBRAC           shift and go to state 132
+    RBRAC           shift and go to state 133
     PLUS            shift and go to state 73
     MINUS           shift and go to state 74
     MULTIPLY        shift and go to state 75
@@ -4200,10 +4228,10 @@ state 119
     (77) expression_binop -> expression . GTE expression
     (78) expression_binop -> expression . AND expression
     (79) expression_binop -> expression . OR expression
-    (84) expression_index -> expression . LBRAC expression RBRAC
+    (85) expression_index -> expression . LBRAC expression RBRAC
     (42) variable -> expression . DOT IDENT
 
-    RPAREN          shift and go to state 133
+    RPAREN          shift and go to state 134
     PLUS            shift and go to state 73
     MINUS           shift and go to state 74
     MULTIPLY        shift and go to state 75
@@ -4262,10 +4290,10 @@ state 121
     (77) expression_binop -> expression . GTE expression
     (78) expression_binop -> expression . AND expression
     (79) expression_binop -> expression . OR expression
-    (84) expression_index -> expression . LBRAC expression RBRAC
+    (85) expression_index -> expression . LBRAC expression RBRAC
     (42) variable -> expression . DOT IDENT
 
-    SEMICOLON       shift and go to state 134
+    SEMICOLON       shift and go to state 135
     PLUS            shift and go to state 73
     MINUS           shift and go to state 74
     MULTIPLY        shift and go to state 75
@@ -4300,10 +4328,10 @@ state 122
     (77) expression_binop -> expression . GTE expression
     (78) expression_binop -> expression . AND expression
     (79) expression_binop -> expression . OR expression
-    (84) expression_index -> expression . LBRAC expression RBRAC
+    (85) expression_index -> expression . LBRAC expression RBRAC
     (42) variable -> expression . DOT IDENT
 
-    RPAREN          shift and go to state 135
+    RPAREN          shift and go to state 136
     PLUS            shift and go to state 73
     MINUS           shift and go to state 74
     MULTIPLY        shift and go to state 75
@@ -4337,10 +4365,10 @@ state 123
     (77) expression_binop -> expression . GTE expression
     (78) expression_binop -> expression . AND expression
     (79) expression_binop -> expression . OR expression
-    (84) expression_index -> expression . LBRAC expression RBRAC
+    (85) expression_index -> expression . LBRAC expression RBRAC
     (42) variable -> expression . DOT IDENT
 
-    RPAREN          shift and go to state 136
+    RPAREN          shift and go to state 137
     PLUS            shift and go to state 73
     MINUS           shift and go to state 74
     MULTIPLY        shift and go to state 75
@@ -4384,7 +4412,7 @@ state 125
 
     (66) expression_call -> IDENT LPAREN optional_expression_list . RPAREN
 
-    RPAREN          shift and go to state 137
+    RPAREN          shift and go to state 138
 
 
 state 126
@@ -4403,8 +4431,8 @@ state 127
 
 state 128
 
-    (85) expression_list -> expression .
-    (86) expression_list -> expression . COMMA expression_list
+    (86) expression_list -> expression .
+    (87) expression_list -> expression . COMMA expression_list
     (67) expression_binop -> expression . PLUS expression
     (68) expression_binop -> expression . MINUS expression
     (69) expression_binop -> expression . MULTIPLY expression
@@ -4418,11 +4446,11 @@ state 128
     (77) expression_binop -> expression . GTE expression
     (78) expression_binop -> expression . AND expression
     (79) expression_binop -> expression . OR expression
-    (84) expression_index -> expression . LBRAC expression RBRAC
+    (85) expression_index -> expression . LBRAC expression RBRAC
     (42) variable -> expression . DOT IDENT
 
-    RPAREN          reduce using rule 85 (expression_list -> expression .)
-    COMMA           shift and go to state 138
+    RPAREN          reduce using rule 86 (expression_list -> expression .)
+    COMMA           shift and go to state 139
     PLUS            shift and go to state 73
     MINUS           shift and go to state 74
     MULTIPLY        shift and go to state 75
@@ -4442,6 +4470,68 @@ state 128
 
 state 129
 
+    (84) expression_new -> NEW variable_type LBRAC . expression RBRAC
+    (17) variable_type -> variable_type LBRAC . RBRAC
+    (51) expression -> . expression_integer
+    (52) expression -> . expression_boolean
+    (53) expression -> . expression_identifier
+    (54) expression -> . expression_call
+    (55) expression -> . expression_binop
+    (56) expression -> . expression_group
+    (57) expression -> . expression_neg
+    (58) expression -> . expression_negative
+    (59) expression -> . expression_new
+    (60) expression -> . expression_index
+    (61) expression_integer -> . INT
+    (62) expression_boolean -> . BOOL
+    (65) expression_identifier -> . variable
+    (66) expression_call -> . IDENT LPAREN optional_expression_list RPAREN
+    (67) expression_binop -> . expression PLUS expression
+    (68) expression_binop -> . expression MINUS expression
+    (69) expression_binop -> . expression MULTIPLY expression
+    (70) expression_binop -> . expression DIVIDE expression
+    (71) expression_binop -> . expression MODULO expression
+    (72) expression_binop -> . expression EQ expression
+    (73) expression_binop -> . expression NEQ expression
+    (74) expression_binop -> . expression LT expression
+    (75) expression_binop -> . expression GT expression
+    (76) expression_binop -> . expression LTE expression
+    (77) expression_binop -> . expression GTE expression
+    (78) expression_binop -> . expression AND expression
+    (79) expression_binop -> . expression OR expression
+    (80) expression_group -> . LPAREN expression RPAREN
+    (63) expression_neg -> . NOT expression
+    (64) expression_negative -> . MINUS expression
+    (83) expression_new -> . NEW variable_type
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
+    (41) variable -> . IDENT
+    (42) variable -> . expression DOT IDENT
+
+    RBRAC           shift and go to state 100
+    INT             shift and go to state 56
+    BOOL            shift and go to state 57
+    IDENT           shift and go to state 70
+    LPAREN          shift and go to state 39
+    NOT             shift and go to state 59
+    MINUS           shift and go to state 58
+    NEW             shift and go to state 60
+
+    expression                     shift and go to state 140
+    expression_integer             shift and go to state 46
+    expression_boolean             shift and go to state 47
+    expression_identifier          shift and go to state 48
+    expression_call                shift and go to state 49
+    expression_binop               shift and go to state 50
+    expression_group               shift and go to state 51
+    expression_neg                 shift and go to state 52
+    expression_negative            shift and go to state 53
+    expression_new                 shift and go to state 54
+    expression_index               shift and go to state 55
+    variable                       shift and go to state 69
+
+state 130
+
     (24) function -> FUNCTION variable_type IDENT LPAREN . optional_parameter_list RPAREN LCURL body RCURL
     (25) optional_parameter_list -> . empty
     (26) optional_parameter_list -> . parameter_list
@@ -4460,12 +4550,12 @@ state 129
     NULL            shift and go to state 22
     IDENT           shift and go to state 23
 
-    variable_type                  shift and go to state 139
-    optional_parameter_list        shift and go to state 140
-    empty                          shift and go to state 141
-    parameter_list                 shift and go to state 142
+    variable_type                  shift and go to state 141
+    optional_parameter_list        shift and go to state 142
+    empty                          shift and go to state 143
+    parameter_list                 shift and go to state 144
 
-state 130
+state 131
 
     (12) variables_declaration_list -> VAR variable_type variables_list SEMICOLON variables_declaration_list .
 
@@ -4486,46 +4576,46 @@ state 130
     RCURL           reduce using rule 12 (variables_declaration_list -> VAR variable_type variables_list SEMICOLON variables_declaration_list .)
 
 
-state 131
+state 132
 
     (19) variables_list -> IDENT COMMA variables_list .
 
     SEMICOLON       reduce using rule 19 (variables_list -> IDENT COMMA variables_list .)
 
 
-state 132
-
-    (84) expression_index -> expression LBRAC expression RBRAC .
-
-    SEMICOLON       reduce using rule 84 (expression_index -> expression LBRAC expression RBRAC .)
-    DOT             reduce using rule 84 (expression_index -> expression LBRAC expression RBRAC .)
-    PLUS            reduce using rule 84 (expression_index -> expression LBRAC expression RBRAC .)
-    MINUS           reduce using rule 84 (expression_index -> expression LBRAC expression RBRAC .)
-    MULTIPLY        reduce using rule 84 (expression_index -> expression LBRAC expression RBRAC .)
-    DIVIDE          reduce using rule 84 (expression_index -> expression LBRAC expression RBRAC .)
-    MODULO          reduce using rule 84 (expression_index -> expression LBRAC expression RBRAC .)
-    EQ              reduce using rule 84 (expression_index -> expression LBRAC expression RBRAC .)
-    NEQ             reduce using rule 84 (expression_index -> expression LBRAC expression RBRAC .)
-    LT              reduce using rule 84 (expression_index -> expression LBRAC expression RBRAC .)
-    GT              reduce using rule 84 (expression_index -> expression LBRAC expression RBRAC .)
-    LTE             reduce using rule 84 (expression_index -> expression LBRAC expression RBRAC .)
-    GTE             reduce using rule 84 (expression_index -> expression LBRAC expression RBRAC .)
-    AND             reduce using rule 84 (expression_index -> expression LBRAC expression RBRAC .)
-    OR              reduce using rule 84 (expression_index -> expression LBRAC expression RBRAC .)
-    LBRAC           reduce using rule 84 (expression_index -> expression LBRAC expression RBRAC .)
-    RPAREN          reduce using rule 84 (expression_index -> expression LBRAC expression RBRAC .)
-    RBRAC           reduce using rule 84 (expression_index -> expression LBRAC expression RBRAC .)
-    COMMA           reduce using rule 84 (expression_index -> expression LBRAC expression RBRAC .)
-
-
 state 133
 
-    (39) statement_print -> PRINT LPAREN expression RPAREN . SEMICOLON
+    (85) expression_index -> expression LBRAC expression RBRAC .
 
-    SEMICOLON       shift and go to state 143
+    SEMICOLON       reduce using rule 85 (expression_index -> expression LBRAC expression RBRAC .)
+    DOT             reduce using rule 85 (expression_index -> expression LBRAC expression RBRAC .)
+    PLUS            reduce using rule 85 (expression_index -> expression LBRAC expression RBRAC .)
+    MINUS           reduce using rule 85 (expression_index -> expression LBRAC expression RBRAC .)
+    MULTIPLY        reduce using rule 85 (expression_index -> expression LBRAC expression RBRAC .)
+    DIVIDE          reduce using rule 85 (expression_index -> expression LBRAC expression RBRAC .)
+    MODULO          reduce using rule 85 (expression_index -> expression LBRAC expression RBRAC .)
+    EQ              reduce using rule 85 (expression_index -> expression LBRAC expression RBRAC .)
+    NEQ             reduce using rule 85 (expression_index -> expression LBRAC expression RBRAC .)
+    LT              reduce using rule 85 (expression_index -> expression LBRAC expression RBRAC .)
+    GT              reduce using rule 85 (expression_index -> expression LBRAC expression RBRAC .)
+    LTE             reduce using rule 85 (expression_index -> expression LBRAC expression RBRAC .)
+    GTE             reduce using rule 85 (expression_index -> expression LBRAC expression RBRAC .)
+    AND             reduce using rule 85 (expression_index -> expression LBRAC expression RBRAC .)
+    OR              reduce using rule 85 (expression_index -> expression LBRAC expression RBRAC .)
+    LBRAC           reduce using rule 85 (expression_index -> expression LBRAC expression RBRAC .)
+    RPAREN          reduce using rule 85 (expression_index -> expression LBRAC expression RBRAC .)
+    RBRAC           reduce using rule 85 (expression_index -> expression LBRAC expression RBRAC .)
+    COMMA           reduce using rule 85 (expression_index -> expression LBRAC expression RBRAC .)
 
 
 state 134
+
+    (39) statement_print -> PRINT LPAREN expression RPAREN . SEMICOLON
+
+    SEMICOLON       shift and go to state 145
+
+
+state 135
 
     (40) statement_assignment -> variable ASSIGN expression SEMICOLON .
 
@@ -4547,7 +4637,7 @@ state 134
     ELSE            reduce using rule 40 (statement_assignment -> variable ASSIGN expression SEMICOLON .)
 
 
-state 135
+state 136
 
     (43) statement_ifthenelse -> IF LPAREN expression RPAREN . statement ELSE statement
     (44) statement_ifthen -> IF LPAREN expression RPAREN . statement
@@ -4602,7 +4692,8 @@ state 135
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
 
     RETURN          shift and go to state 36
     PRINT           shift and go to state 38
@@ -4619,7 +4710,7 @@ state 135
     NEW             shift and go to state 60
 
     expression                     shift and go to state 37
-    statement                      shift and go to state 144
+    statement                      shift and go to state 146
     statement_return               shift and go to state 27
     statement_print                shift and go to state 28
     statement_assignment           shift and go to state 29
@@ -4641,7 +4732,7 @@ state 135
     expression_new                 shift and go to state 54
     expression_index               shift and go to state 55
 
-state 136
+state 137
 
     (45) statement_while -> WHILE LPAREN expression RPAREN . statement
     (29) statement -> . statement_return
@@ -4695,7 +4786,8 @@ state 136
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
 
     RETURN          shift and go to state 36
     PRINT           shift and go to state 38
@@ -4712,7 +4804,7 @@ state 136
     NEW             shift and go to state 60
 
     expression                     shift and go to state 37
-    statement                      shift and go to state 145
+    statement                      shift and go to state 147
     statement_return               shift and go to state 27
     statement_print                shift and go to state 28
     statement_assignment           shift and go to state 29
@@ -4734,7 +4826,7 @@ state 136
     expression_new                 shift and go to state 54
     expression_index               shift and go to state 55
 
-state 137
+state 138
 
     (66) expression_call -> IDENT LPAREN optional_expression_list RPAREN .
 
@@ -4759,11 +4851,11 @@ state 137
     COMMA           reduce using rule 66 (expression_call -> IDENT LPAREN optional_expression_list RPAREN .)
 
 
-state 138
+state 139
 
-    (86) expression_list -> expression COMMA . expression_list
-    (85) expression_list -> . expression
-    (86) expression_list -> . expression COMMA expression_list
+    (87) expression_list -> expression COMMA . expression_list
+    (86) expression_list -> . expression
+    (87) expression_list -> . expression COMMA expression_list
     (51) expression -> . expression_integer
     (52) expression -> . expression_boolean
     (53) expression -> . expression_identifier
@@ -4795,7 +4887,8 @@ state 138
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
     (41) variable -> . IDENT
     (42) variable -> . expression DOT IDENT
 
@@ -4808,7 +4901,7 @@ state 138
     NEW             shift and go to state 60
 
     expression                     shift and go to state 128
-    expression_list                shift and go to state 146
+    expression_list                shift and go to state 148
     expression_integer             shift and go to state 46
     expression_boolean             shift and go to state 47
     expression_identifier          shift and go to state 48
@@ -4821,38 +4914,75 @@ state 138
     expression_index               shift and go to state 55
     variable                       shift and go to state 69
 
-state 139
+state 140
+
+    (84) expression_new -> NEW variable_type LBRAC expression . RBRAC
+    (67) expression_binop -> expression . PLUS expression
+    (68) expression_binop -> expression . MINUS expression
+    (69) expression_binop -> expression . MULTIPLY expression
+    (70) expression_binop -> expression . DIVIDE expression
+    (71) expression_binop -> expression . MODULO expression
+    (72) expression_binop -> expression . EQ expression
+    (73) expression_binop -> expression . NEQ expression
+    (74) expression_binop -> expression . LT expression
+    (75) expression_binop -> expression . GT expression
+    (76) expression_binop -> expression . LTE expression
+    (77) expression_binop -> expression . GTE expression
+    (78) expression_binop -> expression . AND expression
+    (79) expression_binop -> expression . OR expression
+    (85) expression_index -> expression . LBRAC expression RBRAC
+    (42) variable -> expression . DOT IDENT
+
+    RBRAC           shift and go to state 149
+    PLUS            shift and go to state 73
+    MINUS           shift and go to state 74
+    MULTIPLY        shift and go to state 75
+    DIVIDE          shift and go to state 76
+    MODULO          shift and go to state 77
+    EQ              shift and go to state 78
+    NEQ             shift and go to state 79
+    LT              shift and go to state 80
+    GT              shift and go to state 81
+    LTE             shift and go to state 82
+    GTE             shift and go to state 83
+    AND             shift and go to state 84
+    OR              shift and go to state 85
+    LBRAC           shift and go to state 86
+    DOT             shift and go to state 72
+
+
+state 141
 
     (27) parameter_list -> variable_type . IDENT
     (28) parameter_list -> variable_type . IDENT COMMA parameter_list
     (17) variable_type -> variable_type . LBRAC RBRAC
 
-    IDENT           shift and go to state 147
+    IDENT           shift and go to state 150
     LBRAC           shift and go to state 64
 
 
-state 140
+state 142
 
     (24) function -> FUNCTION variable_type IDENT LPAREN optional_parameter_list . RPAREN LCURL body RCURL
 
-    RPAREN          shift and go to state 148
+    RPAREN          shift and go to state 151
 
 
-state 141
+state 143
 
     (25) optional_parameter_list -> empty .
 
     RPAREN          reduce using rule 25 (optional_parameter_list -> empty .)
 
 
-state 142
+state 144
 
     (26) optional_parameter_list -> parameter_list .
 
     RPAREN          reduce using rule 26 (optional_parameter_list -> parameter_list .)
 
 
-state 143
+state 145
 
     (39) statement_print -> PRINT LPAREN expression RPAREN SEMICOLON .
 
@@ -4874,12 +5004,12 @@ state 143
     ELSE            reduce using rule 39 (statement_print -> PRINT LPAREN expression RPAREN SEMICOLON .)
 
 
-state 144
+state 146
 
     (43) statement_ifthenelse -> IF LPAREN expression RPAREN statement . ELSE statement
     (44) statement_ifthen -> IF LPAREN expression RPAREN statement .
 
-    ELSE            shift and go to state 149
+    ELSE            shift and go to state 152
     RETURN          reduce using rule 44 (statement_ifthen -> IF LPAREN expression RPAREN statement .)
     PRINT           reduce using rule 44 (statement_ifthen -> IF LPAREN expression RPAREN statement .)
     IF              reduce using rule 44 (statement_ifthen -> IF LPAREN expression RPAREN statement .)
@@ -4899,7 +5029,7 @@ state 144
   ! ELSE            [ reduce using rule 44 (statement_ifthen -> IF LPAREN expression RPAREN statement .) ]
 
 
-state 145
+state 147
 
     (45) statement_while -> WHILE LPAREN expression RPAREN statement .
 
@@ -4921,30 +5051,55 @@ state 145
     ELSE            reduce using rule 45 (statement_while -> WHILE LPAREN expression RPAREN statement .)
 
 
-state 146
+state 148
 
-    (86) expression_list -> expression COMMA expression_list .
+    (87) expression_list -> expression COMMA expression_list .
 
-    RPAREN          reduce using rule 86 (expression_list -> expression COMMA expression_list .)
+    RPAREN          reduce using rule 87 (expression_list -> expression COMMA expression_list .)
 
 
-state 147
+state 149
+
+    (84) expression_new -> NEW variable_type LBRAC expression RBRAC .
+
+    SEMICOLON       reduce using rule 84 (expression_new -> NEW variable_type LBRAC expression RBRAC .)
+    DOT             reduce using rule 84 (expression_new -> NEW variable_type LBRAC expression RBRAC .)
+    PLUS            reduce using rule 84 (expression_new -> NEW variable_type LBRAC expression RBRAC .)
+    MINUS           reduce using rule 84 (expression_new -> NEW variable_type LBRAC expression RBRAC .)
+    MULTIPLY        reduce using rule 84 (expression_new -> NEW variable_type LBRAC expression RBRAC .)
+    DIVIDE          reduce using rule 84 (expression_new -> NEW variable_type LBRAC expression RBRAC .)
+    MODULO          reduce using rule 84 (expression_new -> NEW variable_type LBRAC expression RBRAC .)
+    EQ              reduce using rule 84 (expression_new -> NEW variable_type LBRAC expression RBRAC .)
+    NEQ             reduce using rule 84 (expression_new -> NEW variable_type LBRAC expression RBRAC .)
+    LT              reduce using rule 84 (expression_new -> NEW variable_type LBRAC expression RBRAC .)
+    GT              reduce using rule 84 (expression_new -> NEW variable_type LBRAC expression RBRAC .)
+    LTE             reduce using rule 84 (expression_new -> NEW variable_type LBRAC expression RBRAC .)
+    GTE             reduce using rule 84 (expression_new -> NEW variable_type LBRAC expression RBRAC .)
+    AND             reduce using rule 84 (expression_new -> NEW variable_type LBRAC expression RBRAC .)
+    OR              reduce using rule 84 (expression_new -> NEW variable_type LBRAC expression RBRAC .)
+    LBRAC           reduce using rule 84 (expression_new -> NEW variable_type LBRAC expression RBRAC .)
+    RPAREN          reduce using rule 84 (expression_new -> NEW variable_type LBRAC expression RBRAC .)
+    RBRAC           reduce using rule 84 (expression_new -> NEW variable_type LBRAC expression RBRAC .)
+    COMMA           reduce using rule 84 (expression_new -> NEW variable_type LBRAC expression RBRAC .)
+
+
+state 150
 
     (27) parameter_list -> variable_type IDENT .
     (28) parameter_list -> variable_type IDENT . COMMA parameter_list
 
     RPAREN          reduce using rule 27 (parameter_list -> variable_type IDENT .)
-    COMMA           shift and go to state 150
+    COMMA           shift and go to state 153
 
 
-state 148
+state 151
 
     (24) function -> FUNCTION variable_type IDENT LPAREN optional_parameter_list RPAREN . LCURL body RCURL
 
-    LCURL           shift and go to state 151
+    LCURL           shift and go to state 154
 
 
-state 149
+state 152
 
     (43) statement_ifthenelse -> IF LPAREN expression RPAREN statement ELSE . statement
     (29) statement -> . statement_return
@@ -4998,7 +5153,8 @@ state 149
     (63) expression_neg -> . NOT expression
     (64) expression_negative -> . MINUS expression
     (83) expression_new -> . NEW variable_type
-    (84) expression_index -> . expression LBRAC expression RBRAC
+    (84) expression_new -> . NEW variable_type LBRAC expression RBRAC
+    (85) expression_index -> . expression LBRAC expression RBRAC
 
     RETURN          shift and go to state 36
     PRINT           shift and go to state 38
@@ -5015,7 +5171,7 @@ state 149
     NEW             shift and go to state 60
 
     expression                     shift and go to state 37
-    statement                      shift and go to state 152
+    statement                      shift and go to state 155
     statement_return               shift and go to state 27
     statement_print                shift and go to state 28
     statement_assignment           shift and go to state 29
@@ -5037,7 +5193,7 @@ state 149
     expression_new                 shift and go to state 54
     expression_index               shift and go to state 55
 
-state 150
+state 153
 
     (28) parameter_list -> variable_type IDENT COMMA . parameter_list
     (27) parameter_list -> . variable_type IDENT
@@ -5053,10 +5209,10 @@ state 150
     NULL            shift and go to state 22
     IDENT           shift and go to state 23
 
-    variable_type                  shift and go to state 139
-    parameter_list                 shift and go to state 153
+    variable_type                  shift and go to state 141
+    parameter_list                 shift and go to state 156
 
-state 151
+state 154
 
     (24) function -> FUNCTION variable_type IDENT LPAREN optional_parameter_list RPAREN LCURL . body RCURL
     (3) body -> . optional_class_declaration_list optional_variables_declaration_list optional_functions_declaration_list statement_list
@@ -5084,13 +5240,13 @@ state 151
     NEW             reduce using rule 2 (empty -> .)
     CLASS           shift and go to state 7
 
-    body                           shift and go to state 154
+    body                           shift and go to state 157
     optional_class_declaration_list shift and go to state 3
     empty                          shift and go to state 4
     class_declaration_list         shift and go to state 5
     class_declaration              shift and go to state 6
 
-state 152
+state 155
 
     (43) statement_ifthenelse -> IF LPAREN expression RPAREN statement ELSE statement .
 
@@ -5112,21 +5268,21 @@ state 152
     ELSE            reduce using rule 43 (statement_ifthenelse -> IF LPAREN expression RPAREN statement ELSE statement .)
 
 
-state 153
+state 156
 
     (28) parameter_list -> variable_type IDENT COMMA parameter_list .
 
     RPAREN          reduce using rule 28 (parameter_list -> variable_type IDENT COMMA parameter_list .)
 
 
-state 154
+state 157
 
     (24) function -> FUNCTION variable_type IDENT LPAREN optional_parameter_list RPAREN LCURL body . RCURL
 
-    RCURL           shift and go to state 155
+    RCURL           shift and go to state 158
 
 
-state 155
+state 158
 
     (24) function -> FUNCTION variable_type IDENT LPAREN optional_parameter_list RPAREN LCURL body RCURL .
 
