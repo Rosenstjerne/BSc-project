@@ -256,7 +256,7 @@ def p_statement(t):
 
 
 def p_statement_return(t):
-    'statement_return : RETURN expression SEMICOLON'
+    'statement_return : RETURN expression SEMICOLON' # Should only occure as the last statement of a function
     t[0] = AST.statement_return(t[2], t.lexer.lineno)
 
 
@@ -388,6 +388,7 @@ def p_expression_new_class(t):
 
 def p_expression_new_array(t):
     'expression_new : NEW variable_type LBRAC expression RBRAC'
+    t[0] = AST.expression_new_array(t[2], t[4], t.lineno)
 
 def p_expression_index(t):
     'expression_index : expression LBRAC expression RBRAC'

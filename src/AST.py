@@ -505,7 +505,7 @@ class expression_new_array:
     def __init__(self, i_type, len, lineno):
         self.e_type = i_type + "[]"
         self.i_type = i_type
-        self.root_tpye = i_type.replace("[]","")
+        self.root_type = i_type.replace("[]","")
         self.len = len
         self.lineno = lineno
 

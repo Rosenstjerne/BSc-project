@@ -121,13 +121,13 @@ class ASTSymbolVisitor(VisitorsBase):
 
     def preMidVisit_body(self, t):
         for atribute in [a for a in [c for b , c in self._current_scope._types]]:
-            atribute.type_scope = self._current_scope.type_lookup(atribute.rtype)
+            atribute.type_scope = self._current_scope.type_lookup(atribute.rtype.replace('[]',''))
             if atribute.type_scope is not None:
                 pass
             else:
                 error_message(
                         "Symbol Collection",
-                        f"Type '{atribute.rtype}', for class atribute '{atribute.info.name}' was not declared in this scope",
+                        f"Type '{atribute.rtype.replace('[]','')}', for class atribute '{atribute.info.name}' was not declared in this scope",
                         atribute.info.lineno
                         )
 
@@ -135,13 +135,13 @@ class ASTSymbolVisitor(VisitorsBase):
         # Recording the number of local variables:
         t.number_of_variables = self.variable_offset
         for variable in [b for a , b in self._current_scope._tab]:
-            variable.type_scope = self._current_scope.type_lookup(variable.rtype)
+            variable.type_scope = self._current_scope.type_lookup(variable.rtype.replace('[]',''))
             if variable.type_scope is not None:
                 pass
             else:
                 error_message(
                         "Symbol Collection",
-                        f"Type '{variable.rtype}', for variable '{variable.info.name}' was not declared in this scope",
+                        f"Type '{variable.rtype.replace('[]','')}', for variable '{variable.info.name}' was not declared in this scope",
                         variable.info.lineno
                         )
 
@@ -163,7 +163,7 @@ class ASTSymbolVisitor(VisitorsBase):
                     "Symbol Collection",
                     f"Redeclaration of function '{t.name}' in the same scope.",
                     t.lineno)
-            if self._current_scope.type_lookup(t.rtype) is None:
+            if self._current_scope.type_lookup(t.rtype.replace('[]','')) is None:
                 error_message(
                         "Symbol Collection",
                         f"Return type '{t.rtype}' for function '{t.name}' was not declared in this scope",
@@ -193,6 +193,12 @@ class ASTSymbolVisitor(VisitorsBase):
 
     def preVisit_parameter_list(self, t):
         # Recording formal parameter names in the symbol table:
+        if self._current_scope.type_lookup(t.vtype.replace('[]','')) is None:
+            error_message(
+                    "Symbol Collection",
+                    f"Type of '{t.vtype}' for parameter '{t.parameter}' was not declares in this scope",
+                    t.lineno
+                    )
         if self._current_scope.lookup_this_scope(t.parameter):
             error_message(
                 "Symbol Collection",
