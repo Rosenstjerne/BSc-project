@@ -31,12 +31,14 @@ reserved = {
     'new': 'NEW',
     'int': '_INT',
     'bool': '_BOOL',
-    'null': 'NULL'
+    'char': '_CHAR',
+    'null': 'NULL',
+    'string': '_STRING',
 }
 
 
 tokens = (
-    'IDENT', 'INT', 'BOOL', #Types
+    'IDENT', 'INT', 'BOOL', 'CHAR', 'STRING' #Types
     'PLUS', 'MINUS', 'MULTIPLY', 'DIVIDE', 'MODULO', # arithmatic int operators
     'EQ', 'NEQ', 'LT', 'GT', 'LTE', 'GTE', # comparisons
     'AND', 'OR', 'NOT', # bool operators
@@ -96,6 +98,16 @@ def t_BOOL(t):
         t.value = bool(t.value)
     except ValueError:
         error_message("Lexical analyser",f"Something went lexing the boolean.",t.lexer.lineno)
+    return t
+
+def t_CHAR(t):
+    r"'(?:\\.|[^'\\])'" #Catches a single character, including escape sequences
+    t.value = t.value[1:-1]  # Remove the single quotes
+    return t
+
+def t_STRING(t):
+    r'"(?:\\.|[^"\\])*"'
+    t.value = list(t.value[1:-1])  # Remove the double quotes and store the string as a list of characters
     return t
 
 
@@ -317,6 +329,8 @@ def p_statement_list(t):
 def p_expression(t):
     '''expression : expression_integer
                   | expression_boolean
+                  | expression_character
+                  | expression_string
                   | expression_identifier
                   | expression_call
                   | expression_binop
@@ -334,7 +348,16 @@ def p_expression_integer(t):
 
 def p_expression_boolean(t):
     'expression_boolean : BOOL'
-    t[0] = AST.expression_boolean(t[1], t.lexer.lineno) 
+    t[0] = AST.expression_boolean(t[1], t.lexer.lineno)
+
+def p_expression_character(t):
+    'p_expression_character : CHAR'
+    t[0] = AST.expression_character(t[1], t.lexer.lineno)
+
+def p_expression_string(t):
+    'expression_string : STRING'
+    t[0] = t[1]
+
 
 def p_expression_neg(t):
     'expression_neg : NOT expression'

@@ -1,0 +1,3 @@
+var char a;
+a = 'b';
+print(a);

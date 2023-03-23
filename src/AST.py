@@ -349,6 +349,11 @@ class expression_integer:
         s += toStr(self.integer)
         return s
 
+class expression_character:
+    def __init__(self, value, lineno):
+        self.value = value
+        self.lineno = lineno
+
 class expression_negative:
     def __init__(self, exp, lineno):
         self.exp = exp
