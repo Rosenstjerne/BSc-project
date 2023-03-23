@@ -109,7 +109,7 @@ def t_newline(t):
 
 
 def t_COMMENT(t):
-    r'\#([^\*].*)?$'
+    r'\#(?!\*).*'
     pass
 
 def t_COMMENTBLOCK(t):
