@@ -1,59 +1,96 @@
 
 Running test: ./parserTest/assigmentWithExp.leif
+Test passed
 Running test: ./parserTest/assigWithFuncCall.leif
+Test passed
 Running test: ./parserTest/binaryOpe.leif
+Test passed
 Running test: ./parserTest/breakArrayWhile.leif
+Test passed
 Running test: ./parserTest/breakWhile.leif
+Test passed
 Running test: ./parserTest/chainingIfElse.leif
+Test passed
 Running test: ./parserTest/commentAfterParan.leif
+Test passed
 Running test: ./parserTest/commentBeforeParan.leif
 
 Error in phase Syntax Analysis, line unknown:
     Problem detected - check for missing closing braces.
+Test passed
 Running test: ./parserTest/commentInMultiline.leif
+Test passed
 Running test: ./parserTest/commentInPrint.leif
 
 Error in phase Syntax Analysis, line unknown:
     Problem detected - check for missing closing braces.
+Test passed
 Running test: ./parserTest/continueWhile.leif
+Test passed
 Running test: ./parserTest/declaInComment.leif
+Test passed
 Running test: ./parserTest/funcClass.leif
 
 Error in phase Syntax Analysis, line 2:
     Problem detected at 'function'.
+Test passed
 Running test: ./parserTest/functionWithParam.leif
 
 Error in phase Syntax Analysis, line 2:
     Problem detected at '('.
+Test passed
 Running test: ./parserTest/funcWithClassDecl.leif
+Test passed
 Running test: ./parserTest/funcWithNonSimple.leif
+Test passed
 Running test: ./parserTest/funcWithReturn.leif
+Test passed
 Running test: ./parserTest/funcWithVarDecl.leif
+Test passed
 Running test: ./parserTest/identToExp.leif
+Test passed
 Running test: ./parserTest/IfStatement.leif
+Test passed
 Running test: ./parserTest/instNonSimpleType.leif
+Test passed
 Running test: ./parserTest/logicExp.leif
+Test passed
 Running test: ./parserTest/multiCommentLine.leif
 
 Error in phase Set-Up, line 1:
     The input is not in ASCII.
+Test passed
 Running test: ./parserTest/multilLineAsSingle.leif
+Test passed
 Running test: ./parserTest/negativeOperator.leif
+Test passed
 Running test: ./parserTest/nestedFunc.leif
+Test passed
 Running test: ./parserTest/nestedIf.leif
+Test passed
 Running test: ./parserTest/nestedIfElse.leif
+Test passed
 Running test: ./parserTest/nestedWhile.leif
+Test passed
 Running test: ./parserTest/nonSimpleTypeExp.leif
+Test passed
 Running test: ./parserTest/notOperator.leif
+Test passed
 Running test: ./parserTest/parentExp.leif
+Test passed
 Running test: ./parserTest/precedence.leif
+Test passed
 Running test: ./parserTest/rangeOverArrayWhile.leif
 
 Error in phase Syntax Analysis, line 4:
     Problem detected at '['.
+Test passed
 Running test: ./parserTest/recursiveFunc.leif
+Test passed
 Running test: ./parserTest/simpleAssigment.leif
+Test passed
 Running test: ./parserTest/simpleWhile.leif
+Test passed
 All tests completed.
-failed test: 6  
+Failed tests: 0
 Total tests run: 37
