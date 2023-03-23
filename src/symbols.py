@@ -233,8 +233,15 @@ class ASTSymbolVisitor(VisitorsBase):
        self._current_scope.insert_type(t.name, values)
 
     def postVisit_variable(self, t):
-        if self._current_scope.lookup(t.name):
-            t.scope = self._current_scope.lookup_table(t.name)
+        t.var = self._current_scope.lookup(t.name)
+        if t.var is not None:
+            if t.var.cat == NameCategory.VARIABLE:
+                t.vtype = t.var.rtype
+            else:
+                error_message(
+                              "Symbol Collection",
+                              f"'{t.name}' is not a variable",
+                              t.lineno)
         else:
             error_message(
                 "Symbol Collection",
@@ -291,3 +298,4 @@ class ASTSymbolVisitor(VisitorsBase):
 
     def preVisit_expression_list(self, t):
         self.exp_offset += 1
+
