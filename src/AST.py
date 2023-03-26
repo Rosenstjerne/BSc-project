@@ -192,6 +192,7 @@ class statement_return:
     def __init__(self, exp, lineno):
         self.exp = exp
         self.lineno = lineno
+        self.legal = False # for later check
 
     def accept(self, visitor):
         visitor.preVisit(self)
@@ -228,6 +229,8 @@ class statement_assignment:
 
     def accept(self, visitor):
         visitor.preVisit(self)
+        self.lhs.accept(visitor)
+        visitor.midVisit(self)
         self.rhs.accept(visitor)
         visitor.postVisit(self)
 
@@ -340,6 +343,7 @@ class expression_integer:
     def __init__(self, i, lineno):
         self.integer = i
         self.lineno = lineno
+        self._type = "int"
 
     def accept(self, visitor):
         visitor.postVisit(self)
@@ -353,6 +357,7 @@ class expression_negative:
     def __init__(self, exp, lineno):
         self.exp = exp
         self.lineno = lineno
+        self._type = "int"
 
     def accept(self, visitor):
         visitor.preVisit(self)
@@ -368,6 +373,7 @@ class expression_boolean:
     def __init__(self, b, lineno):
         self.boolean = b
         self.lineno = lineno
+        self._type = "bool"
 
     def accept(self, visitor):
         visitor.postVisit(self)
@@ -382,6 +388,7 @@ class expression_neg:
     def __init__(self, exp, lineno):
         self.exp = exp
         self.lineno = lineno
+        self._type = "bool"
 
     def accept(self, visitor):
         visitor.preVisit(self)
@@ -493,6 +500,7 @@ class expression_new:
     def __init__(self, r_type, lineno):
         self.r_type = r_type
         self.lineno = lineno
+        self._type = r_type
 
     def accept(self, visitor):
         visitor.postVisit(self)
@@ -508,6 +516,7 @@ class expression_new_array:
         self.root_type = i_type.replace("[]","")
         self.len = len
         self.lineno = lineno
+        self._type = self.e_type
 
     def accept(self, visitor):
         visitor.preVisit(self)

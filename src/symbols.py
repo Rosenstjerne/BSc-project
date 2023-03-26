@@ -40,6 +40,7 @@ class SymbolTable:
         self._types = {}
         self.name = lineno
         self.parent = parent
+        self.is_function = False
 
     def insert(self, name, value):
         self._tab[name] = value
@@ -174,6 +175,7 @@ class ASTSymbolVisitor(VisitorsBase):
 
             self._current_level += 1
             self._current_scope = SymbolTable(self._current_scope, t.lineno)
+            self._current_scope.is_function = True
 
         # Saves the function declaration to its body in the AST for later use
         t.body.function = t

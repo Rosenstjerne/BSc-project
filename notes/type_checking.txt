@@ -41,7 +41,7 @@
   En expression list skal give listen videre til alle sine børn. Og i den liste skal den gemme sin expression sammen med dens type i den rekkeføle de opstår i.
   I post visiot på expression call, skal vi tjekke parametrenes typer op immod argumenteres typer, og gemme den løse assigmenet vi vil lave fra expression listen til de respektive parametre
   :
-  Expression binot skal tjekke typen af dens højre og venste side i frohold til dens operator :
+  Expression binop skal tjekke typen af dens højre og venste side i frohold til dens operator :
     - + : børnene skal være int. Returnere en int 
     - - : børnene skal være int. Returnere en int 
     - / : børnene skal være int. Returnere en int
