@@ -1,1 +1,65 @@
 
+
+  For en body skal vi kende til nesting nivouet, og om den tilhøre en funktion
+
+  Alle declarations er allerede tjekket og gemt
+
+  For parametre skal sørge for at de er gemt i en liste i den rigtige rekkefølge så vi kan tjekke funtions kald input
+  
+  Den sidste linje (og kun den sidste) i en ikke null funtion, skal være et return statement som returnere den rigtige type (Null funktioner må ikke have et return)
+
+  Print må kun printe bools, ints og arrays / nested arrays, hvis root type er en bool eller int
+
+  Assing skal tjekke typen af variablen (venstre siden), og tjekke typen af verdien (højre siden). De skal være kompatabile
+
+  Normal variable, skal finde sin egen type
+
+  Dot variable, skal evaluere sin expression, og tjekke om attributten (højre siden) findes i return typen af venstre siden
+
+  En index variable skal identificere sin egen type, (tjekke om den er et array) og returnrer sin egen type pakket én gang ud
+
+  if then else skal have en bool expresion i garden
+
+  if then skal have en bool expresion i garden
+
+  En while skal have en bool expression i garden.
+  Vi skal altid vide hilken while løkke (den inderste nestede) vi er i. Så vi kan lave breaks.
+
+  Break må kun finde sted i en while løkke. Skal peje på while løkken den breaker efter evaluering
+  
+  Expression integer, skal returnere sin type (int)
+
+  Expression boolean skal returnere sin type (bool)
+
+  Expression neg, skal have en bool expression, og returnere altid en bool
+
+  Expression minus, skal have en int expression, og returnere altid en int
+
+  Expression identifier skal returnere typen fra dens variable
+  
+  Expression call skal i sin post visit give en liste (tom til at starte med) til sin expression list (hvis den findes)
+  En expression list skal give listen videre til alle sine børn. Og i den liste skal den gemme sin expression sammen med dens type i den rekkeføle de opstår i.
+  I post visiot på expression call, skal vi tjekke parametrenes typer op immod argumenteres typer, og gemme den løse assigmenet vi vil lave fra expression listen til de respektive parametre
+  :
+  Expression binot skal tjekke typen af dens højre og venste side i frohold til dens operator :
+    - + : børnene skal være int. Returnere en int 
+    - - : børnene skal være int. Returnere en int 
+    - / : børnene skal være int. Returnere en int
+    - * : børnene skal være int. Returnere en int
+    - % : børnene skal være int. Returnere en int
+    - ==: børnene skal være samme type. Returnere en bool
+    - !=: børnene skal være samme type. Returnere en bool
+    - < : børnene skal være int. Returnere en bool
+    - > : børnene skal være int. Returnere en bool
+    - <=: børnene skal være int. Returnere en bool
+    - >=: børnene skal være int. Returnere en bool
+    - &&: børnene skal være bool. Returnere en bool
+    - ||: børnene skal være bool. Returnere en bool
+
+  Expression group skal return sit barns type
+
+  expression new class skal return den angivede klasse
+
+  expression new array skal returnere et arrat af den givende type
+
+
