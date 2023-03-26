@@ -179,7 +179,7 @@ def p_optional_variables_declaration_list(t):
     t[0] = t[1]
 
 
-def p_int_variables_declaration_list(t):
+def p_variables_declaration_list(t):
     '''variables_declaration_list : VAR variable_type variables_list SEMICOLON
                                   | VAR variable_type variables_list SEMICOLON variables_declaration_list'''
     if len(t) == 5:
@@ -277,6 +277,9 @@ def p_dot_varable(t):
     'variable : expression DOT IDENT'
     t[0] = AST.dot_variable(t[1], t[3], t.lineno)
 
+def p_index_variable(t):
+    'variable : expression LBRAC expression RBRAC'
+    t[0] = AST.expression_index(t[1], t[3], t.lineno)
 
 def p_statement_ifthenelse(t):
     'statement_ifthenelse : IF LPAREN expression RPAREN statement ELSE statement'
@@ -354,6 +357,19 @@ def p_expression_call(t):
     'expression_call : IDENT LPAREN optional_expression_list RPAREN'
     t[0] = AST.expression_call(t[1], t[3], t.lexer.lineno)
 
+def p_optional_expression_list(t):
+    '''optional_expression_list : empty
+                                | expression_list'''
+    t[0] = t[1]
+
+def p_expression_list(t):
+    '''expression_list : expression
+                       | expression COMMA expression_list'''
+    if len(t) == 2:
+        t[0] = AST.expression_list(t[1], None, t.lexer.lineno)
+    else:
+        t[0] = AST.expression_list(t[1], t[3], t.lexer.lineno)
+
 
 def p_expression_binop(t):
     '''expression_binop : expression PLUS expression
@@ -376,12 +392,6 @@ def p_expression_group(t):
     'expression_group : LPAREN expression RPAREN'
     t[0] = t[2]
 
-
-def p_optional_expression_list(t):
-    '''optional_expression_list : empty
-                                | expression_list'''
-    t[0] = t[1]
-
 def p_expression_new_class(t):
     'expression_new : NEW variable_type'
     t[0] = AST.expression_new(t[2], t.lineno)
@@ -389,18 +399,6 @@ def p_expression_new_class(t):
 def p_expression_new_array(t):
     'expression_new : NEW variable_type LBRAC expression RBRAC'
     t[0] = AST.expression_new_array(t[2], t[4], t.lineno)
-
-def p_expression_index(t):
-    'expression_index : expression LBRAC expression RBRAC'
-    t[0] = AST.expression_index(t[1], t[3], t.lineno)
-
-def p_expression_list(t):
-    '''expression_list : expression
-                       | expression COMMA expression_list'''
-    if len(t) == 2:
-        t[0] = AST.expression_list(t[1], None, t.lexer.lineno)
-    else:
-        t[0] = AST.expression_list(t[1], t[3], t.lexer.lineno)
 
 
 def p_error(t):
