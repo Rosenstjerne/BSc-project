@@ -185,6 +185,7 @@ class ASTTypeCheckingVisitor(VisitorsBase):
         if t.next_ is not None:
             t.next_.arg_lst = t.arg_lst
         t.arg_lst.append(t)
+        t._type = t.exp._type
 
     def postVisit_expression_call(self, t):
         a = t.arg_lst
