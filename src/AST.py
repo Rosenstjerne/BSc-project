@@ -153,6 +153,7 @@ class parameter_list:
         self.parameter = parameter
         self.next = next_
         self.lineno = lineno
+        self._type = vtype # for later use
 
     def accept(self, visitor):
         visitor.preVisit(self)
@@ -193,6 +194,7 @@ class statement_return:
         self.exp = exp
         self.lineno = lineno
         self.legal = False # for later check
+        self._type = "unknown" # for later use
 
     def accept(self, visitor):
         visitor.preVisit(self)
@@ -209,6 +211,7 @@ class statement_print:
     def __init__(self, exp, lineno):
         self.exp = exp
         self.lineno = lineno
+        self.printType = "unknown" # for later use
 
     def accept(self, visitor):
         visitor.preVisit(self)
@@ -226,6 +229,7 @@ class statement_assignment:
         self.lhs = lhs
         self.rhs = rhs
         self.lineno = lineno
+        self._type = "unknown" # for later use
 
     def accept(self, visitor):
         visitor.preVisit(self)
@@ -400,24 +404,27 @@ class expression_neg:
         return s
 
 
-class expression_identifier:
-    def __init__(self, identifier, lineno):
-        self.identifier = identifier
-        self.lineno = lineno
+# Might not be used at all
+# class expression_identifier:
+#     def __init__(self, identifier, lineno):
+#         self.identifier = identifier
+#         self.lineno = lineno
+#         self._type = "unknown" # for later use
 
-    def accept(self, visitor):
-        visitor.postVisit(self)
+#     def accept(self, visitor):
+#         visitor.postVisit(self)
 
-    def __str__(self) -> str:
-        s = ""
-        s += toStr(self.identifier)
-        return s
+#     def __str__(self) -> str:
+#         s = ""
+#         s += toStr(self.identifier)
+#         return s
 
 class expression_index:
     def __init__(self, exp, index, lineno):
         self.exp = exp
         self.index = index
         self.lineno = lineno
+        self._type = "unknown" # for later use
 
     def accept(self, visitor):
         visitor.preVisit(self)
@@ -433,6 +440,7 @@ class variable:
     def __init__(self, name, lineno):
         self.name = name
         self.lineno = lineno
+        self._type = "unknown" # for later use
 
     def accept(self, visitor):
         visitor.postVisit(self)
@@ -446,6 +454,7 @@ class dot_variable:
         self.exp = exp
         self.elm = elm 
         self.lineno = lineno
+        self._type = "unknown" # for later use
 
     def accept(self, visitor):
         visitor.preVisit(self)
@@ -462,6 +471,7 @@ class expression_call:
         self.name = name
         self.exp_list = exp_list
         self.lineno = lineno
+        self._type = "unknown" # for later use
 
     def accept(self, visitor):
         visitor.preVisit(self)
@@ -481,6 +491,21 @@ class expression_binop:
         self.lhs = lhs
         self.rhs = rhs
         self.lineno = lineno
+        self.takes = ""
+        self._type = ""
+        if op in ["+","-","*","/","%"]:
+            self.takes = "int"
+            self._type = "int"
+        if op in ["<","<=",">",">="]:
+            self.takes = "int"
+            self._type = "bool"
+        if op in ["&&","||"]:
+            self.takes = "bool"
+            self._type = "bool"
+        if op in ["==","!="]:
+            self.takes = "any"
+            self._type = "bool"
+
 
     def accept(self, visitor):
         visitor.preVisit(self)
@@ -535,6 +560,7 @@ class expression_list:
         self.exp = exp
         self.next = next_
         self.lineno = lineno
+        self._type = "unknown" # for later use
 
     def accept(self, visitor):
         visitor.preVisit(self)

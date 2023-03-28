@@ -15,8 +15,7 @@ class ASTTypeCheckingVisitor(VisitorsBase):
         # symbol table, from where parent scopes can be reached:
         self._current_scope = None
 
-        self.current_function_name_stack = []
-        self.function_return_stack = []
+        self.current_function_stack = []
         self.while_nesting_stack = []
 
     def preVisit_body(self, t):
@@ -27,30 +26,29 @@ class ASTTypeCheckingVisitor(VisitorsBase):
 
     def preVisit_function(self, t):
         if t.name != "main":
-            self.function_return_stack.append(t.rtype)
-            self.current_function_name_stack.append(t.name)
+            self.current_function_stack.append(t)
 
     def postVisit_function(self, t):
         if t.name != "main":
-            self.function_return_stack.pop
-            self.current_function_name_stack.pop
+            self.current_function_stack.pop
     
     def preVisit_statement_list(self, t):
         if self._current_scope.is_function:
             if t.next is None:
-                if self.function_return_stack[-1] != "null":
+                if self.current_function_stack[-1].rtype != "null":
                     if type(t.stm) == "statement_return":
                         t.stm.legal = True
                     else:
                         error_message(
                                 "Type Checking",
-                                f"Function '{self.current_function_name_stack[-1]}' is missing a return statement",
+                                f"Function '{self.current_function_stack[-1].name}' is missing a return statement",
                                 self._current_scope.name
                                 )
                     
     def preVisit_statement_return(self, t):
         if t.legal:
-            pass
+            t._type = self.current_function_stack[-1].rtype
+            t.function = self.current_function_stack[-1]
         else:
             error_message(
                     "Type Checking",
@@ -59,86 +57,163 @@ class ASTTypeCheckingVisitor(VisitorsBase):
                     )
 
     def postVisit_statement_return(self, t):
-        
-        """If the return type of the function is not compatible with the 
-        return type of the expression in this return statemt, throw an error"""
+        if t._type == t.exp._type:
+            pass
+        else:
+            error_message(
+                    "Type Checking",
+                    f"Actual return type '{t._type}' does not match return type  of '{t.function.name}': '{t.function.rtype}'",
+                    t.lineno
+                    )
 
-        pass
 
     def postVisit_statement_print(self, t): 
-        
-        """If the return type of the expression is not bool, int or rootvalue bool / int 
-        throw an error"""
-
-        pass
+        if t.exp._type.replace("[]","") in ["int","bool"]:
+            t.printType = t.exp._type
+        else:
+            error_message(
+                    "Type Checking",
+                    f"Not able to print values of type '{t.exp._type}'",
+                    t.lineno
+                    )
 
     def postVisit_statement_assignment(self, t):
-        """return an error if the lhs and the rhs types are not compatible"""
-        pass
+        if t.lhs._type == t.rhs._type:
+            t._type = t.lhs._type
+        else:
+            error_message(
+                    "Type Checking",
+                    f"Trying to assign a value of type '{t.rhs._type}' to a varaible of type '{t.lhs._type}' is not possible",
+                    t.lineno
+                    )
 
     def postVisit_variable(self, t):
         """saves its own type"""
         pass
 
     def postVisit_dot_variable(self, t):
-        """Checks if its expression type has the given attribute
-        Then saves it type"""
-        pass
+        class_list = t.scope.atribute_lookup(t.elm)
+        if t.exp._type in class_list:
+            t.paren = class_list[t.exp._type]
+            t._tpye = class_list[t.exp._type][t.elm].rtype
+        else:
+            error_message(
+                    "Type Checking",
+                    f"Type '{t.exp._type}' does not have an atribute '{t.elm}'",
+                    t.lineno
+                    )
 
     def postVisit_expression_index(self, t):
-        """Checks if the expression returns an array, then saves it type as the given arrays type, unpacked once"""
-        pass
+        if "[]" in t.exp._type:
+            t._type = t.exp._type[:-2]
+        else:
+            error_message(
+                    "Type Checking",
+                    f"Can not index into type '{t.exp._type}'",
+                    t.lineno
+                    )
+        if t.index._type == "int":
+            pass
+        else:
+            error_message(
+                    "Type Checking",
+                    f"Type '{t.index._type}' can not be used to index into an array. Only allowed idexing type is 'int'",
+                    t.lineno
+                    )
 
     def midVisit_statement_ifthen(self, t):
-        """Checks it the guarde is a bool"""
-        pass
+        if t.exp._type == "bool":
+            pass
+        else:
+            error_message(
+                    "Type Checking",
+                    f"An expression of type '{t.exp._type}' cannot be used as a guarde. Must be of type 'bool'",
+                    t.lineno
+                    )
 
     def preMidVisit_statement_ifthenelse(self, t):
-        """Checks it the guarde is a bool"""
-        pass
+        if t.exp._type == "bool":
+            pass
+        else:
+            error_message(
+                    "Type Checking",
+                    f"An expression of type '{t.exp._type}' cannot be used as a guarde. Must be of type 'bool'",
+                    t.lineno
+                    )
 
     
     def midVisit_statement_while(self, t):
-        """Checks it the guarde is a bool"""
+        if t.exp._type == "bool":
+            pass
+        else:
+            error_message(
+                    "Type Checking",
+                    f"An expression of type '{t.exp._type}' cannot be used as a guarde. Must be of type 'bool'",
+                    t.lineno
+                    )
         self.while_nesting_stack.append(t)
     
     def postVisit_statement_while(self, t):
         self.while_nesting_stack.pop()
 
     def postVisit_expression_negative(self, t):
-        """Throws an error if the expression is not int"""
-        pass
+        if t.exp._type == "int":
+            pass
+        else:
+            error_message(
+                    "Type Checking",
+                    f"Can not take negative value of an expression of type '{t.exp._type}'. Must be of type 'int'",
+                    t.lineno
+                    )
 
     def postVisit_expression_neg(self, t):
-        """Throws an error if the expression is not bool"""
-        pass
+        if t.exp._type == "bool":
+            pass
+        else:
+            error_message(
+                    "Type Checking",
+                    f"Can not negate expression of '{t.exp._type}'. Must be of type 'bool'",
+                    t.lineno
+                    )
 
     def preVisit_expression_call(self, t):
         t.arg_lst = []
         if t.exp_list:
             t.exp_list.arg_lst = t.arg_lst
 
+    def preVisit_expression_list(self, t):
+        if t.next_ is not None:
+            t.next_.arg_lst = t.arg_lst
+        t.arg_lst.append(t)
+
     def postVisit_expression_call(self, t):
-        """Checks if the argsuments given are compatible with the needed parameters for a function
-        Saves a link between each argument to the respective parameter"""
-        pass
+        a = t.arg_lst
+        p = t.function.parameter_list
+        for i in range(t.number_of_parameters):
+            if a[i]._type == p[i]._type:
+                a[i].parameter = p[i]
+            else:
+                error_message(
+                        "Type Checking",
+                        f"Argument {i} in call to function {t.name} is of type '{a[i]._type}', but must be of type '{p[i]._type}'",
+                        t.lineno
+                        )
 
     def postVisit_expression_binop(self, t):
-        """
-            - + : børnene skal være int. Returnere en int 
-            - - : børnene skal være int. Returnere en int 
-            - / : børnene skal være int. Returnere en int
-            - * : børnene skal være int. Returnere en int
-            - % : børnene skal være int. Returnere en int
-            - ==: børnene skal være samme type. Returnere en bool
-            - !=: børnene skal være samme type. Returnere en bool
-            - < : børnene skal være int. Returnere en bool
-            - > : børnene skal være int. Returnere en bool
-            - <=: børnene skal være int. Returnere en bool
-            - >=: børnene skal være int. Returnere en bool
-            - &&: børnene skal være bool. Returnere en bool
-            - ||: børnene skal være bool. Returnere en bool
-        """
-        pass
-
-    
+        if t.takes == "any":
+            if t.lhs._type in ["int", "bool"]:
+                if t.lhs._type == t.rhs._type:
+                    pass
+                else:
+                    error_message("Type Checking", f"Both sides of the '{t.op}' operator must be same type", t.lineno)
+            else:
+                error_message("Type Checking", f"The '{t.op}' can only take types of 'int' or 'bool'. Found '{t.lhs._type}'", t.lineno)
+        else:
+            if (t.lhs._type == t.takes) and (t.rhs._type == t.takes):
+                pass
+            else:
+                error_message(
+                        "Type Checking",
+                        f"Types '{t.lhs._type}' and '{t.rhs._type}' are not compatible with operator '{t.op}', which can only be used type '{t.takes}'",
+                        t.lineno
+                        )

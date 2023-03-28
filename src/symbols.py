@@ -179,8 +179,9 @@ class ASTSymbolVisitor(VisitorsBase):
 
         # Saves the function declaration to its body in the AST for later use
         t.body.function = t
-        t.parameter_list = {}
-        t.par_list = t.parameter_list
+        t.parameter_list = []
+        if t.par_list is not None:
+            t.par_list.parameter_list = t.parameter_list
         
         # Preparing for the processing of formal parameters:
         self.parameter_offset = 0
@@ -212,6 +213,9 @@ class ASTSymbolVisitor(VisitorsBase):
                                 self.parameter_offset,
                                 t.vtype))
 
+        if t.next is not None:
+            t.next.parameter_list = t.parameter_list
+        t.parameter_list.append(t)
         self.parameter_offset += 1
 
     def preVisit_variables_declaration_list(self, t):
@@ -272,7 +276,7 @@ class ASTSymbolVisitor(VisitorsBase):
         t.var = self._current_scope.lookup(t.name)
         if t.var is not None:
             if t.var.cat == NameCategory.VARIABLE:
-                t.vtype = t.var.rtype
+                t._type = t.var.rtype
             else:
                 error_message(
                               "Symbol Collection",
@@ -320,7 +324,8 @@ class ASTSymbolVisitor(VisitorsBase):
             if f.cat == NameCategory.FUNCTION:
                 if f.info.number_of_parameters == self.exp_offset:
                     t.number_of_parameters = self.exp_offset
-                    t.rtype = f.info.rtype
+                    t._type = f.info.rtype
+                    t.function = f.info
                 else:
                     error_message("Symbol Collection",
                                   f"'{t.name}', takes {f.info.number_of_parameters} arguments but only {self.exp_offset} was given",
