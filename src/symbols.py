@@ -74,7 +74,7 @@ class SymbolTable:
         if name in self._types:
             return self._types[name]
         elif self.parent:
-            return self.parent.lookup(name)
+            return self.parent.type_lookup(name)
         else:
             return None
 
@@ -121,21 +121,22 @@ class ASTSymbolVisitor(VisitorsBase):
         
 
     def preMidVisit_body(self, t):
-        for atribute in [a for a in [c for b , c in self._current_scope._types]]:
-            atribute.type_scope = self._current_scope.type_lookup(atribute.rtype.replace('[]',''))
-            if atribute.type_scope is not None:
-                pass
-            else:
-                error_message(
-                        "Symbol Collection",
-                        f"Type '{atribute.rtype.replace('[]','')}', for class atribute '{atribute.info.name}' was not declared in this scope",
-                        atribute.info.lineno
-                        )
+        for attLst in [b for b in self._current_scope._types.values()]:
+            for atribute in attLst.values():
+                atribute.type_scope = self._current_scope.type_lookup(atribute.rtype.replace('[]',''))
+                if atribute.type_scope is not None:
+                    pass
+                else:
+                    error_message(
+                            "Symbol Collection",
+                            f"Type '{atribute.rtype.replace('[]','')}', for class atribute '{atribute.info.name}' was not declared in this scope",
+                            atribute.info.lineno
+                            )
 
     def midVisit_body(self, t):
         # Recording the number of local variables:
         t.number_of_variables = self.variable_offset
-        for variable in [b for a , b in self._current_scope._tab]:
+        for variable in [b for b in self._current_scope._tab.values()]:
             variable.type_scope = self._current_scope.type_lookup(variable.rtype.replace('[]',''))
             if variable.type_scope is not None:
                 pass
@@ -275,7 +276,7 @@ class ASTSymbolVisitor(VisitorsBase):
     def postVisit_variable(self, t):
         t.var = self._current_scope.lookup(t.name)
         if t.var is not None:
-            if t.var.cat == NameCategory.VARIABLE:
+            if t.var.cat == NameCategory.VARIABLE or t.var.cat == NameCategory.PARAMETER:
                 t._type = t.var.rtype
             else:
                 error_message(

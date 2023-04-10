@@ -28,7 +28,7 @@ from type_checking import ASTTypeCheckingVisitor
 # from emit import Emit
 
 
-__version__ = "1.2.1"
+__version__ = "unfinished beta"
 
 
 # MAIN
@@ -79,6 +79,15 @@ def compiler(showSource, showAST, macOS, input_file, output_file):
 
     if showSource or showAST:
             return str(the_program)
+    else:
+
+        # Collect names of functions, parameters, and local variables:
+        symbols_collector = ASTSymbolVisitor()
+        the_program.accept(symbols_collector)
+
+        # Type check use of functions, parameters, and local variables:
+        type_checker = ASTTypeCheckingVisitor()
+        the_program.accept(type_checker)
 
     return "not yet implimented"
 """

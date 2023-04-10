@@ -203,6 +203,7 @@ class statement_return:
 
     def __str__(self) -> str:
         s = "return "
+        s += toStr(self.exp)
         s += toStr(self.exp) + ";"
         return s
 

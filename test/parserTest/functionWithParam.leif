@@ -1,6 +1,7 @@
 var int num1, num2;
 function int printSum(int x, int y) {
   print(x + y);
+  return 0;
 }
 
 num1 = 5;

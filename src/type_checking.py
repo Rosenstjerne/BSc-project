@@ -36,7 +36,7 @@ class ASTTypeCheckingVisitor(VisitorsBase):
         if self._current_scope.is_function:
             if t.next is None:
                 if self.current_function_stack[-1].rtype != "null":
-                    if type(t.stm) == "statement_return":
+                    if hasattr(t.stm, "legal"):
                         t.stm.legal = True
                     else:
                         error_message(
@@ -182,8 +182,8 @@ class ASTTypeCheckingVisitor(VisitorsBase):
             t.exp_list.arg_lst = t.arg_lst
 
     def preVisit_expression_list(self, t):
-        if t.next_ is not None:
-            t.next_.arg_lst = t.arg_lst
+        if t.next is not None:
+            t.next.arg_lst = t.arg_lst
         t.arg_lst.append(t)
         t._type = t.exp._type
 

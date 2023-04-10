@@ -3,6 +3,7 @@ function null main() {
 	
 	function int printSum(int x, int y) {
 		print((x + y));
+		return ;
 		
 	}
 	

@@ -326,8 +326,7 @@ def p_expression(t):
                   | expression_group
                   | expression_neg
                   | expression_negative
-                  | expression_new
-                  | expression_index'''
+                  | expression_new'''
     t[0] = t[1]
 
 
