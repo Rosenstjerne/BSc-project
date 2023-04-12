@@ -85,9 +85,9 @@ class SymbolTable:
             return None
 
     def atribute_lookup(self, name, d = {}):
-        for c, lst in self._types:
-            if name in lst:
-                d[c] = lst
+        for c in self._types:
+            if name in self._types[c]:
+                d[c] = self._types[c]
         if self.parent:
             self.parent.atribute_lookup(name, d)
         return d
