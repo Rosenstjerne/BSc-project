@@ -195,7 +195,7 @@ def p_variable_type(t):
                      | IDENT
                      | variable_type LBRAC RBRAC'''
     if len(t) == 4:
-        t[0] = t[1] + t[2] + t[3]
+        t[0] = t[1] + "[]"
     else:
         t[0] = t[1]
 
