@@ -174,6 +174,7 @@ class variables_list:
         self.variable = variable
         self.next = next_
         self.lineno = lineno
+        self._type = "" # for later check
 
     def accept(self, visitor):
         visitor.preVisit(self)

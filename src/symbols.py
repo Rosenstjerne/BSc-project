@@ -222,6 +222,7 @@ class ASTSymbolVisitor(VisitorsBase):
     def preVisit_variables_declaration_list(self, t):
         # propagates the type to the inner declarations for later use
         t.decl.vtype = t.vtype
+        t.decl._type = t.vtype
         if hasattr(t, "attLst"):
             t.decl.attLst = t.attLst
             if t.next:
@@ -248,13 +249,14 @@ class ASTSymbolVisitor(VisitorsBase):
                 t.variable, SymVal(NameCategory.VARIABLE,
                                    self._current_level,
                                    t,
-                                   t.vtype))
+                                   t._type))
             t.variable_offset = self.variable_offset
             self.variable_offset += 1
 
         # Hansd the variable type to the next varaible for later use
         if t.next:
             t.next.vtype = t.vtype
+            t.next._type = t._type;
 
     def preVisit_class_declaration(self, t):
         # if a class with the same name is already declared in this scope, throw an error
