@@ -137,7 +137,8 @@ precedence = (
     ('left', 'PLUS', 'MINUS'),
     ('left', 'MULTIPLY', 'DIVIDE'),
     ('right', 'NEW'),
-    ('right', 'ASSIGN')
+    ('right', 'ASSIGN'),
+    ('left', 'DOT')
 )
 
 
