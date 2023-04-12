@@ -585,7 +585,7 @@ def indent(s, i : int = 1) -> str:
         return ""
 
 def toStr(node):
-    if node:
+    if node is not None:
         return str(node)
     else:
         return ""
