@@ -95,7 +95,7 @@ class ASTTypeCheckingVisitor(VisitorsBase):
         class_list = t.scope.atribute_lookup(t.elm)
         if t.exp._type in class_list:
             t.paren = class_list[t.exp._type]
-            t._tpye = class_list[t.exp._type][t.elm].rtype
+            t._type = class_list[t.exp._type][t.elm].rtype
         else:
             error_message(
                     "Type Checking",
