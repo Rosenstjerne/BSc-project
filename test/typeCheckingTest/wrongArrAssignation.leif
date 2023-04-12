@@ -1,0 +1,7 @@
+var bool[] B;
+
+B = new bool[5];
+
+B[3] = 5;
+
+print(B[3]);

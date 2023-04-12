@@ -1,5 +1,9 @@
+var int a
+a = 5;
+
 function int outer_function(int a) {
-    var int b = a * 2;
+    var int b 
+    b = a * 2;
 
     function int inner_function(int c) {
         return c * b;
@@ -8,4 +12,4 @@ function int outer_function(int a) {
     return inner_function(3);
 }
 
-print(outer_function(5)); # Should print 30
+print(outer_function(a)); # Should print 30
