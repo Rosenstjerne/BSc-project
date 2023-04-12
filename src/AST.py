@@ -546,7 +546,7 @@ class expression_new_array:
 
     def accept(self, visitor):
         visitor.preVisit(self)
-        len.accept(visitor)
+        self.len.accept(visitor)
         visitor.postVisit(self)
 
     def __str__(self) -> str:
