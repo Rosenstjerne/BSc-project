@@ -1,9 +1,11 @@
 var int result;
-function int square(int x) {
-    return x * x;
-}
+
 
 function int sum_of_squares(int a, int b) {
+    function int square(int x) {
+        return x * x;
+    }
+    
     return square(a) + square(b);
 }
 

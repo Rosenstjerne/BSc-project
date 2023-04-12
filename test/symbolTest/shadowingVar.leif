@@ -1,9 +1,12 @@
-var int global_var = 5;
+var int global_var;
 
 function int shadow_test() {
     var int global_var = 10;
     return global_var;
 }
 
+global_var = 5;
+
 print(global_var); # Should print 5
 print(shadow_test()); # Should print 10
+print(global_var); # Should print 5

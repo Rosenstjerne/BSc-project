@@ -1,0 +1,5 @@
+var bool b;
+
+b = 4;
+
+print(b);

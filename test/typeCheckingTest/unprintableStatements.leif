@@ -1,0 +1,9 @@
+var Point p1, p2;
+class Point {
+    var int x, y;
+}
+
+p1 = new Point;
+p2 = new Point;
+
+print(Point);
