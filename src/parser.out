@@ -3110,8 +3110,6 @@ state 94
     (43) variable -> expression . LBRAC expression RBRAC
 
     SEMICOLON       reduce using rule 64 (expression_negative -> MINUS expression .)
-    DOT             reduce using rule 64 (expression_negative -> MINUS expression .)
-    LBRAC           reduce using rule 64 (expression_negative -> MINUS expression .)
     PLUS            reduce using rule 64 (expression_negative -> MINUS expression .)
     MINUS           reduce using rule 64 (expression_negative -> MINUS expression .)
     MODULO          reduce using rule 64 (expression_negative -> MINUS expression .)
@@ -3128,7 +3126,11 @@ state 94
     COMMA           reduce using rule 64 (expression_negative -> MINUS expression .)
     MULTIPLY        shift and go to state 75
     DIVIDE          shift and go to state 76
+    DOT             shift and go to state 71
+    LBRAC           shift and go to state 72
 
+  ! DOT             [ reduce using rule 64 (expression_negative -> MINUS expression .) ]
+  ! LBRAC           [ reduce using rule 64 (expression_negative -> MINUS expression .) ]
   ! MULTIPLY        [ reduce using rule 64 (expression_negative -> MINUS expression .) ]
   ! DIVIDE          [ reduce using rule 64 (expression_negative -> MINUS expression .) ]
   ! PLUS            [ shift and go to state 73 ]
@@ -3142,8 +3144,6 @@ state 94
   ! GTE             [ shift and go to state 83 ]
   ! AND             [ shift and go to state 84 ]
   ! OR              [ shift and go to state 85 ]
-  ! DOT             [ shift and go to state 71 ]
-  ! LBRAC           [ shift and go to state 72 ]
 
 
 state 95
@@ -3166,8 +3166,6 @@ state 95
     (43) variable -> expression . LBRAC expression RBRAC
 
     SEMICOLON       reduce using rule 63 (expression_neg -> NOT expression .)
-    DOT             reduce using rule 63 (expression_neg -> NOT expression .)
-    LBRAC           reduce using rule 63 (expression_neg -> NOT expression .)
     AND             reduce using rule 63 (expression_neg -> NOT expression .)
     OR              reduce using rule 63 (expression_neg -> NOT expression .)
     RPAREN          reduce using rule 63 (expression_neg -> NOT expression .)
@@ -3184,7 +3182,11 @@ state 95
     GT              shift and go to state 81
     LTE             shift and go to state 82
     GTE             shift and go to state 83
+    DOT             shift and go to state 71
+    LBRAC           shift and go to state 72
 
+  ! DOT             [ reduce using rule 63 (expression_neg -> NOT expression .) ]
+  ! LBRAC           [ reduce using rule 63 (expression_neg -> NOT expression .) ]
   ! PLUS            [ reduce using rule 63 (expression_neg -> NOT expression .) ]
   ! MINUS           [ reduce using rule 63 (expression_neg -> NOT expression .) ]
   ! MULTIPLY        [ reduce using rule 63 (expression_neg -> NOT expression .) ]
@@ -3198,8 +3200,6 @@ state 95
   ! GTE             [ reduce using rule 63 (expression_neg -> NOT expression .) ]
   ! AND             [ shift and go to state 84 ]
   ! OR              [ shift and go to state 85 ]
-  ! DOT             [ shift and go to state 71 ]
-  ! LBRAC           [ shift and go to state 72 ]
 
 
 state 96
@@ -3210,7 +3210,6 @@ state 96
 
     SEMICOLON       reduce using rule 85 (expression_new -> NEW variable_type .)
     DOT             reduce using rule 85 (expression_new -> NEW variable_type .)
-    LBRAC           reduce using rule 85 (expression_new -> NEW variable_type .)
     PLUS            reduce using rule 85 (expression_new -> NEW variable_type .)
     MINUS           reduce using rule 85 (expression_new -> NEW variable_type .)
     MULTIPLY        reduce using rule 85 (expression_new -> NEW variable_type .)
@@ -3227,8 +3226,9 @@ state 96
     RPAREN          reduce using rule 85 (expression_new -> NEW variable_type .)
     RBRAC           reduce using rule 85 (expression_new -> NEW variable_type .)
     COMMA           reduce using rule 85 (expression_new -> NEW variable_type .)
+    LBRAC           shift and go to state 128
 
-  ! LBRAC           [ shift and go to state 128 ]
+  ! LBRAC           [ reduce using rule 85 (expression_new -> NEW variable_type .) ]
 
 
 state 97
@@ -3427,8 +3427,6 @@ state 105
     (43) variable -> expression . LBRAC expression RBRAC
 
     SEMICOLON       reduce using rule 71 (expression_binop -> expression PLUS expression .)
-    DOT             reduce using rule 71 (expression_binop -> expression PLUS expression .)
-    LBRAC           reduce using rule 71 (expression_binop -> expression PLUS expression .)
     PLUS            reduce using rule 71 (expression_binop -> expression PLUS expression .)
     MINUS           reduce using rule 71 (expression_binop -> expression PLUS expression .)
     MODULO          reduce using rule 71 (expression_binop -> expression PLUS expression .)
@@ -3445,7 +3443,11 @@ state 105
     COMMA           reduce using rule 71 (expression_binop -> expression PLUS expression .)
     MULTIPLY        shift and go to state 75
     DIVIDE          shift and go to state 76
+    DOT             shift and go to state 71
+    LBRAC           shift and go to state 72
 
+  ! DOT             [ reduce using rule 71 (expression_binop -> expression PLUS expression .) ]
+  ! LBRAC           [ reduce using rule 71 (expression_binop -> expression PLUS expression .) ]
   ! MULTIPLY        [ reduce using rule 71 (expression_binop -> expression PLUS expression .) ]
   ! DIVIDE          [ reduce using rule 71 (expression_binop -> expression PLUS expression .) ]
   ! PLUS            [ shift and go to state 73 ]
@@ -3459,8 +3461,6 @@ state 105
   ! GTE             [ shift and go to state 83 ]
   ! AND             [ shift and go to state 84 ]
   ! OR              [ shift and go to state 85 ]
-  ! DOT             [ shift and go to state 71 ]
-  ! LBRAC           [ shift and go to state 72 ]
 
 
 state 106
@@ -3483,8 +3483,6 @@ state 106
     (43) variable -> expression . LBRAC expression RBRAC
 
     SEMICOLON       reduce using rule 72 (expression_binop -> expression MINUS expression .)
-    DOT             reduce using rule 72 (expression_binop -> expression MINUS expression .)
-    LBRAC           reduce using rule 72 (expression_binop -> expression MINUS expression .)
     PLUS            reduce using rule 72 (expression_binop -> expression MINUS expression .)
     MINUS           reduce using rule 72 (expression_binop -> expression MINUS expression .)
     MODULO          reduce using rule 72 (expression_binop -> expression MINUS expression .)
@@ -3501,7 +3499,11 @@ state 106
     COMMA           reduce using rule 72 (expression_binop -> expression MINUS expression .)
     MULTIPLY        shift and go to state 75
     DIVIDE          shift and go to state 76
+    DOT             shift and go to state 71
+    LBRAC           shift and go to state 72
 
+  ! DOT             [ reduce using rule 72 (expression_binop -> expression MINUS expression .) ]
+  ! LBRAC           [ reduce using rule 72 (expression_binop -> expression MINUS expression .) ]
   ! MULTIPLY        [ reduce using rule 72 (expression_binop -> expression MINUS expression .) ]
   ! DIVIDE          [ reduce using rule 72 (expression_binop -> expression MINUS expression .) ]
   ! PLUS            [ shift and go to state 73 ]
@@ -3515,8 +3517,6 @@ state 106
   ! GTE             [ shift and go to state 83 ]
   ! AND             [ shift and go to state 84 ]
   ! OR              [ shift and go to state 85 ]
-  ! DOT             [ shift and go to state 71 ]
-  ! LBRAC           [ shift and go to state 72 ]
 
 
 state 107
@@ -3539,8 +3539,6 @@ state 107
     (43) variable -> expression . LBRAC expression RBRAC
 
     SEMICOLON       reduce using rule 73 (expression_binop -> expression MULTIPLY expression .)
-    DOT             reduce using rule 73 (expression_binop -> expression MULTIPLY expression .)
-    LBRAC           reduce using rule 73 (expression_binop -> expression MULTIPLY expression .)
     PLUS            reduce using rule 73 (expression_binop -> expression MULTIPLY expression .)
     MINUS           reduce using rule 73 (expression_binop -> expression MULTIPLY expression .)
     MULTIPLY        reduce using rule 73 (expression_binop -> expression MULTIPLY expression .)
@@ -3557,7 +3555,11 @@ state 107
     RPAREN          reduce using rule 73 (expression_binop -> expression MULTIPLY expression .)
     RBRAC           reduce using rule 73 (expression_binop -> expression MULTIPLY expression .)
     COMMA           reduce using rule 73 (expression_binop -> expression MULTIPLY expression .)
+    DOT             shift and go to state 71
+    LBRAC           shift and go to state 72
 
+  ! DOT             [ reduce using rule 73 (expression_binop -> expression MULTIPLY expression .) ]
+  ! LBRAC           [ reduce using rule 73 (expression_binop -> expression MULTIPLY expression .) ]
   ! PLUS            [ shift and go to state 73 ]
   ! MINUS           [ shift and go to state 74 ]
   ! MULTIPLY        [ shift and go to state 75 ]
@@ -3571,8 +3573,6 @@ state 107
   ! GTE             [ shift and go to state 83 ]
   ! AND             [ shift and go to state 84 ]
   ! OR              [ shift and go to state 85 ]
-  ! DOT             [ shift and go to state 71 ]
-  ! LBRAC           [ shift and go to state 72 ]
 
 
 state 108
@@ -3595,8 +3595,6 @@ state 108
     (43) variable -> expression . LBRAC expression RBRAC
 
     SEMICOLON       reduce using rule 74 (expression_binop -> expression DIVIDE expression .)
-    DOT             reduce using rule 74 (expression_binop -> expression DIVIDE expression .)
-    LBRAC           reduce using rule 74 (expression_binop -> expression DIVIDE expression .)
     PLUS            reduce using rule 74 (expression_binop -> expression DIVIDE expression .)
     MINUS           reduce using rule 74 (expression_binop -> expression DIVIDE expression .)
     MULTIPLY        reduce using rule 74 (expression_binop -> expression DIVIDE expression .)
@@ -3613,7 +3611,11 @@ state 108
     RPAREN          reduce using rule 74 (expression_binop -> expression DIVIDE expression .)
     RBRAC           reduce using rule 74 (expression_binop -> expression DIVIDE expression .)
     COMMA           reduce using rule 74 (expression_binop -> expression DIVIDE expression .)
+    DOT             shift and go to state 71
+    LBRAC           shift and go to state 72
 
+  ! DOT             [ reduce using rule 74 (expression_binop -> expression DIVIDE expression .) ]
+  ! LBRAC           [ reduce using rule 74 (expression_binop -> expression DIVIDE expression .) ]
   ! PLUS            [ shift and go to state 73 ]
   ! MINUS           [ shift and go to state 74 ]
   ! MULTIPLY        [ shift and go to state 75 ]
@@ -3627,8 +3629,6 @@ state 108
   ! GTE             [ shift and go to state 83 ]
   ! AND             [ shift and go to state 84 ]
   ! OR              [ shift and go to state 85 ]
-  ! DOT             [ shift and go to state 71 ]
-  ! LBRAC           [ shift and go to state 72 ]
 
 
 state 109
@@ -3651,8 +3651,6 @@ state 109
     (43) variable -> expression . LBRAC expression RBRAC
 
     SEMICOLON       reduce using rule 75 (expression_binop -> expression MODULO expression .)
-    DOT             reduce using rule 75 (expression_binop -> expression MODULO expression .)
-    LBRAC           reduce using rule 75 (expression_binop -> expression MODULO expression .)
     MODULO          reduce using rule 75 (expression_binop -> expression MODULO expression .)
     EQ              reduce using rule 75 (expression_binop -> expression MODULO expression .)
     NEQ             reduce using rule 75 (expression_binop -> expression MODULO expression .)
@@ -3669,7 +3667,11 @@ state 109
     MINUS           shift and go to state 74
     MULTIPLY        shift and go to state 75
     DIVIDE          shift and go to state 76
+    DOT             shift and go to state 71
+    LBRAC           shift and go to state 72
 
+  ! DOT             [ reduce using rule 75 (expression_binop -> expression MODULO expression .) ]
+  ! LBRAC           [ reduce using rule 75 (expression_binop -> expression MODULO expression .) ]
   ! PLUS            [ reduce using rule 75 (expression_binop -> expression MODULO expression .) ]
   ! MINUS           [ reduce using rule 75 (expression_binop -> expression MODULO expression .) ]
   ! MULTIPLY        [ reduce using rule 75 (expression_binop -> expression MODULO expression .) ]
@@ -3683,8 +3685,6 @@ state 109
   ! GTE             [ shift and go to state 83 ]
   ! AND             [ shift and go to state 84 ]
   ! OR              [ shift and go to state 85 ]
-  ! DOT             [ shift and go to state 71 ]
-  ! LBRAC           [ shift and go to state 72 ]
 
 
 state 110
@@ -3707,8 +3707,6 @@ state 110
     (43) variable -> expression . LBRAC expression RBRAC
 
     SEMICOLON       reduce using rule 76 (expression_binop -> expression EQ expression .)
-    DOT             reduce using rule 76 (expression_binop -> expression EQ expression .)
-    LBRAC           reduce using rule 76 (expression_binop -> expression EQ expression .)
     AND             reduce using rule 76 (expression_binop -> expression EQ expression .)
     OR              reduce using rule 76 (expression_binop -> expression EQ expression .)
     RPAREN          reduce using rule 76 (expression_binop -> expression EQ expression .)
@@ -3725,7 +3723,11 @@ state 110
     GT              shift and go to state 81
     LTE             shift and go to state 82
     GTE             shift and go to state 83
+    DOT             shift and go to state 71
+    LBRAC           shift and go to state 72
 
+  ! DOT             [ reduce using rule 76 (expression_binop -> expression EQ expression .) ]
+  ! LBRAC           [ reduce using rule 76 (expression_binop -> expression EQ expression .) ]
   ! PLUS            [ reduce using rule 76 (expression_binop -> expression EQ expression .) ]
   ! MINUS           [ reduce using rule 76 (expression_binop -> expression EQ expression .) ]
   ! MULTIPLY        [ reduce using rule 76 (expression_binop -> expression EQ expression .) ]
@@ -3739,8 +3741,6 @@ state 110
   ! GTE             [ reduce using rule 76 (expression_binop -> expression EQ expression .) ]
   ! AND             [ shift and go to state 84 ]
   ! OR              [ shift and go to state 85 ]
-  ! DOT             [ shift and go to state 71 ]
-  ! LBRAC           [ shift and go to state 72 ]
 
 
 state 111
@@ -3763,8 +3763,6 @@ state 111
     (43) variable -> expression . LBRAC expression RBRAC
 
     SEMICOLON       reduce using rule 77 (expression_binop -> expression NEQ expression .)
-    DOT             reduce using rule 77 (expression_binop -> expression NEQ expression .)
-    LBRAC           reduce using rule 77 (expression_binop -> expression NEQ expression .)
     AND             reduce using rule 77 (expression_binop -> expression NEQ expression .)
     OR              reduce using rule 77 (expression_binop -> expression NEQ expression .)
     RPAREN          reduce using rule 77 (expression_binop -> expression NEQ expression .)
@@ -3781,7 +3779,11 @@ state 111
     GT              shift and go to state 81
     LTE             shift and go to state 82
     GTE             shift and go to state 83
+    DOT             shift and go to state 71
+    LBRAC           shift and go to state 72
 
+  ! DOT             [ reduce using rule 77 (expression_binop -> expression NEQ expression .) ]
+  ! LBRAC           [ reduce using rule 77 (expression_binop -> expression NEQ expression .) ]
   ! PLUS            [ reduce using rule 77 (expression_binop -> expression NEQ expression .) ]
   ! MINUS           [ reduce using rule 77 (expression_binop -> expression NEQ expression .) ]
   ! MULTIPLY        [ reduce using rule 77 (expression_binop -> expression NEQ expression .) ]
@@ -3795,8 +3797,6 @@ state 111
   ! GTE             [ reduce using rule 77 (expression_binop -> expression NEQ expression .) ]
   ! AND             [ shift and go to state 84 ]
   ! OR              [ shift and go to state 85 ]
-  ! DOT             [ shift and go to state 71 ]
-  ! LBRAC           [ shift and go to state 72 ]
 
 
 state 112
@@ -3819,8 +3819,6 @@ state 112
     (43) variable -> expression . LBRAC expression RBRAC
 
     SEMICOLON       reduce using rule 78 (expression_binop -> expression LT expression .)
-    DOT             reduce using rule 78 (expression_binop -> expression LT expression .)
-    LBRAC           reduce using rule 78 (expression_binop -> expression LT expression .)
     AND             reduce using rule 78 (expression_binop -> expression LT expression .)
     OR              reduce using rule 78 (expression_binop -> expression LT expression .)
     RPAREN          reduce using rule 78 (expression_binop -> expression LT expression .)
@@ -3837,7 +3835,11 @@ state 112
     GT              shift and go to state 81
     LTE             shift and go to state 82
     GTE             shift and go to state 83
+    DOT             shift and go to state 71
+    LBRAC           shift and go to state 72
 
+  ! DOT             [ reduce using rule 78 (expression_binop -> expression LT expression .) ]
+  ! LBRAC           [ reduce using rule 78 (expression_binop -> expression LT expression .) ]
   ! PLUS            [ reduce using rule 78 (expression_binop -> expression LT expression .) ]
   ! MINUS           [ reduce using rule 78 (expression_binop -> expression LT expression .) ]
   ! MULTIPLY        [ reduce using rule 78 (expression_binop -> expression LT expression .) ]
@@ -3851,8 +3853,6 @@ state 112
   ! GTE             [ reduce using rule 78 (expression_binop -> expression LT expression .) ]
   ! AND             [ shift and go to state 84 ]
   ! OR              [ shift and go to state 85 ]
-  ! DOT             [ shift and go to state 71 ]
-  ! LBRAC           [ shift and go to state 72 ]
 
 
 state 113
@@ -3875,8 +3875,6 @@ state 113
     (43) variable -> expression . LBRAC expression RBRAC
 
     SEMICOLON       reduce using rule 79 (expression_binop -> expression GT expression .)
-    DOT             reduce using rule 79 (expression_binop -> expression GT expression .)
-    LBRAC           reduce using rule 79 (expression_binop -> expression GT expression .)
     AND             reduce using rule 79 (expression_binop -> expression GT expression .)
     OR              reduce using rule 79 (expression_binop -> expression GT expression .)
     RPAREN          reduce using rule 79 (expression_binop -> expression GT expression .)
@@ -3893,7 +3891,11 @@ state 113
     GT              shift and go to state 81
     LTE             shift and go to state 82
     GTE             shift and go to state 83
+    DOT             shift and go to state 71
+    LBRAC           shift and go to state 72
 
+  ! DOT             [ reduce using rule 79 (expression_binop -> expression GT expression .) ]
+  ! LBRAC           [ reduce using rule 79 (expression_binop -> expression GT expression .) ]
   ! PLUS            [ reduce using rule 79 (expression_binop -> expression GT expression .) ]
   ! MINUS           [ reduce using rule 79 (expression_binop -> expression GT expression .) ]
   ! MULTIPLY        [ reduce using rule 79 (expression_binop -> expression GT expression .) ]
@@ -3907,8 +3909,6 @@ state 113
   ! GTE             [ reduce using rule 79 (expression_binop -> expression GT expression .) ]
   ! AND             [ shift and go to state 84 ]
   ! OR              [ shift and go to state 85 ]
-  ! DOT             [ shift and go to state 71 ]
-  ! LBRAC           [ shift and go to state 72 ]
 
 
 state 114
@@ -3931,8 +3931,6 @@ state 114
     (43) variable -> expression . LBRAC expression RBRAC
 
     SEMICOLON       reduce using rule 80 (expression_binop -> expression LTE expression .)
-    DOT             reduce using rule 80 (expression_binop -> expression LTE expression .)
-    LBRAC           reduce using rule 80 (expression_binop -> expression LTE expression .)
     AND             reduce using rule 80 (expression_binop -> expression LTE expression .)
     OR              reduce using rule 80 (expression_binop -> expression LTE expression .)
     RPAREN          reduce using rule 80 (expression_binop -> expression LTE expression .)
@@ -3949,7 +3947,11 @@ state 114
     GT              shift and go to state 81
     LTE             shift and go to state 82
     GTE             shift and go to state 83
+    DOT             shift and go to state 71
+    LBRAC           shift and go to state 72
 
+  ! DOT             [ reduce using rule 80 (expression_binop -> expression LTE expression .) ]
+  ! LBRAC           [ reduce using rule 80 (expression_binop -> expression LTE expression .) ]
   ! PLUS            [ reduce using rule 80 (expression_binop -> expression LTE expression .) ]
   ! MINUS           [ reduce using rule 80 (expression_binop -> expression LTE expression .) ]
   ! MULTIPLY        [ reduce using rule 80 (expression_binop -> expression LTE expression .) ]
@@ -3963,8 +3965,6 @@ state 114
   ! GTE             [ reduce using rule 80 (expression_binop -> expression LTE expression .) ]
   ! AND             [ shift and go to state 84 ]
   ! OR              [ shift and go to state 85 ]
-  ! DOT             [ shift and go to state 71 ]
-  ! LBRAC           [ shift and go to state 72 ]
 
 
 state 115
@@ -3987,8 +3987,6 @@ state 115
     (43) variable -> expression . LBRAC expression RBRAC
 
     SEMICOLON       reduce using rule 81 (expression_binop -> expression GTE expression .)
-    DOT             reduce using rule 81 (expression_binop -> expression GTE expression .)
-    LBRAC           reduce using rule 81 (expression_binop -> expression GTE expression .)
     AND             reduce using rule 81 (expression_binop -> expression GTE expression .)
     OR              reduce using rule 81 (expression_binop -> expression GTE expression .)
     RPAREN          reduce using rule 81 (expression_binop -> expression GTE expression .)
@@ -4005,7 +4003,11 @@ state 115
     GT              shift and go to state 81
     LTE             shift and go to state 82
     GTE             shift and go to state 83
+    DOT             shift and go to state 71
+    LBRAC           shift and go to state 72
 
+  ! DOT             [ reduce using rule 81 (expression_binop -> expression GTE expression .) ]
+  ! LBRAC           [ reduce using rule 81 (expression_binop -> expression GTE expression .) ]
   ! PLUS            [ reduce using rule 81 (expression_binop -> expression GTE expression .) ]
   ! MINUS           [ reduce using rule 81 (expression_binop -> expression GTE expression .) ]
   ! MULTIPLY        [ reduce using rule 81 (expression_binop -> expression GTE expression .) ]
@@ -4019,8 +4021,6 @@ state 115
   ! GTE             [ reduce using rule 81 (expression_binop -> expression GTE expression .) ]
   ! AND             [ shift and go to state 84 ]
   ! OR              [ shift and go to state 85 ]
-  ! DOT             [ shift and go to state 71 ]
-  ! LBRAC           [ shift and go to state 72 ]
 
 
 state 116
@@ -4043,8 +4043,6 @@ state 116
     (43) variable -> expression . LBRAC expression RBRAC
 
     SEMICOLON       reduce using rule 82 (expression_binop -> expression AND expression .)
-    DOT             reduce using rule 82 (expression_binop -> expression AND expression .)
-    LBRAC           reduce using rule 82 (expression_binop -> expression AND expression .)
     AND             reduce using rule 82 (expression_binop -> expression AND expression .)
     RPAREN          reduce using rule 82 (expression_binop -> expression AND expression .)
     RBRAC           reduce using rule 82 (expression_binop -> expression AND expression .)
@@ -4061,7 +4059,11 @@ state 116
     LTE             shift and go to state 82
     GTE             shift and go to state 83
     OR              shift and go to state 85
+    DOT             shift and go to state 71
+    LBRAC           shift and go to state 72
 
+  ! DOT             [ reduce using rule 82 (expression_binop -> expression AND expression .) ]
+  ! LBRAC           [ reduce using rule 82 (expression_binop -> expression AND expression .) ]
   ! PLUS            [ reduce using rule 82 (expression_binop -> expression AND expression .) ]
   ! MINUS           [ reduce using rule 82 (expression_binop -> expression AND expression .) ]
   ! MULTIPLY        [ reduce using rule 82 (expression_binop -> expression AND expression .) ]
@@ -4075,8 +4077,6 @@ state 116
   ! GTE             [ reduce using rule 82 (expression_binop -> expression AND expression .) ]
   ! OR              [ reduce using rule 82 (expression_binop -> expression AND expression .) ]
   ! AND             [ shift and go to state 84 ]
-  ! DOT             [ shift and go to state 71 ]
-  ! LBRAC           [ shift and go to state 72 ]
 
 
 state 117
@@ -4099,8 +4099,6 @@ state 117
     (43) variable -> expression . LBRAC expression RBRAC
 
     SEMICOLON       reduce using rule 83 (expression_binop -> expression OR expression .)
-    DOT             reduce using rule 83 (expression_binop -> expression OR expression .)
-    LBRAC           reduce using rule 83 (expression_binop -> expression OR expression .)
     AND             reduce using rule 83 (expression_binop -> expression OR expression .)
     OR              reduce using rule 83 (expression_binop -> expression OR expression .)
     RPAREN          reduce using rule 83 (expression_binop -> expression OR expression .)
@@ -4117,7 +4115,11 @@ state 117
     GT              shift and go to state 81
     LTE             shift and go to state 82
     GTE             shift and go to state 83
+    DOT             shift and go to state 71
+    LBRAC           shift and go to state 72
 
+  ! DOT             [ reduce using rule 83 (expression_binop -> expression OR expression .) ]
+  ! LBRAC           [ reduce using rule 83 (expression_binop -> expression OR expression .) ]
   ! PLUS            [ reduce using rule 83 (expression_binop -> expression OR expression .) ]
   ! MINUS           [ reduce using rule 83 (expression_binop -> expression OR expression .) ]
   ! MULTIPLY        [ reduce using rule 83 (expression_binop -> expression OR expression .) ]
@@ -4131,8 +4133,6 @@ state 117
   ! GTE             [ reduce using rule 83 (expression_binop -> expression OR expression .) ]
   ! AND             [ shift and go to state 84 ]
   ! OR              [ shift and go to state 85 ]
-  ! DOT             [ shift and go to state 71 ]
-  ! LBRAC           [ shift and go to state 72 ]
 
 
 state 118

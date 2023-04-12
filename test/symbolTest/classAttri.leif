@@ -3,7 +3,7 @@ class Point {
 }
 var Point p1, p2;
 
-function void print_point(Point p) {
+function null print_point(Point p) {
     print(p.x + p.y);
 }
 

@@ -1,5 +1,4 @@
-var int a
-a = 5;
+var int a;
 
 function int outer_function(int a) {
     var int b 
@@ -11,5 +10,7 @@ function int outer_function(int a) {
 
     return inner_function(3);
 }
+
+a = 5;
 
 print(outer_function(a)); # Should print 30

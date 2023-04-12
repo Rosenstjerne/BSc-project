@@ -1,0 +1,17 @@
+class Point {
+    var int x, y;
+}
+
+var Point[] P;
+
+function null print_point(Point p) {
+    print(p.x + p.y);
+}
+
+P = new Point[1];
+
+P[0] = new Point;
+P[0].x = 1;
+P[0].y = 4;
+
+print_point(P[0]); # Should print 5

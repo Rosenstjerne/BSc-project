@@ -1,0 +1,3 @@
+
+Error in phase Type Checking, line 17:
+    Argument 0 in call to function print_point is of type 'unknown', but must be of type 'Point'
