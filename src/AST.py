@@ -550,8 +550,8 @@ class expression_new_array:
         visitor.postVisit(self)
 
     def __str__(self) -> str:
-        s = "new " + self.i_type + "["
-        s += toStr(self.len) + "]"
+        s = "(new " + self.i_type + "["
+        s += toStr(self.len) + "])"
         return s
 
 
