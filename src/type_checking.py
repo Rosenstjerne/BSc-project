@@ -121,6 +121,18 @@ class ASTTypeCheckingVisitor(VisitorsBase):
                     t.lineno
                     )
 
+
+    def postVisit_expression_new_array(self, t):
+        if t.len._type == "int":
+            pass
+        else:
+            error_message(
+                    "Type Checking",
+                    f"Type '{t.len._type}' can not be used to index into an array. Only allowed idexing type is 'int'",
+                    t.lineno
+                    )
+
+
     def midVisit_statement_ifthen(self, t):
         if t.exp._type == "bool":
             pass
