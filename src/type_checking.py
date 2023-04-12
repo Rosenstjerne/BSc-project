@@ -196,8 +196,8 @@ class ASTTypeCheckingVisitor(VisitorsBase):
     def preVisit_expression_list(self, t):
         if t.next is not None:
             t.next.arg_lst = t.arg_lst
-        t.arg_lst.append(t)
         t._type = t.exp._type
+        t.arg_lst.append(t)
 
     def postVisit_expression_call(self, t):
         a = t.arg_lst
