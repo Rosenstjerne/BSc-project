@@ -1,12 +1,13 @@
 var int a;
 
 function int outer_function(int a) {
-    var int b 
-    b = a * 2;
+    var int b; 
 
     function int inner_function(int c) {
         return c * b;
     }
+
+    b = a * 1;
 
     return inner_function(3);
 }
