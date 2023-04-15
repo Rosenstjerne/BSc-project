@@ -70,10 +70,6 @@ t_LTE = r'<='
 t_GTE = r'>='
 
 
-def t_IDENT(t):
-    r'[a-zA-Z_][a-zA-Z_0-9]*'
-    t.type = reserved.get(t.value, 'IDENT')    # Check for reserved words
-    return t
 
 
 def t_INT(t):
@@ -91,13 +87,18 @@ def t_INT(t):
     return t
 
 def t_BOOL(t):
-    r'(true)|(false)' #Cathes a few variations og the name
+    r'(true)|(false)'
     try:
         t.value = bool(t.value)
     except ValueError:
         error_message("Lexical analyser",f"Something went lexing the boolean.",t.lexer.lineno)
     return t
 
+
+def t_IDENT(t):
+    r'[a-zA-Z_][a-zA-Z_0-9]*'
+    t.type = reserved.get(t.value, 'IDENT')    # Check for reserved words
+    return t
 
 # Ignored characters
 t_ignore = " \t\r"  # \r included for the sake of windows users

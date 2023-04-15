@@ -73,7 +73,7 @@ class SymbolTable:
     def type_lookup(self, name):
         if name in self._types:
             return self._types[name]
-        elif self.parent:
+        elif self.parent is not None:
             return self.parent.type_lookup(name)
         else:
             return None
@@ -301,7 +301,7 @@ class ASTSymbolVisitor(VisitorsBase):
         t.scope = self._current_scope
 
     def preVisit_expression_new(self, t):
-        if self._current_scope.type_lookup(t.r_type):
+        if self._current_scope.type_lookup(t.r_type) is not None:
             t.class_type = self._current_scope.type_lookup(t.r_type)
         else:
             error_message(
@@ -310,7 +310,7 @@ class ASTSymbolVisitor(VisitorsBase):
                 t.lineno)
 
     def preVisit_expression_new_array(self, t):
-        if self._current_scope.type_lookup(t.root_type):
+        if self._current_scope.type_lookup(t.root_type) is not None:
             t.root_class_type = self._current_scope.type_lookup(t.root_type)
         else:
             error_message(
