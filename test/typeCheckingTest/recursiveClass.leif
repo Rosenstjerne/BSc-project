@@ -1,0 +1,15 @@
+class LinkedList {
+  var int value;
+  var LinkedList next;
+}
+
+var LinkedList ll;
+
+ll = new LinkedList;
+ll.value = 5;
+ll.next = new LinkedList;
+ll.next.value = 6;
+ll.next.next = new LinkedList;
+ll.next.next.value = 7;
+
+print(ll.next.next.value);

@@ -1,9 +1,12 @@
-var Point p1, p2;
 class Point {
     var int x, y;
 }
+var Point p1, p2;
 
 p1 = new Point;
 p2 = new Point;
 
-print(Point);
+p1.x = 2;
+p2.y = 4;
+
+print(p1);

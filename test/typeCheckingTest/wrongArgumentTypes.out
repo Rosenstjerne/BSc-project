@@ -1,0 +1,3 @@
+
+Error in phase Type Checking, line 5:
+    Argument 1 in call to function f is of type 'bool', but must be of type 'int'

@@ -1,0 +1,11 @@
+var bool[] B;
+
+B = new bool[5];
+B[0] = true;
+B[0] = true;
+B[1] = false;
+B[2] = true;
+B[3] = false;
+B[4] = true;
+
+print(B[5 == 3]);

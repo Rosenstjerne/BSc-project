@@ -1,6 +1,6 @@
 var int a, b, sum;
 var bool c;
-a = 3
-b = 3
+a = 3;
+b = 3;
 c = a == b == 3;
 print(c);

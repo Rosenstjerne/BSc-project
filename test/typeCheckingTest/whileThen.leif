@@ -1,0 +1,17 @@
+var bool b;
+var int i, j;
+
+i = 0;
+while (i < 5) {
+  print(i);
+  i = i + 1;
+}
+
+j = 10;
+b = false;
+while (!b) {
+  j = j - 1;
+
+  if (j >= 0) print(j);
+  else break;
+}

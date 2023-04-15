@@ -1,0 +1,3 @@
+
+Error in phase Type Checking, line 5:
+    Trying to assign a value of type 'int' to a varaible of type 'bool' is not possible

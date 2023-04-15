@@ -1,0 +1,12 @@
+class Thing{
+  var int id;
+  var bool good;
+}
+
+var Thing t;
+
+t = new Thing;
+
+t.id = 123;
+
+t.good = 5;

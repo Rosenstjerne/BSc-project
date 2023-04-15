@@ -1,0 +1,18 @@
+var bool b1, b2;
+var int a;
+
+a = 4;
+b1 = true;
+b2 = a <= 2;
+
+if (b1 || b2) {
+  a = 7;
+}
+
+print(a); # should print 7
+
+if (b2 && b1) {
+  a = 8;
+} else a = a + 7;
+
+print(a); # should be 14
