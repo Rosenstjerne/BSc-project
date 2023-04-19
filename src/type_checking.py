@@ -30,7 +30,7 @@ class ASTTypeCheckingVisitor(VisitorsBase):
 
     def postVisit_function(self, t):
         if t.name != "main":
-            self.current_function_stack.pop
+            self.current_function_stack.pop()
     
     def preVisit_statement_list(self, t):
         if self._current_scope.is_function:

@@ -1,0 +1,2 @@
+We need to make a list for every function with every variable in it (not nested in another function). In other words, we remove all scoping eccept the ones from the functions
+

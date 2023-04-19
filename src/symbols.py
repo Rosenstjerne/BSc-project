@@ -28,7 +28,7 @@ class SymVal():
         self.level = level
         self.info = info
         self.rtype = vtype
-
+        self.metaName = ["",""] # For later use
 
 class SymbolTable:
     """Implements a classic symbol table for static nested scope.
@@ -174,12 +174,14 @@ class ASTSymbolVisitor(VisitorsBase):
             self._current_scope.insert(
                 t.name, SymVal(NameCategory.FUNCTION, self._current_level, t, t.rtype))
 
+        self.current_table = self.var_table[name].tab
             self._current_level += 1
             self._current_scope = SymbolTable(self._current_scope, t.lineno)
             self._current_scope.is_function = True
 
         # Saves the function declaration to its body in the AST for later use
         t.body.function = t
+        t.scope = self._current_scope
         t.parameter_list = []
         if t.par_list is not None:
             t.par_list.parameter_list = t.parameter_list

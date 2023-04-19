@@ -1,0 +1,52 @@
+FIRST NOTES:
+
+For most nodes we need to find out what operations we should run, and on what registers / stack points (we will figure out register allocation later)
+
+For every expression / statement "leaf" we need to save the memory to a register. 
+
+For every varaible we use, we need to know what register we have for said variable so that we always reuse the same one. 
+When a variable is "declared" it will always contan a zero / null value
+
+For every combined expression / statement and so on where one operation depend on others result, 
+we have to use the childrens "result" registers, do the apropriate operations on them, and save the result in a new result register
+
+For every variable we can store them in a "permenant" memory spot (untill the scope is exited), whereas with other intermediate values we need only store them 
+untill they have been fully used up in its statement / expression
+
+For any print statement, we need to know what type it prints, and then make the relevant transformation of data to its string version on the heap and print it
+using the relevant sys call.
+
+Classes and arrays should pretty much work the same way, (since we already sanitize the code in the previous visitors).
+When "declared" they should store a zero / null value.
+((Maybe we should check for null values on use, unless when being allocated to (and maybe other special cases)))
+When allocated, we ask for the pointer to end of the heap, and add one to it (and stor it in the variables register to point to the start of its memory) 
+and then allocate the apropriate memory on the heap. We can do this using sys calls. 
+We will not free this memory.
+
+For a function we should write the function elsewhere in the document (at the bottom?) with a function name and a "RET" statement at the end. 
+We should save the arguments / parameters in new registers befor the function call and remove them after return. But save the result.
+Just after the call, we should save the current stack pointer so we can restore it again, the allocate all the variables, and run its code. 
+Just befor the return we should restore the stack and "free" all the varaible registers, and then save the return value (if any) so that the caller can
+use it. 
+TODO: We should also figure out how to store the current scope (sice a scope can shadow itself if called recursively)
+
+
+An if statemnt is just an if else statement with nothing in the else part. We evaluate the guarde, then we have a CMP and a JNE part to the start of the else state.
+We then have the content of the then part, and afther that we jump to the end, after part. Ez
+
+
+For a while loop, we have a ID for the while start, then we evaluate the guarde with a CMP and a JNE to after the while loop. At the end of the while loop we have 
+a JMP to the start of the while loop (above the guarde compare). 
+We shold store the stack pointer so that we can restore it at any point by using a break statemnt. But how and where? (I don't thing we can use registers)
+We could use a singular register to do this (Not on the stack) and the stack to do this. 
+When we enter a while loop, we push the special registers value to the stack so we can restore it later. Then we save the current stack pointer to this special register.
+When we exit a while, we restore the stack to the saved stack pointer and pop the old while stack pointer to our special register. 
+This way we can always break freely.
+
+For any break inside the while loop, we have a JMP to the end after the while loop to exit it. We should also be able to restore the stack.
+
+Any new scope we enter will save the current stack pointer to a register, so we can restore it again after we exit the scope. 
+
+SECOND NOTES:
+
+We should really figure out how to flatten the symbol table so that the only nested tables are function scopes. 
