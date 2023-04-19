@@ -37,16 +37,9 @@ We then have the content of the then part, and afther that we jump to the end, a
 
 For a while loop, we have a ID for the while start, then we evaluate the guarde with a CMP and a JNE to after the while loop. At the end of the while loop we have 
 a JMP to the start of the while loop (above the guarde compare). 
-We shold store the stack pointer so that we can restore it at any point by using a break statemnt. But how and where? (I don't thing we can use registers)
-We could use a singular register to do this (Not on the stack) and the stack to do this. 
-When we enter a while loop, we push the special registers value to the stack so we can restore it later. Then we save the current stack pointer to this special register.
-When we exit a while, we restore the stack to the saved stack pointer and pop the old while stack pointer to our special register. 
-This way we can always break freely.
 
-For any break inside the while loop, we have a JMP to the end after the while loop to exit it. We should also be able to restore the stack.
+For any break inside the while loop, we have a JMP to the end after the while loop to exit it.
 
 Any new scope we enter will save the current stack pointer to a register, so we can restore it again after we exit the scope. 
 
-SECOND NOTES:
 
-We should really figure out how to flatten the symbol table so that the only nested tables are function scopes. 

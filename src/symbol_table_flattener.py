@@ -4,9 +4,12 @@
 from visitors_base import VisitorsBase
 
 class flatTab:
-    def __init__(self, name, info):
+    def __init__(self, name, info, parentList):
         self.name = name
         self.info = info
+        self.parentList = []
+        for i in range(len(parentList)):
+            self.parentList.append(parentList[i])
         self.tab = {}
 
 class tabFlattener(VisitorsBase):
@@ -29,7 +32,7 @@ class tabFlattener(VisitorsBase):
         self.current_function_count += 1
         name = "fun" + str(self.current_function_count) + t.name
         self.current_function_stack.append(name)
-        self.var_table[name] = flatTab(name, t.scope)
+        self.var_table[name] = flatTab(name, t.scope, self.current_function_stack)
         t.metaName = name
 
     def postVisit_function(self, t):

@@ -1,2 +1,7 @@
 We need to make a list for every function with every variable in it (not nested in another function). In other words, we remove all scoping eccept the ones from the functions
+(can only be done with a visotor)
 
+This list should have unique names for all the variables.
+    To do this we can use a visitor to collec
+
+We need a list of all non simple types and how large they are, ass well as a mapping of every attibute in a class to an index so we can treat it as an array.
