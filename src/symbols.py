@@ -174,7 +174,7 @@ class ASTSymbolVisitor(VisitorsBase):
             self._current_scope.insert(
                 t.name, SymVal(NameCategory.FUNCTION, self._current_level, t, t.rtype))
 
-        self.current_table = self.var_table[name].tab
+            self.current_table = self.var_table[name].tab
             self._current_level += 1
             self._current_scope = SymbolTable(self._current_scope, t.lineno)
             self._current_scope.is_function = True

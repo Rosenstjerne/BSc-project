@@ -24,8 +24,8 @@ from symbols import ASTSymbolVisitor
 from type_checking import ASTTypeCheckingVisitor
 # from pretty_printer import ASTPrettyPrinterVisitor
 # from ast_printer import ASTTreePrinterVisitor
-# from code_generation import ASTCodeGenerationVisitor
-# from emit import Emit
+from code_generation import ASTCodeGenerationVisitor
+from emit import Emit
 
 
 __version__ = "unfinished beta"
@@ -89,7 +89,18 @@ def compiler(showSource, showAST, macOS, input_file, output_file):
         type_checker = ASTTypeCheckingVisitor()
         the_program.accept(type_checker)
 
-    return "not yet implimented"
+        intermediate_code_generator = ASTCodeGenerationVisitor()
+        the_program.accept(intermediate_code_generator)
+        intermediate_code = intermediate_code_generator.get_code()
+
+        # Emit the target code:
+        emitter = Emit(intermediate_code,
+                       intermediate_code_generator.getLabelsGenerator(),
+                       macOS)
+        emitter.emit()
+        code = emitter.get_code()
+
+        return code
 """
     else:
 
