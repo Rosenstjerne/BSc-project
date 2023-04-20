@@ -274,8 +274,9 @@ class ASTSymbolVisitor(VisitorsBase):
 
     def postVisit_class_declaration(self, t):
         # creates a dictonary of all the internal atributes of the class and saves it as the value of said class
-       values = {(a.variable):(SymVal(NameCategory.VARIABLE,self._current_level,a,a.vtype)) for a in t.attLst} 
-       self._current_scope.insert_type(t.name, values)
+        l = list(range(len(t.attLst)))
+        values = {(a.variable):(SymVal(NameCategory.VARIABLE,self._current_level,l.pop(0),a.vtype)) for a in t.attLst} 
+        self._current_scope.insert_type(t.name, values)
 
     def postVisit_variable(self, t):
         t.var = self._current_scope.lookup(t.name)

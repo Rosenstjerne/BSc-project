@@ -27,7 +27,7 @@ For a function we should write the function elsewhere in the document (at the bo
 We should save the arguments / parameters in new registers befor the function call and remove them after return. But save the result.
 Just after the call, we should save the current stack pointer so we can restore it again, the allocate all the variables, and run its code. 
 Just befor the return we should restore the stack and "free" all the varaible registers, and then save the return value (if any) so that the caller can
-use it. 
+use it.
 TODO: We should also figure out how to store the current scope (sice a scope can shadow itself if called recursively)
 
 
@@ -40,6 +40,5 @@ a JMP to the start of the while loop (above the guarde compare).
 
 For any break inside the while loop, we have a JMP to the end after the while loop to exit it.
 
-Any new scope we enter will save the current stack pointer to a register, so we can restore it again after we exit the scope. 
 
 
