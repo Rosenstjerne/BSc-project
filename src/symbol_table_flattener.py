@@ -44,7 +44,7 @@ class tabFlattener(VisitorsBase):
                 self.var_table[self.current_function_stack[-1]].varTab[name] = var
 
             elif scope[a].cat == NameCategory.PARAMETER:
-                name = "var_" + str(self.current_variable_count) + "_" + a
+                name = "param_" + str(self.current_variable_count) + "_" + a
                 self.current_variable_count += 1
                 metaName = [self.current_function_stack[-1], name]
                 param = variable(metaName, self.current_function_stack[-1].name, self.current_function_stack[-1].paramCounter)
