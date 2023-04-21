@@ -163,6 +163,9 @@ class ASTCodeGenerationVisitor(VisitorsBase):
             t.start_label = self._labels.next(t.name)
             t.end_label = self._labels.next(f"end_{t.name}")
 
+    def preVisit_body(self, t):
+        self._current_scope = t.scope
+
     def postMidVisit_body(self, t):
         self._ensure_labels(self._function_stack[-1])
         label = self._function_stack[-1].start_label
@@ -188,9 +191,9 @@ class ASTCodeGenerationVisitor(VisitorsBase):
             # In the body of a function:
             self._app(Ins(Op.META, Meta.CALLEE_RESTORE))
         self._app(Ins(Op.META, Meta.CALLEE_EPILOGUE))
+        self._current_scope = self._current_scope.parent
 
     def preVisit_function(self, t):
-        self._current_scope = t.symbol_table
         self._function_stack.append(t)
         if t.name == "main":
             t.start_label = "main"
@@ -198,7 +201,6 @@ class ASTCodeGenerationVisitor(VisitorsBase):
 
     def postVisit_function(self, t):
         self._function_stack.pop()
-        self._current_scope = self._current_scope.parent
 
     def postVisit_statement_return(self, t):
         # Getting the function label from the nearest enclosing function:

@@ -2,15 +2,25 @@
 # This allows us to ignore all scopes 
 
 from visitors_base import VisitorsBase
+from symbols import NameCategory
 
 class flatFun:
     def __init__(self, name, info, parentList):
         self.name = name
         self.info = info
+        self.varCounter = 0
+        self.paramCounter = 0
         self.parentList = []
         for i in range(len(parentList)):
             self.parentList.append(parentList[i])
-        self.tab = {}
+        self.varTab = {}
+        self.paramTab = {}
+
+class variable:
+    def __init__(self, name, scope, index):
+        self.name = name
+        self.scope = scope
+        self.index = index
 
 
 class tabFlattener(VisitorsBase):
@@ -24,14 +34,27 @@ class tabFlattener(VisitorsBase):
     def preVisit_body(self,t):
         scope = t.scope._tab
         for a in scope.keys:
-            name = "var" + str(self.current_variable_count) + a
-            metaName = [self.current_function_stack[-1], name]
-            scope[a].metaName = metaName
-            self.var_table[self.current_function_stack[-1]].tab[name] = scope[a]
+            if scope[a].cat == NameCategory.VARIABLE:
+                name = "var_" + str(self.current_variable_count) + "_" + a
+                self.current_variable_count += 1
+                metaName = [self.current_function_stack[-1], name]
+                var = variable(metaName, self.current_function_stack[-1].name, self.current_function_stack[-1].varCounter)
+                self.current_function_stack[-1].varCounter += 1
+                scope[a].var = var
+                self.var_table[self.current_function_stack[-1]].varTab[name] = var
+
+            elif scope[a].cat == NameCategory.PARAMETER:
+                name = "var_" + str(self.current_variable_count) + "_" + a
+                self.current_variable_count += 1
+                metaName = [self.current_function_stack[-1], name]
+                param = variable(metaName, self.current_function_stack[-1].name, self.current_function_stack[-1].paramCounter)
+                self.current_function_stack[-1].paramCounter += 1
+                scope[a].var = param
+                self.var_table[self.current_function_stack[-1]].paramTab[name] = param
 
     def preVisit_function(self, t):
         self.current_function_count += 1
-        name = "fun" + str(self.current_function_count) + t.name
+        name = "fun_" + str(self.current_function_count) + "_" + t.name
         self.current_function_stack.append(name)
         self.var_table[name] = flatFun(name, t.scope, self.current_function_stack)
         t.metaName = name

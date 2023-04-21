@@ -230,3 +230,10 @@ class ASTTypeCheckingVisitor(VisitorsBase):
                         f"Types '{t.lhs._type}' and '{t.rhs._type}' are not compatible with operator '{t.op}', which can only be used type '{t.takes}'",
                         t.lineno
                         )
+    def postVisit_statement_break(self, t):
+        if len(self.while_nesting_stack) > 0:
+            t.parent = self.while_nesting_stack[-1]
+        else:
+            error_message("Type Checking",
+                          f"Iligal break statement outside of any while loop",
+                          t.lineno)
