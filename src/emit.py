@@ -307,30 +307,11 @@ class Emit:
         self._ins("", "PRINTING")
         self._ins("leaq form(%rip), %rdi", "pass 1. argument in %rdi")
         # By-passing caller save values on the stack:
-        self._ins(f"movq {8*_caller_registers}(%rsp), %rsi",
-                  "pass 2. argument in %rsi")
-        self._ins("movq $0, %rax", "no floating point registers used")
-        self._ins("movq %rsp, %rcx", "saving stack pointer for change check")
-        self._ins("andq $-16, %rsp", "aligning stack pointer for call")
-        self._ins("movq $0, %rbx", "preparing check indicator")
-        self._ins("cmpq %rsp, %rcx", "checking for alignment change")
-        lbl = self._labels.next("aligned")
-        self._ins(f"je {lbl}", "jump if correctly aligned")
-        self._ins("incq %rbx", "it was not aligned, indicate by '1'")
-        self._raw(f"{lbl}:")
-        self._ins("pushq %rbx", "pushing 0/1 on the stack")
-        self._ins(f"subq $8, %rsp", "aligning")
-        self._ins(f"callq {'_printf' if self.macOS else 'printf@plt'}",
-                  "call printf")
-        self._ins(f"addq $8, %rsp", "revert latest aligning")
-        self._ins("popq %rbx", "get alignment indicator")
-        self._ins("cmpq $0, %rbx", "checking for alignment change")
-        lbl = self._labels.next("aligned")
-        self._ins(f"je {lbl}", "jump if correctly aligned")
-        self._ins("addq $8, %rsp", "revert earlier alignment change")
-        self._raw(f"{lbl}:")
-        self._ins(f"addq $8, %rsp", "remove printed expression from stack")
+        self._ins(f"movq {8*_caller_registers}(%rsp), %rsi","Moves printable object to rsi")
+        self._ins("xorq %rax, %rax","No floating point arguments") 
         self._raw("")
+        self._ins("callq printf@plt","calls the printf method")
+        self._ins("","END OF PRINTING")
 
     def allocate_stack_space(self, words):
         self._ins(f"addq ${-8*words}, %rsp",
