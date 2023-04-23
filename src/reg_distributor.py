@@ -55,6 +55,15 @@ class regDistributor(VisitorsBase):
         self.cromaticNumber = 0  # Number of actual registers we need to use in total
         self.flatTab = flatTab
         self.current_function_stack = []
+        self.pseudoLineno = 1
+
+    def useReg(self, *args):
+        for reg in args:
+            reg.use()
+        self.pseudoLineno += 1
+
+    def addLine(self, n = 1):
+        self.pseudoLineno += n
 
     def getExterRegisterCount(self):
         return 0 if self.cromaticNumber <= len(regMap) else self.cromaticNumber - len(regMap)
@@ -80,6 +89,7 @@ class regDistributor(VisitorsBase):
         reg = intermediateRegister(name)
         self.registers.append(reg)
         self.counter += 1
+        self.useReg(reg)
         return reg
 
     def newLbl(self):
@@ -114,6 +124,7 @@ class regDistributor(VisitorsBase):
 
     def postVistit_exression_neg(self, t):
         t.inReg = t.ext.retReg
+        self.useReg(t.inReg)
         t.retReg = self.newReg()
 
     def postVisit_variable(self, t):
@@ -124,28 +135,34 @@ class regDistributor(VisitorsBase):
     def postVisit_expression_binop(self, t):
         t.inReg1 = t.lsh.retReg
         t.inReg2 = t.rsh.retReg
+        self.useReg(t.inReg1, t.inReg2)
         t.retReg = self.newReg()
 
     def postVisit_statement_print(self, t): 
         t.inReg = t.exp.retReg
+        self.useReg(t.inReg)
 
     def postVisit_statement_assignment(self, t):
         t.inReg = t.rhs.retReg
+        self.useReg(t.inReg)
         t.assignReg = t.lhs.retReg  # Not a register
 
     def postVisit_statement_ifthen(self, t):
         t.end_lbl = self.newLbl()
         t.inReg = t.exp.retReg
+        self.useReg(t.inReg)
 
     def postVisit_statement_ifthenelse(self, t):
         t.else_lbl = self.newLbl()
         t.end_lbl = self.newLbl()
         t.inReg = t.exp.retReg
+        self.useReg(t.inReg)
 
     def postVisit_statement_while(self, t):
         t.begin_lbl = self.newLbl()
         t.end_lbl = self.newLbl()
         t.inReg = t.exp.retReg
+        self.useReg(t.inReg)
 
     def postVisit_statement_break(self, t):
         t.goto_lbl = t.parent.end_lbl
@@ -171,14 +188,14 @@ class regDistributor(VisitorsBase):
 # end of visitor
 
 regMap = {
-        0: "R8",
-        1: "R9",
-        2: "R10",
-        3: "R11",
-        4: "R12",
-        5: "R13",
-        6: "R14",
-        7: "R15"
+        0: "%r8",
+        1: "%r9",
+        2: "%r10",
+        3: "%r11",
+        4: "%r12",
+        5: "%r13",
+        6: "%r14",
+        7: "%r15"
         }
 
 def getRegName(n):
