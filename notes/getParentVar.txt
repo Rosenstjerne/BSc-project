@@ -1,0 +1,48 @@
+If we have three functions F, G and H, and they have some variables and parameters,
+and are nested together in order, and we have a call stack thar looks like so:
+
+.
+.
+.
+????????  <---- main_RBP
+main_var1
+main_var2
+.
+.
+.
+F_param3
+F_param2
+F_param1
+main_RBP
+F_caller_RBP  <---- F_RBP
+F_var1
+F_var2
+F_var3
+.
+.
+.
+G_param2
+G_param1
+main_RBP
+F_RBP
+G_caller_RBP <--- G_RBP
+G_var1
+.
+.
+.
+H_param2
+H_param1
+main_RBP
+F_RBP
+G_RBP
+H_caller_RBP  <--- RBP
+H_var1
+H_var2
+.
+.
+
+We are curently in function H.
+For accessing F_var2 from function H we calculate its location like so:
+
+movq -16(RBP), RDI
+movq 16(RDI), someRegister
