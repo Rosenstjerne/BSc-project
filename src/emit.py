@@ -141,7 +141,7 @@ class Emit:
             elif method is Meta.CALLER_RESTORE:
                 self.caller_restore()
             elif method is Meta.CALL_PRINTF:
-                self.call_printf()
+                self.call_printf(instr)
             elif method is Meta.ALLOCATE_STACK_SPACE:
                 self.allocate_stack_space(instr.args[1])
             elif method is Meta.DEALLOCATE_STACK_SPACE:
@@ -303,11 +303,11 @@ class Emit:
         self._ins("", "CALLER EPILOGUE: empty")
         self._raw("")
 
-    def call_printf(self):
+    def call_printf(self, instr):
         self._ins("", "PRINTING")
         self._ins("leaq form(%rip), %rdi", "pass 1. argument in %rdi")
         # By-passing caller save values on the stack:
-        self._ins(f"movq {8*_caller_registers}(%rsp), %rsi","Moves printable object to rsi")
+        self._ins(f"movq {instr.args[2].spec.getReg()}, %rsi","Moves printable object to rsi")
         self._ins("xorq %rax, %rax","No floating point arguments") 
         self._raw("")
         self._ins("callq printf@plt","calls the printf method")

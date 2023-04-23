@@ -208,11 +208,11 @@ class ASTCodeGenerationVisitor(VisitorsBase):
         self._app(Ins(Op.RET, label))
 
     def postVisit_statement_print(self, t):
-        self._app(Ins(Op.META, Meta.CALLER_SAVE))
-        self._app(Ins(Op.META, Meta.CALLER_PROLOGUE))
-        self._app(Ins(Op.META, Meta.CALL_PRINTF))
-        self._app(Ins(Op.META, Meta.CALLER_EPILOGUE))
-        self._app(Ins(Op.META, Meta.CALLER_RESTORE))
+        # self._app(Ins(Op.META, Meta.CALLER_SAVE))
+        # self._app(Ins(Op.META, Meta.CALLER_PROLOGUE))
+        self._app(Ins(Op.META, Meta.CALL_PRINTF, Target(t.inReg)))
+        # self._app(Ins(Op.META, Meta.CALLER_EPILOGUE))
+        # self._app(Ins(Op.META, Meta.CALLER_RESTORE))
 
     def postVisit_statement_assignment(self, t):
         """                move rbp, rsl
