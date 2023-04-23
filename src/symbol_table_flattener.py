@@ -55,8 +55,9 @@ class tabFlattener(VisitorsBase):
     def preVisit_function(self, t):
         self.current_function_count += 1
         name = "fun_" + str(self.current_function_count) + "_" + t.name
+        funFlatTab = flatFun(name, t.scope, self.current_function_stack)
+        self.var_table[name] = funFlatTab
         self.current_function_stack.append(name)
-        self.var_table[name] = flatFun(name, t.scope, self.current_function_stack)
         t.metaName = name
 
     def postVisit_function(self, t):

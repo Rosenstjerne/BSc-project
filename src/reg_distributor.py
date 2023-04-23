@@ -1,7 +1,7 @@
 
 from visitors_base import VisitorsBase
 
-class register:
+class intermediateRegister:
     def __init__(self, name):
         self.name = name
         self.firstUse = 0 # Based on line no
@@ -9,11 +9,13 @@ class register:
         self.collor = None # For later use
         self.neighbours = [] # For later use
 
-    def getReg(self, lineno):
+    def getReg(self):
+        return self.name
+
+    def use(self, lineno):
         if self.firstUse == 0:
             self.firstUse = lineno
         self.lastUse = lineno
-        return self.name
 
     def setCollor(self, collor):
         self.collor = collor
@@ -43,13 +45,19 @@ class register:
                 return False
         return True
 
+
 class regDistributor(VisitorsBase):
-    def __init__(self):
+    def __init__(self, flatTab):
         self.counter = 0
         self.lableCounter = 0
         self._current_scope = None
         self.registers = []  # List of all intermediate registers
         self.cromaticNumber = 0  # Number of actual registers we need to use in total
+        self.flatTab = flatTab
+        self.current_function_stack = []
+
+    def getExterRegisterCount(self):
+        return 0 if self.cromaticNumber <= len(regMap) else self.cromaticNumber - len(regMap)
 
     def collorRegisters(self):
 
@@ -60,16 +68,16 @@ class regDistributor(VisitorsBase):
         # Collores all the registers in the graph
         for r in self.registers:
             c = 0
-            while not r.canHaveCollor(c):
+            while not r.canHaveCollor(getRegName(c)):
                 c += 1 
-            r.setCollor(c)
-            if c > self.cromaticNumber:
-                self.cromaticNumber = c
+            r.setCollor(getRegName(c))
+            if c + 1 > self.cromaticNumber:
+                self.cromaticNumber = c + 1
 
 
     def newReg(self):
         name = "reg_" + str(self.counter)
-        reg = register(name)
+        reg = intermediateRegister(name)
         self.registers.append(reg)
         self.counter += 1
         return reg
@@ -87,6 +95,12 @@ class regDistributor(VisitorsBase):
     def postVisit_body(self, t):
         if self._current_scope:
             self._current_scope = self._current_scope.parent
+
+    def preVisit_function(self, t):
+        self.current_function_stack.append(t.metaName)
+
+    def postVisit_function(self, t):
+        self.current_function_stack.pop
 
     def postVisit_expression_integer(self,t):
         t.retReg = self.newReg()
@@ -153,3 +167,24 @@ class regDistributor(VisitorsBase):
     
     def postVisit_statement_return(self, t):
         pass
+
+# end of visitor
+
+regMap = {
+        0: "R8",
+        1: "R9",
+        2: "R10",
+        3: "R11",
+        4: "R12",
+        5: "R13",
+        6: "R14",
+        7: "R15"
+        }
+
+def getRegName(n):
+    if n in regMap.keys:
+        return regMap[n]
+    else:
+        i = n - len(regMap) + 1
+        name = "-" + str(i*8) + "RBX" # TODO: What base should we use ?
+        return name
