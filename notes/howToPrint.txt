@@ -1,0 +1,6 @@
+# PRINTING
+leaq form(%rip), %rdi   
+movq inReg, %rsi     
+xorq %rax, %rax         
+
+callq printf@plt

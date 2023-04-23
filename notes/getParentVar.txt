@@ -44,5 +44,5 @@ H_var2
 We are curently in function H.
 For accessing F_var2 from function H we calculate its location like so:
 
-movq -16(RBP), RDI
-movq 16(RDI), someRegister
+movq -16(RBP), RSL
+movq 16(RSL), someRegister
