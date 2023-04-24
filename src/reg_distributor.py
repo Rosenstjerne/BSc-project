@@ -134,17 +134,17 @@ class ASTRegDistributor(VisitorsBase):
         t.assignReg = t.lhs.retReg  # Not a register
 
     def postVisit_statement_ifthen(self, t):
-        t.end_lbl = self.newLbl()
+        t.end_label = self.newLbl()
         t.inReg = t.exp.retReg
 
     def postVisit_statement_ifthenelse(self, t):
-        t.else_lbl = self.newLbl()
-        t.end_lbl = self.newLbl()
+        t.else_label = self.newLbl()
+        t.end_label = self.newLbl()
         t.inReg = t.exp.retReg
 
     def postVisit_statement_while(self, t):
-        t.begin_lbl = self.newLbl()
-        t.end_lbl = self.newLbl()
+        t.begin_label = self.newLbl()
+        t.end_label = self.newLbl()
         t.inReg = t.exp.retReg
 
     def postVisit_statement_break(self, t):

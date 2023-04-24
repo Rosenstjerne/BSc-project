@@ -238,7 +238,7 @@ class ASTCodeGenerationVisitor(VisitorsBase):
         self._app(Ins(Operation.CMP,
                       Arg(Target(TargetType.REG, self._use(t.inReg1)), Mode(AddressingMode.DIR)),
                       Arg(Target(TargetType.REG, self._use(t.inReg2)), Mode(AddressingMode.DIR)),
-                      c=f"eval {t.inReg1.name} {t.op} {t.inReg2}"))
+                      c=f"eval {t.inReg1.name} {t.op} {t.inReg2.name}"))
         self._app(Ins(trueJump,
                       Arg(Target(TargetType.MEM, t.true_label), Mode(AddressingMode.DIR)),
                       c="Jump if the expression was true"))
@@ -253,7 +253,7 @@ class ASTCodeGenerationVisitor(VisitorsBase):
         self._app(Ins(Operation.MOVE,
                       Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
                       Arg(Target(TargetType.REG, self._use(t.retReg)), Mode(AddressingMode.DIR)),
-                      c="Moves true into {t.retReg.name}"))
+                      c=f"Moves true into {t.retReg.name}"))
         self._app(Ins(Operation.LABEL, Arg(Target(TargetType.MEM, t.end_label), Mode(AddressingMode.DIR))))
         
 
@@ -344,3 +344,61 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                       Arg(Target(TargetType.REG, self._use(t.retReg)), Mode(AddressingMode.DIR)),
                       c=f"Moves true into {t.retReg.name}"))
         self._app(Ins(Operation.LABEL, Arg(Target(TargetType.MEM, t.end_label), Mode(AddressingMode.DIR))))
+
+
+    def midVisit_statement_ifthen(self, t):
+        self._app(Ins(Operation.CMP,
+                      Arg(Target(TargetType.REG, self._use(t.inReg)), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
+                      c=f"Compare: {t.inReg.name} == true"))
+        self._app(Ins(Operation.JNE,
+                      Arg(Target(TargetType.MEM, t.end_label), Mode(AddressingMode.DIR)),
+                      c="Jump to end if false"))
+
+    def postVisit_statement_ifthen(self, t):
+        self._app(Ins(Operation.LABEL, Arg(Target(TargetType.MEM, t.end_label), Mode(AddressingMode.DIR)),
+                      c="end of if"))
+
+
+    def preMidVisit_statement_ifthenelse(self, t):
+        self._app(Ins(Operation.CMP,
+                      Arg(Target(TargetType.REG, self._use(t.inReg)), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
+                      c=f"Compare: {t.inReg.name} == true"))
+        self._app(Ins(Operation.JNE,
+                      Arg(Target(TargetType.MEM, t.else_label), Mode(AddressingMode.DIR)),
+                      c="Jump to else if false"))
+
+    def postMidVisit_statement_ifthenelse(self, t):
+        self._app(Ins(Operation.JMP,
+                      Arg(Target(TargetType.MEM, t.end_label), Mode(AddressingMode.DIR)),
+                      c="Jump to end"))
+        self._app(Ins(Operation.LABEL, Arg(Target(TargetType.MEM, t.else_label), Mode(AddressingMode.DIR)),
+                      c="else part"))
+
+    def postVisit_statement_ifthenelse(self, t):
+        self._app(Ins(Operation.LABEL, Arg(Target(TargetType.MEM, t.end_label), Mode(AddressingMode.DIR)),
+                      c="end of ifelse"))
+
+
+    
+    def preVisit_statement_while(self, t):
+        self._app(Ins(Operation.LABEL, Arg(Target(TargetType.MEM, t.begin_label), Mode(AddressingMode.DIR)),
+                      c="Start of while"))
+
+    def midVisit_statement_while(self, t):
+        self._app(Ins(Operation.CMP,
+                      Arg(Target(TargetType.REG, self._use(t.inReg)), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
+                      c=f"Compare: {t.inReg.name} == true"))
+        self._app(Ins(Operation.JNE,
+                      Arg(Target(TargetType.MEM, t.end_label), Mode(AddressingMode.DIR)),
+                      c="Jump to else if false"))
+
+    def postVisit_statement_while(self, t):
+        self._app(Ins(Operation.JMP,
+                      Arg(Target(TargetType.MEM, t.begin_label), Mode(AddressingMode.DIR)),
+                      c="Jump to start of while"))
+        self._app(Ins(Operation.LABEL, Arg(Target(TargetType.MEM, t.end_label), Mode(AddressingMode.DIR)),
+                      c="end of while"))
+

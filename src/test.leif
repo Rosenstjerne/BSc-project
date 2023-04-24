@@ -7,3 +7,9 @@ print(4 == 5);
 print(7 >= 9);
 print(-4);
 print(!false);
+
+if(4<5) print(8);
+
+if(false) print(false); else print(true);
+
+while(!true) print(8!=5);
