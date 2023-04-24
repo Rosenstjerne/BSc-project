@@ -27,11 +27,11 @@ class intermediateRegister:
 
     def addNeighboursConditionally(self, neighbours):
         for n in neighbours:
-            if self == n:
-                pass
-            elif n.firstUse in range(self.firstUse, self.lastUse+1):
+            if self.name == n.name:
                 self.neighbours.append(n)
-            elif n.lastUse in range(self.firstUse, self.lastUse+1):
+            elif n.firstUse >= self.firstUse and n.firstUse <= self.lastUse:
+                self.neighbours.append(n)
+            elif n.lastUse >= self.firstUse and n.lastUse <= self.lastUse:
                 self.neighbours.append(n)
 
 
@@ -39,18 +39,18 @@ class intermediateRegister:
 class ASTRegDistributor(VisitorsBase):
     def __init__(self, flatTab):
         self.counter = 0
-        self.lableCounter = 0
+        self.labelCounter = 0
         self._current_scope = None
         self.registers = []  # List of all intermediate registers
         self.chromatic_number = 0  # Number of actual registers we need to use in total
         self.flatTab = flatTab
         self.current_function_stack = []
-        self.pseudoLineno = 1
+        self.pseudoLineno = 10
 
     def useReg(self, *args):
+        self.pseudoLineno += 1
         for reg in args:
             reg.use(self.pseudoLineno)
-        self.pseudoLineno += 1
 
     def addLine(self, n = 1):
         self.pseudoLineno += n
@@ -67,7 +67,7 @@ class ASTRegDistributor(VisitorsBase):
         # Greedy algorithme for coloring the graph
         for r in self.registers:
             used_colors = {neighbour.color for neighbour in r.neighbours if neighbour.color is not None}
-            min_available_color = next((c for c in itertools.count() if getRegName(c) not in used_colors), -1)
+            min_available_color = next((c for c in itertools.count() if getRegName(c) not in used_colors), 0)
             r.setcolor(getRegName(min_available_color))
             if min_available_color + 1 > self.chromatic_number:
                 self.chromatic_number = min_available_color + 1
@@ -82,8 +82,8 @@ class ASTRegDistributor(VisitorsBase):
         return reg
 
     def newLbl(self):
-        lbl = f"label_{self.label_counter}"
-        self.lableCounter+= 1
+        lbl = f"label_{self.labelCounter}"
+        self.labelCounter += 1
         return lbl
 
     # Visitor functions
@@ -105,18 +105,23 @@ class ASTRegDistributor(VisitorsBase):
 
     def postVisit_expression_integer(self,t):
         t.retReg = self.newReg()
+        self.useReg(t.retReg)
     
-    def postVistit_exression_negative(self, t):
-        t.inReg = t.ext.retReg
+    def postVisit_expression_negative(self, t):
+        t.inReg = t.exp.retReg
         t.retReg = self.newReg()
+        self.useReg(t.inReg, t.retReg)
 
     def postVisit_expression_boolean(self, t):
         t.retReg = self.newReg()
+        self.useReg(t.retReg)
 
-    def postVistit_exression_neg(self, t):
-        t.inReg = t.ext.retReg
+    def postVisit_expression_neg(self, t):
+        t.inReg = t.exp.retReg
         t.retReg = self.newReg()
-        self.useReg(t.inReg)
+        self.useReg(t.inReg, t.retReg)
+        t.true_label = self.newLbl()
+        t.end_label = self.newLbl()
 
     def postVisit_variable(self, t):
         if self._current_scope:
@@ -125,9 +130,14 @@ class ASTRegDistributor(VisitorsBase):
 
     def postVisit_expression_binop(self, t):
         t.inReg1 = t.lhs.retReg
+        self.useReg(t.inReg1)
         t.inReg2 = t.rhs.retReg
         t.retReg = self.newReg()
-        self.useReg(t.inReg1, t.inReg2)
+        self.useReg(t.inReg1, t.inReg2, t.retReg)
+
+        if t.op in ["==","!=","<",">","<=",">="]:
+            t.true_label = self.newLbl()
+            t.end_label = self.newLbl()
 
     def postVisit_statement_print(self, t): 
         t.inReg = t.exp.retReg

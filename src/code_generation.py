@@ -31,6 +31,8 @@ class Operation(Enum):
     MUL = auto()
     DIV = auto()
     MOD = auto()
+    AND = auto()
+    OR = auto()
     LABEL = auto()
     META = auto()
 
@@ -218,3 +220,124 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                       Arg(Target(TargetType.IMB, t.boolean), Mode(AddressingMode.DIR)),
                       Arg(Target(TargetType.REG, t.retReg.getReg()), Mode(AddressingMode.DIR)),
                       c=f"Moves boolean into {t.retReg.getReg()}"))
+
+    def _comparison_op(self, trueJump, t):
+        """
+                    cmp reg1, reg2
+                    cond_jump true_label
+                    movq $0 retReg
+                    jmp end_label
+        true_label:
+                    movq $1 retReg
+        end_label:
+
+        """
+        self._app(Ins(Operation.CMP,
+                      Arg(Target(TargetType.REG, t.inReg1.getReg()), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.inReg2.getReg()), Mode(AddressingMode.DIR)),
+                      ))
+        self._app(Ins(trueJump,
+                      Arg(Target(TargetType.MEM, t.true_label), Mode(AddressingMode.DIR)),
+                      c="Jump if the expression was true"))
+        self._app(Ins(Operation.MOVE,
+                      Arg(Target(TargetType.IMB, False), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.retReg.getReg()), Mode(AddressingMode.DIR)),
+                      c=f"Moves false into {t.retReg.getReg()}"))
+        self._app(Ins(Operation.JMP,
+                      Arg(Target(TargetType.MEM, t.end_label), Mode(AddressingMode.DIR)),
+                      c="Jump to end of expression"))
+        self._app(Ins(Operation.LABEL, Arg(Target(TargetType.MEM, t.true_label), Mode(AddressingMode.DIR))))
+        self._app(Ins(Operation.MOVE,
+                      Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.retReg.getReg()), Mode(AddressingMode.DIR)),
+                      c=f"Moves true into {t.retReg.getReg()}"))
+        self._app(Ins(Operation.LABEL, Arg(Target(TargetType.MEM, t.end_label), Mode(AddressingMode.DIR))))
+        
+
+    def _arithmetic_op(self, op, t):
+        """
+                    movq reg1, retReg
+                    aritmatic_op reg2, retReg
+        """
+        self._app(Ins(Operation.MOVE,
+                      Arg(Target(TargetType.REG, t.inReg2.getReg()), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.retReg.getReg()), Mode(AddressingMode.DIR)),
+                      ))
+        self._app(Ins(op,
+                      Arg(Target(TargetType.REG, t.inReg1.getReg()), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.retReg.getReg()), Mode(AddressingMode.DIR)),
+                      c=f"Operation: {t.op}"))
+
+    def _logic_op(self, op, t):
+        """
+                    movq reg1, retReg
+                    logic_op reg2, retReg
+        """
+        self._app(Ins(Operation.MOVE,
+                      Arg(Target(TargetType.REG, t.inReg1.getReg()), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.retReg.getReg()), Mode(AddressingMode.DIR)),
+                      ))
+        self._app(Ins(op,
+                      Arg(Target(TargetType.REG, t.inReg2.getReg()), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.retReg.getReg()), Mode(AddressingMode.DIR)),
+                      c=f"Operation: {t.op}"))
+
+    def postVisit_expression_binop(self, t):
+        if t.op == "==":
+            self._comparison_op(Operation.JE, t)
+        elif t.op == "!=":
+            self._comparison_op(Operation.JNE, t)
+        elif t.op == "<":
+            self._comparison_op(Operation.JL, t)
+        elif t.op == "<=":
+            self._comparison_op(Operation.JLE, t)
+        elif t.op == ">":
+            self._comparison_op(Operation.JG, t)
+        elif t.op == ">=":
+            self._comparison_op(Operation.JGE, t)
+        elif t.op == "+":
+            self._arithmetic_op(Operation.ADD, t)
+        elif t.op == "-":
+            self._arithmetic_op(Operation.SUB, t)
+        elif t.op == "*":
+            self._arithmetic_op(Operation.MUL, t)
+        elif t.op == "/":
+            self._arithmetic_op(Operation.DIV, t)
+        elif t.op == "%":
+            self._arithmetic_op(Operation.MOD, t)
+        elif t.op == "&&":
+            self._logic_op(Operation.AND, t)
+        elif t.op == "||":
+            self._logic_op(Operation.OR, t)
+
+    def postVisit_expression_negative(self, t):
+        self._app(Ins(Operation.MOVE,
+                      Arg(Target(TargetType.REG, t.inReg.getReg()), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.retReg.getReg()), Mode(AddressingMode.DIR)),
+                      ))
+        self._app(Ins(Operation.SUB,
+                      Arg(Target(TargetType.IMI, 0), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.retReg.getReg()), Mode(AddressingMode.DIR)),
+                      ))
+
+    def postVisit_expression_neg(self, t):
+        self._app(Ins(Operation.CMP,
+                      Arg(Target(TargetType.REG, t.inReg.getReg()), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
+                      ))
+        self._app(Ins(Operation.JE,
+                      Arg(Target(TargetType.MEM, t.true_label), Mode(AddressingMode.DIR)),
+                      c="Jump if the expression was true"))
+        self._app(Ins(Operation.MOVE,
+                      Arg(Target(TargetType.IMB, False), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.retReg.getReg()), Mode(AddressingMode.DIR)),
+                      c=f"Moves false into {t.retReg.getReg()}"))
+        self._app(Ins(Operation.JMP,
+                      Arg(Target(TargetType.MEM, t.end_label), Mode(AddressingMode.DIR)),
+                      c="Jump to end of expression"))
+        self._app(Ins(Operation.LABEL, Arg(Target(TargetType.MEM, t.true_label), Mode(AddressingMode.DIR))))
+        self._app(Ins(Operation.MOVE,
+                      Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.retReg.getReg()), Mode(AddressingMode.DIR)),
+                      c=f"Moves true into {t.retReg.getReg()}"))
+        self._app(Ins(Operation.LABEL, Arg(Target(TargetType.MEM, t.end_label), Mode(AddressingMode.DIR))))

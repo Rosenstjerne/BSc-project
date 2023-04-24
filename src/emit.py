@@ -38,6 +38,8 @@ _intermediate_to_x86 = {
     Operation.ADD: "addq",
     Operation.SUB: "subq",
     Operation.MUL: "imulq",
+    Operation.AND: "andq",
+    Operation.OR: "orq"
     }
 
 
@@ -109,7 +111,7 @@ class Emit:
         elif instr.opcode is Operation.DIV:
             self._div(instr)
         elif instr.opcode is Operation.MOD:
-            pass # TODO: Add modolo operation 
+            self._mod(instr)
         elif instr.opcode is Operation.RET:
             self._ret(instr)
         elif instr.opcode is Operation.LABEL:
@@ -199,6 +201,14 @@ class Emit:
         self._ins("cqo", "sign extend")
         self._ins(f"idivq {self._do_arg(instr.args[0])}", "divide")
         self._ins(f"movq %rax, {self._do_arg(instr.args[1])}",
+                  "move to destination")
+
+    def _mod(self, instr):
+        self._ins(f"movq {self._do_arg(instr.args[1])}, %rax",
+                  "prepare for modulo")
+        self._ins("cqo", "sign extend")
+        self._ins(f"idivq {self._do_arg(instr.args[0])}", "modulo")
+        self._ins(f"movq %rdx, {self._do_arg(instr.args[1])}",
                   "move to destination")
 
     def _label(self, instr):
