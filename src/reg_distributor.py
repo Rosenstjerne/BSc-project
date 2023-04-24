@@ -68,14 +68,14 @@ class ASTRegDistributor(VisitorsBase):
 
 
     def newReg(self):
-        name = f"reg_{self.counter}"
+        name = f"reg{self.counter}"
         reg = intermediateRegister(name)
         self.registers.append(reg)
         self.counter += 1
         return reg
 
-    def newLbl(self):
-        lbl = f"label_{self.labelCounter}"
+    def newLbl(self, s=""):
+        lbl = f"lbl{self.labelCounter}_{s}"        
         self.labelCounter += 1
         return lbl
 
@@ -109,8 +109,8 @@ class ASTRegDistributor(VisitorsBase):
     def postVisit_expression_neg(self, t):
         t.inReg = t.exp.retReg
         t.retReg = self.newReg()
-        t.true_label = self.newLbl()
-        t.end_label = self.newLbl()
+        t.true_label = self.newLbl("exp_neg_true")
+        t.end_label = self.newLbl("exp_neg_end")
 
     def postVisit_variable(self, t):
         if self._current_scope:
@@ -123,8 +123,8 @@ class ASTRegDistributor(VisitorsBase):
         t.retReg = self.newReg()
 
         if t.op in ["==","!=","<",">","<=",">="]:
-            t.true_label = self.newLbl()
-            t.end_label = self.newLbl()
+            t.true_label = self.newLbl(f"cmp_true")
+            t.end_label = self.newLbl(f"cmp_end")
 
     def postVisit_statement_print(self, t): 
         t.inReg = t.exp.retReg
@@ -134,17 +134,17 @@ class ASTRegDistributor(VisitorsBase):
         t.assignReg = t.lhs.retReg  # Not a register
 
     def postVisit_statement_ifthen(self, t):
-        t.end_label = self.newLbl()
+        t.end_label = self.newLbl("if_end")
         t.inReg = t.exp.retReg
 
     def postVisit_statement_ifthenelse(self, t):
-        t.else_label = self.newLbl()
-        t.end_label = self.newLbl()
+        t.else_label = self.newLbl("if_else_else")
+        t.end_label = self.newLbl("if_else_end")
         t.inReg = t.exp.retReg
 
     def midVisit_statement_while(self, t):
-        t.begin_label = self.newLbl()
-        t.end_label = self.newLbl()
+        t.begin_label = self.newLbl("while_begin")
+        t.end_label = self.newLbl("while_end")
         t.inReg = t.exp.retReg
 
     def postVisit_statement_break(self, t):

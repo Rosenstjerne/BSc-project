@@ -27,19 +27,19 @@ fun_1_main:
                 pushq %r14              # %r14 is callee save
                 pushq %r15              # %r15 is callee save
 
-                movq $6, %r8            # Moves integer into reg_0
-                movq $5, %r9            # Moves integer into reg_1
-                movq $4, %r10           # Moves integer into reg_2
-                movq %r10, %r11         # Move reg_2 to reg_3
-                imulq %r9, %r11         # Operation: reg_1 * reg_3
-                movq %r11, %r9          # Move reg_3 to reg_4
-                addq %r8, %r9           # Operation: reg_0 + reg_4
-                movq $9, %r8            # Moves integer into reg_5
-                movq $2, %r10           # Moves integer into reg_6
-                movq %r10, %r11         # Move reg_6 to reg_7
-                subq %r8, %r11          # Operation: reg_5 - reg_7
-                movq %r11, %r8          # Move reg_7 to reg_8
-                addq %r9, %r8           # Operation: reg_4 + reg_8
+                movq $6, %r8            # Moves integer into reg0
+                movq $5, %r9            # Moves integer into reg1
+                movq $4, %r10           # Moves integer into reg2
+                movq %r10, %r11         # Move reg2 to reg3
+                imulq %r9, %r11         # Operation: reg1 * reg3
+                movq %r11, %r9          # Move reg3 to reg4
+                addq %r8, %r9           # Operation: reg0 + reg4
+                movq $9, %r8            # Moves integer into reg5
+                movq $2, %r10           # Moves integer into reg6
+                movq %r10, %r11         # Move reg6 to reg7
+                subq %r8, %r11          # Operation: reg5 - reg7
+                movq %r11, %r8          # Move reg7 to reg8
+                addq %r9, %r8           # Operation: reg4 + reg8
                                         # PRINTING
                 leaq form(%rip), %rdi   # pass 1. argument in %rdi
                 movq %r8, %rsi          # Moves printable object to rsi
@@ -47,10 +47,10 @@ fun_1_main:
 
                 callq printf@plt        # calls the printf method
                                         # END OF PRINTING
-                movq $1, %r8            # Moves boolean into reg_9
-                movq $1, %r9            # Moves boolean into reg_10
-                movq %r8, %r10          # Move reg_10 to reg_11
-                orq %r9, %r10           # Operation: reg_9 || reg_11
+                movq $1, %r8            # Moves boolean into reg9
+                movq $1, %r9            # Moves boolean into reg10
+                movq %r8, %r10          # Move reg10 to reg11
+                orq %r9, %r10           # Operation: reg9 || reg11
                                         # PRINTING
                 leaq form(%rip), %rdi   # pass 1. argument in %rdi
                 movq %r10, %rsi         # Moves printable object to rsi
@@ -58,9 +58,9 @@ fun_1_main:
 
                 callq printf@plt        # calls the printf method
                                         # END OF PRINTING
-                movq $2, %r8            # Moves integer into reg_12
-                movq $2, %r9            # Moves integer into reg_13
-                movq %r9, %r10          # Move reg_13 to reg_14
+                movq $2, %r8            # Moves integer into reg12
+                movq $2, %r9            # Moves integer into reg13
+                movq %r9, %r10          # Move reg13 to reg14
                 movq %r10, %rax         # prepare for division
                 cqo                     # sign extend
                 idivq %r8               # divide
@@ -72,9 +72,9 @@ fun_1_main:
 
                 callq printf@plt        # calls the printf method
                                         # END OF PRINTING
-                movq $5, %r8            # Moves integer into reg_15
-                movq $3, %r9            # Moves integer into reg_16
-                movq %r9, %r10          # Move reg_16 to reg_17
+                movq $5, %r8            # Moves integer into reg15
+                movq $3, %r9            # Moves integer into reg16
+                movq %r9, %r10          # Move reg16 to reg17
                 movq %r10, %rax         # prepare for modulo
                 cqo                     # sign extend
                 idivq %r8               # modulo
@@ -86,15 +86,15 @@ fun_1_main:
 
                 callq printf@plt        # calls the printf method
                                         # END OF PRINTING
-                movq $1, %r8            # Moves integer into reg_18
-                movq $2, %r9            # Moves integer into reg_19
-                cmpq %r8, %r9           # eval reg_18 < reg_19
-                jl label_0              # Jump if the expression was true
-                movq $0, %r8            # Moves false into reg_20
-                jmp label_1             # Jump to end of expression
-label_0:
-                movq $1, %r8            # Moves true into reg_20
-label_1:
+                movq $1, %r8            # Moves integer into reg18
+                movq $2, %r9            # Moves integer into reg19
+                cmpq %r8, %r9           # eval reg18 < reg19
+                jl lbl0_cmp_true        # Jump if the expression was true
+                movq $0, %r8            # Moves false into reg20
+                jmp lbl1_cmp_end        # Jump to end of expression
+lbl0_cmp_true:
+                movq $1, %r8            # Moves true into reg20
+lbl1_cmp_end:
                                         # PRINTING
                 leaq form(%rip), %rdi   # pass 1. argument in %rdi
                 movq %r8, %rsi          # Moves printable object to rsi
@@ -102,15 +102,15 @@ label_1:
 
                 callq printf@plt        # calls the printf method
                                         # END OF PRINTING
-                movq $4, %r8            # Moves integer into reg_21
-                movq $5, %r9            # Moves integer into reg_22
-                cmpq %r8, %r9           # eval reg_21 == reg_22
-                je label_2              # Jump if the expression was true
-                movq $0, %r8            # Moves false into reg_23
-                jmp label_3             # Jump to end of expression
-label_2:
-                movq $1, %r8            # Moves true into reg_23
-label_3:
+                movq $4, %r8            # Moves integer into reg21
+                movq $5, %r9            # Moves integer into reg22
+                cmpq %r8, %r9           # eval reg21 == reg22
+                je lbl2_cmp_true        # Jump if the expression was true
+                movq $0, %r8            # Moves false into reg23
+                jmp lbl3_cmp_end        # Jump to end of expression
+lbl2_cmp_true:
+                movq $1, %r8            # Moves true into reg23
+lbl3_cmp_end:
                                         # PRINTING
                 leaq form(%rip), %rdi   # pass 1. argument in %rdi
                 movq %r8, %rsi          # Moves printable object to rsi
@@ -118,15 +118,15 @@ label_3:
 
                 callq printf@plt        # calls the printf method
                                         # END OF PRINTING
-                movq $7, %r8            # Moves integer into reg_24
-                movq $9, %r9            # Moves integer into reg_25
-                cmpq %r8, %r9           # eval reg_24 >= reg_25
-                jge label_4             # Jump if the expression was true
-                movq $0, %r8            # Moves false into reg_26
-                jmp label_5             # Jump to end of expression
-label_4:
-                movq $1, %r8            # Moves true into reg_26
-label_5:
+                movq $7, %r8            # Moves integer into reg24
+                movq $9, %r9            # Moves integer into reg25
+                cmpq %r8, %r9           # eval reg24 >= reg25
+                jge lbl4_cmp_true       # Jump if the expression was true
+                movq $0, %r8            # Moves false into reg26
+                jmp lbl5_cmp_end        # Jump to end of expression
+lbl4_cmp_true:
+                movq $1, %r8            # Moves true into reg26
+lbl5_cmp_end:
                                         # PRINTING
                 leaq form(%rip), %rdi   # pass 1. argument in %rdi
                 movq %r8, %rsi          # Moves printable object to rsi
@@ -134,9 +134,9 @@ label_5:
 
                 callq printf@plt        # calls the printf method
                                         # END OF PRINTING
-                movq $4, %r8            # Moves integer into reg_27
-                movq %r8, %r9           # Move reg_27 to reg_28
-                subq $0, %r9            # Operation: $0 - reg_28
+                movq $4, %r8            # Moves integer into reg27
+                movq %r8, %r9           # Move reg27 to reg28
+                subq $0, %r9            # Operation: $0 - reg28
                                         # PRINTING
                 leaq form(%rip), %rdi   # pass 1. argument in %rdi
                 movq %r9, %rsi          # Moves printable object to rsi
@@ -144,14 +144,14 @@ label_5:
 
                 callq printf@plt        # calls the printf method
                                         # END OF PRINTING
-                movq $1, %r8            # Moves boolean into reg_29
-                cmpq %r8, $1            # Compare: reg_29 == true
-                je label_6              # Jump if the expression was true
-                movq $0, %r8            # Moves false into reg_30
-                jmp label_7             # Jump to end of expression
-label_6:
-                movq $1, %r8            # Moves true into reg_30
-label_7:
+                movq $1, %r8            # Moves boolean into reg29
+                cmpq %r8, $1            # Compare: reg29 == true
+                je lbl6_exp_neg_true    # Jump if the expression was true
+                movq $0, %r8            # Moves false into reg30
+                jmp lbl7_exp_neg_end    # Jump to end of expression
+lbl6_exp_neg_true:
+                movq $1, %r8            # Moves true into reg30
+lbl7_exp_neg_end:
                                         # PRINTING
                 leaq form(%rip), %rdi   # pass 1. argument in %rdi
                 movq %r8, %rsi          # Moves printable object to rsi
@@ -159,18 +159,18 @@ label_7:
 
                 callq printf@plt        # calls the printf method
                                         # END OF PRINTING
-                movq $4, %r8            # Moves integer into reg_31
-                movq $5, %r9            # Moves integer into reg_32
-                cmpq %r8, %r9           # eval reg_31 < reg_32
-                jl label_8              # Jump if the expression was true
-                movq $0, %r8            # Moves false into reg_33
-                jmp label_9             # Jump to end of expression
-label_8:
-                movq $1, %r8            # Moves true into reg_33
-label_9:
-                cmpq %r8, $1            # Compare: reg_33 == true
-                jne label_10            # Jump to end if false
-                movq $8, %r8            # Moves integer into reg_34
+                movq $4, %r8            # Moves integer into reg31
+                movq $5, %r9            # Moves integer into reg32
+                cmpq %r8, %r9           # eval reg31 < reg32
+                jl lbl8_cmp_true        # Jump if the expression was true
+                movq $0, %r8            # Moves false into reg33
+                jmp lbl9_cmp_end        # Jump to end of expression
+lbl8_cmp_true:
+                movq $1, %r8            # Moves true into reg33
+lbl9_cmp_end:
+                cmpq %r8, $1            # Compare: reg33 == true
+                jne lbl10_if_end        # Jump to end if false
+                movq $8, %r8            # Moves integer into reg34
                                         # PRINTING
                 leaq form(%rip), %rdi   # pass 1. argument in %rdi
                 movq %r8, %rsi          # Moves printable object to rsi
@@ -178,11 +178,11 @@ label_9:
 
                 callq printf@plt        # calls the printf method
                                         # END OF PRINTING
-label_10:
-                movq $1, %r8            # Moves boolean into reg_35
-                cmpq %r8, $1            # Compare: reg_35 == true
-                jne label_11            # Jump to else if false
-                movq $1, %r8            # Moves boolean into reg_36
+lbl10_if_end:
+                movq $1, %r8            # Moves boolean into reg35
+                cmpq %r8, $1            # Compare: reg35 == true
+                jne lbl11_if_else_else  # Jump to else if false
+                movq $1, %r8            # Moves boolean into reg36
                                         # PRINTING
                 leaq form(%rip), %rdi   # pass 1. argument in %rdi
                 movq %r8, %rsi          # Moves printable object to rsi
@@ -190,9 +190,9 @@ label_10:
 
                 callq printf@plt        # calls the printf method
                                         # END OF PRINTING
-                jmp label_12            # Jump to end
-label_11:
-                movq $1, %r8            # Moves boolean into reg_37
+                jmp lbl12_if_else_end   # Jump to end
+lbl11_if_else_else:
+                movq $1, %r8            # Moves boolean into reg37
                                         # PRINTING
                 leaq form(%rip), %rdi   # pass 1. argument in %rdi
                 movq %r8, %rsi          # Moves printable object to rsi
@@ -200,27 +200,27 @@ label_11:
 
                 callq printf@plt        # calls the printf method
                                         # END OF PRINTING
-label_12:
-label_15:
-                movq $1, %r8            # Moves boolean into reg_38
-                cmpq %r8, $1            # Compare: reg_38 == true
-                je label_13             # Jump if the expression was true
-                movq $0, %r8            # Moves false into reg_39
-                jmp label_14            # Jump to end of expression
-label_13:
-                movq $1, %r8            # Moves true into reg_39
-label_14:
-                cmpq %r8, $1            # Compare: reg_39 == true
-                jne label_16            # Jump to else if false
-                movq $8, %r8            # Moves integer into reg_40
-                movq $5, %r9            # Moves integer into reg_41
-                cmpq %r8, %r9           # eval reg_40 != reg_41
-                jne label_17            # Jump if the expression was true
-                movq $0, %r8            # Moves false into reg_42
-                jmp label_18            # Jump to end of expression
-label_17:
-                movq $1, %r8            # Moves true into reg_42
-label_18:
+lbl12_if_else_end:
+lbl15_while_begin:
+                movq $1, %r8            # Moves boolean into reg38
+                cmpq %r8, $1            # Compare: reg38 == true
+                je lbl13_exp_neg_true   # Jump if the expression was true
+                movq $0, %r8            # Moves false into reg39
+                jmp lbl14_exp_neg_end   # Jump to end of expression
+lbl13_exp_neg_true:
+                movq $1, %r8            # Moves true into reg39
+lbl14_exp_neg_end:
+                cmpq %r8, $1            # Compare: reg39 == true
+                jne lbl16_while_end     # Jump to else if false
+                movq $8, %r8            # Moves integer into reg40
+                movq $5, %r9            # Moves integer into reg41
+                cmpq %r8, %r9           # eval reg40 != reg41
+                jne lbl17_cmp_true      # Jump if the expression was true
+                movq $0, %r8            # Moves false into reg42
+                jmp lbl18_cmp_end       # Jump to end of expression
+lbl17_cmp_true:
+                movq $1, %r8            # Moves true into reg42
+lbl18_cmp_end:
                                         # PRINTING
                 leaq form(%rip), %rdi   # pass 1. argument in %rdi
                 movq %r8, %rsi          # Moves printable object to rsi
@@ -228,30 +228,30 @@ label_18:
 
                 callq printf@plt        # calls the printf method
                                         # END OF PRINTING
-                jmp label_15            # Jump to start of while
-label_16:
-label_19:
-                movq $1, %r8            # Moves boolean into reg_43
-                cmpq %r8, $1            # Compare: reg_43 == true
-                jne label_20            # Jump to else if false
-                movq $1, %r8            # Moves boolean into reg_44
-                cmpq %r8, $1            # Compare: reg_44 == true
-                jne label_25            # Jump to else if false
-                movq $1, %r8            # Moves boolean into reg_45
-                cmpq %r8, $1            # Compare: reg_45 == true
-                je label_21             # Jump if the expression was true
-                movq $0, %r8            # Moves false into reg_46
-                jmp label_22            # Jump to end of expression
-label_21:
-                movq $1, %r8            # Moves true into reg_46
-label_22:
-                cmpq %r8, $1            # Compare: reg_46 == true
-                je label_23             # Jump if the expression was true
-                movq $0, %r8            # Moves false into reg_47
-                jmp label_24            # Jump to end of expression
-label_23:
-                movq $1, %r8            # Moves true into reg_47
-label_24:
+                jmp lbl15_while_begin   # Jump to start of while
+lbl16_while_end:
+lbl19_while_begin:
+                movq $1, %r8            # Moves boolean into reg43
+                cmpq %r8, $1            # Compare: reg43 == true
+                jne lbl20_while_end     # Jump to else if false
+                movq $1, %r8            # Moves boolean into reg44
+                cmpq %r8, $1            # Compare: reg44 == true
+                jne lbl25_if_else_else  # Jump to else if false
+                movq $1, %r8            # Moves boolean into reg45
+                cmpq %r8, $1            # Compare: reg45 == true
+                je lbl21_exp_neg_true   # Jump if the expression was true
+                movq $0, %r8            # Moves false into reg46
+                jmp lbl22_exp_neg_end   # Jump to end of expression
+lbl21_exp_neg_true:
+                movq $1, %r8            # Moves true into reg46
+lbl22_exp_neg_end:
+                cmpq %r8, $1            # Compare: reg46 == true
+                je lbl23_exp_neg_true   # Jump if the expression was true
+                movq $0, %r8            # Moves false into reg47
+                jmp lbl24_exp_neg_end   # Jump to end of expression
+lbl23_exp_neg_true:
+                movq $1, %r8            # Moves true into reg47
+lbl24_exp_neg_end:
                                         # PRINTING
                 leaq form(%rip), %rdi   # pass 1. argument in %rdi
                 movq %r8, %rsi          # Moves printable object to rsi
@@ -259,11 +259,11 @@ label_24:
 
                 callq printf@plt        # calls the printf method
                                         # END OF PRINTING
-                movq $5, %r8            # Moves integer into reg_48
-                movq %r8, %r9           # Move reg_48 to reg_49
-                subq $0, %r9            # Operation: $0 - reg_49
-                movq %r9, %r8           # Move reg_49 to reg_50
-                subq $0, %r8            # Operation: $0 - reg_50
+                movq $5, %r8            # Moves integer into reg48
+                movq %r8, %r9           # Move reg48 to reg49
+                subq $0, %r9            # Operation: $0 - reg49
+                movq %r9, %r8           # Move reg49 to reg50
+                subq $0, %r8            # Operation: $0 - reg50
                                         # PRINTING
                 leaq form(%rip), %rdi   # pass 1. argument in %rdi
                 movq %r8, %rsi          # Moves printable object to rsi
@@ -271,12 +271,12 @@ label_24:
 
                 callq printf@plt        # calls the printf method
                                         # END OF PRINTING
-                jmp label_26            # Jump to end
-label_25:
-                jmp label_20            # Break of while
-label_26:
-                jmp label_19            # Jump to start of while
-label_20:
+                jmp lbl26_if_else_end   # Jump to end
+lbl25_if_else_else:
+                jmp lbl20_while_end     # Break of while
+lbl26_if_else_end:
+                jmp lbl19_while_begin   # Jump to start of while
+lbl20_while_end:
 end_main:
 
                 popq %r15               # restore callee save register %r15
