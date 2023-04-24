@@ -2,7 +2,7 @@
 # This module takes the intermediate code and outputs 64 bit x86 assembler.
 
 
-from code_generation import Op, T, M, Meta
+from code_generation import Operation, TargetType, AddressingMode, Meta
 
 # The code generation strategy does not use registers for storing values
 # over function calls. All longer term values are on the stack. Thus,
@@ -23,21 +23,21 @@ else:
 
 
 _intermediate_to_x86 = {
-    Op.MOVE: "movq",
-    Op.CALL: "callq",
-    Op.PUSH: "pushq",
-    Op.POP: "popq",
-    Op.CMP: "cmpq",
-    Op.JMP: "jmp",
-    Op.JE: "je",
-    Op.JNE: "jne",
-    Op.JL: "jl",
-    Op.JLE: "jle",
-    Op.JG: "jg",
-    Op.JGE: "jge",
-    Op.ADD: "addq",
-    Op.SUB: "subq",
-    Op.MUL: "imulq",
+    Operation.MOVE: "movq",
+    Operation.CALL: "callq",
+    Operation.PUSH: "pushq",
+    Operation.POP: "popq",
+    Operation.CMP: "cmpq",
+    Operation.JMP: "jmp",
+    Operation.JE: "je",
+    Operation.JNE: "jne",
+    Operation.JL: "jl",
+    Operation.JLE: "jle",
+    Operation.JG: "jg",
+    Operation.JGE: "jge",
+    Operation.ADD: "addq",
+    Operation.SUB: "subq",
+    Operation.MUL: "imulq",
     }
 
 
@@ -48,11 +48,9 @@ class Emit:
     """The class that emits 64 bit x86 assembler code. Attempts are made
        to make the code human readable.
     """
-    def __init__(self, intermediate_representation, labels, macOS):
+    def __init__(self, intermediate_representation):
         self.intermediate_representation = intermediate_representation
         # The unique labels generator:
-        self._labels = labels
-        self.macOS = macOS
         self.instruction_indent = 16
         self.instruction_width = 24
         self.max_width = 79
@@ -108,13 +106,15 @@ class Emit:
     def _dispatch(self, instr):
         if instr.opcode in _intermediate_to_x86:
             self._simple_instruction(instr)
-        elif instr.opcode is Op.DIV:
+        elif instr.opcode is Operation.DIV:
             self._div(instr)
-        elif instr.opcode is Op.RET:
+        elif instr.opcode is Operation.MOD:
+            pass # TODO: Add modolo operation 
+        elif instr.opcode is Operation.RET:
             self._ret(instr)
-        elif instr.opcode is Op.LABEL:
+        elif instr.opcode is Operation.LABEL:
             self._label(instr)
-        elif instr.opcode is Op.META:
+        elif instr.opcode is Operation.META:
             method = instr.args[0]
             if method is Meta.PROGRAM_PROLOGUE:
                 self.program_prologue()
@@ -152,30 +152,30 @@ class Emit:
     def _do_arg(self, arg):
         """Formats one instruction argument."""
         target = arg.target
-        if target.spec is T.IMI or target.spec is T.IML:
+        text = ""
+        if target.spec is TargetType.IMI or target.spec is TargetType.IML:  # Immidiate Integer or Lable
             text = f"${target.val}"
-        elif target.spec is T.MEM:
+        elif target.spec is TargetType.IMB:
+            text = f"${1 if target.val else 0}"  # Immidiate boolean
+        elif target.spec is TargetType.MEM:
             text = f"{target.val}"
-        elif target.spec is T.RBP:
+        elif target.spec is TargetType.RBP:
             text = "%rbp"
-        elif target.spec is T.RSP:
+        elif target.spec is TargetType.RSP:
             text = "%rsp"
-        elif target.spec is T.RRT:
+        elif target.spec is TargetType.RRT:
             text = "%rax"
-        elif target.spec is T.RSL:
+        elif target.spec is TargetType.RSL:
             text = "%rdx"
-        # These two registers are also used explicitly in the printf code
-        elif target.spec is T.REG:
-            if target.val == 1:
-                text = "%rbx"
-            elif target.val == 2:
-                text = "%rcx"
+        elif target.spec is TargetType.REG:
+            text = target.val
+
         addressing = arg.addressing
-        if addressing.mode is M.DIR:
+        if addressing.mode is AddressingMode.DIR:
             pass
-        elif addressing.mode is M.IND:
+        elif addressing.mode is AddressingMode.IND:
             text = f"({text})"
-        elif addressing.mode is M.IRL:
+        elif addressing.mode is AddressingMode.IRL:
             text = f"{-8*addressing.offset}({text})"
         return text
 
@@ -202,10 +202,7 @@ class Emit:
                   "move to destination")
 
     def _label(self, instr):
-        s = ""
-        if self.macOS and instr.args[0].target.val == "main":
-            s = "_"
-        self._lbl(s + self._do_arg(instr.args[0]))
+        self._lbl(self._do_arg(instr.args[0]))
 
     def _ret(self, instr):
         self._ins("popq %rax", "move return value to return register")
@@ -222,7 +219,7 @@ class Emit:
         self._raw("")
         self._raw(".text")
         self._raw("")
-        self._raw(f".globl {'_' if self.macOS else ''}main")
+        self._raw(f".globl main")
         self._raw("")
 
     def program_epilogue(self):
@@ -231,6 +228,10 @@ class Emit:
     def main_callee_save(self):
         self._raw("")
         self._ins("pushq %rbx", "%rbx is callee save")
+        self._ins("pushq %r8",  "%r8  is callee save")
+        self._ins("pushq %r9",  "%r9  is callee save")
+        self._ins("pushq %r10", "%r10 is callee save")
+        self._ins("pushq %r11", "%r11 is callee save")
         self._ins("pushq %r12", "%r12 is callee save")
         self._ins("pushq %r13", "%r13 is callee save")
         self._ins("pushq %r14", "%r14 is callee save")
@@ -243,11 +244,15 @@ class Emit:
 
     def main_callee_restore(self):
         self._raw("")
-        self._ins("popq %r15", "restore callee save register")
-        self._ins("popq %r14", "restore callee save register")
-        self._ins("popq %r13", "restore callee save register")
-        self._ins("popq %r12", "restore callee save register")
-        self._ins("popq %rbx", "restore callee save register")
+        self._ins("popq %r15", "restore callee save register %r15")
+        self._ins("popq %r14", "restore callee save register %r14")
+        self._ins("popq %r13", "restore callee save register %r13")
+        self._ins("popq %r12", "restore callee save register %r12")
+        self._ins("popq %r11", "restore callee save register %r11")
+        self._ins("popq %r10", "restore callee save register %r10")
+        self._ins("popq %r9",  "restore callee save register %r9 ")
+        self._ins("popq %r8",  "restore callee save register %r8 ")
+        self._ins("popq %rbx", "restore callee save register %rbx")
         self._raw("")
 
     def callee_restore(self):
@@ -276,23 +281,31 @@ class Emit:
             self._ins("pushq %rdx", "%rdx is caller save")
             self._ins("pushq %rsi", "%rsi is caller save")
             self._ins("pushq %rdi", "%rdi is caller save")
-            self._ins("pushq %r8", "%r8 is caller save")
-            self._ins("pushq %r9", "%r9 is caller save")
+            self._ins("pushq %r8",  "%r8  is caller save")
+            self._ins("pushq %r9",  "%r9  is caller save")
             self._ins("pushq %r10", "%r10 is caller save")
             self._ins("pushq %r11", "%r11 is caller save")
+            self._ins("pushq %r12", "%r12 is caller save")
+            self._ins("pushq %r13", "%r13 is caller save")
+            self._ins("pushq %r14", "%r14 is caller save")
+            self._ins("pushq %r15", "%r15 is caller save")
             self._raw("")
 
     def caller_restore(self):
         if _full_caller_callee_save:
             self._raw("")
-            self._ins("popq %r11", "restore caller save register")
-            self._ins("popq %r10", "restore caller save register")
-            self._ins("popq %r9", "restore caller save register")
-            self._ins("popq %r8", "restore caller save register")
-            self._ins("popq %rdi", "restore caller save register")
-            self._ins("popq %rsi", "restore caller save register")
-            self._ins("popq %rdx", "restore caller save register")
-            self._ins("popq %rcx", "restore caller save register")
+            self._ins("popq %r15", "restore callee save register %r15")
+            self._ins("popq %r14", "restore callee save register %r14")
+            self._ins("popq %r13", "restore callee save register %r13")
+            self._ins("popq %r12", "restore callee save register %r12")
+            self._ins("popq %r11", "restore caller save register %r11")
+            self._ins("popq %r10", "restore caller save register %r10")
+            self._ins("popq %r9",  "restore caller save register %r9 ")
+            self._ins("popq %r8",  "restore caller save register %r8 ")
+            self._ins("popq %rdi", "restore caller save register %rdi")
+            self._ins("popq %rsi", "restore caller save register %rsi")
+            self._ins("popq %rdx", "restore caller save register %rdx")
+            self._ins("popq %rcx", "restore caller save register %rcx")
             self._raw("")
 
     def caller_prologue(self):
@@ -307,7 +320,7 @@ class Emit:
         self._ins("", "PRINTING")
         self._ins("leaq form(%rip), %rdi", "pass 1. argument in %rdi")
         # By-passing caller save values on the stack:
-        self._ins(f"movq {instr.args[2].spec.getReg()}, %rsi","Moves printable object to rsi")
+        self._ins(f"movq {instr.args[1].target.val}, %rsi","Moves printable object to rsi")
         self._ins("xorq %rax, %rax","No floating point arguments") 
         self._raw("")
         self._ins("callq printf@plt","calls the printf method")
