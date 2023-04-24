@@ -142,13 +142,13 @@ class ASTRegDistributor(VisitorsBase):
         t.end_label = self.newLbl()
         t.inReg = t.exp.retReg
 
-    def postVisit_statement_while(self, t):
+    def midVisit_statement_while(self, t):
         t.begin_label = self.newLbl()
         t.end_label = self.newLbl()
         t.inReg = t.exp.retReg
 
     def postVisit_statement_break(self, t):
-        t.goto_lbl = t.parent.end_lbl
+        t.goto_label = t.parent.end_label
 
     def postVisit_expression_new(self, t):
         t.retReg = self.newReg()

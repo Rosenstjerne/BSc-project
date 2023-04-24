@@ -201,7 +201,7 @@ label_11:
                 callq printf@plt        # calls the printf method
                                         # END OF PRINTING
 label_12:
-label_17:
+label_15:
                 movq $1, %r8            # Moves boolean into reg_38
                 cmpq %r8, $1            # Compare: reg_38 == true
                 je label_13             # Jump if the expression was true
@@ -211,16 +211,16 @@ label_13:
                 movq $1, %r8            # Moves true into reg_39
 label_14:
                 cmpq %r8, $1            # Compare: reg_39 == true
-                jne label_18            # Jump to else if false
+                jne label_16            # Jump to else if false
                 movq $8, %r8            # Moves integer into reg_40
                 movq $5, %r9            # Moves integer into reg_41
                 cmpq %r8, %r9           # eval reg_40 != reg_41
-                jne label_15            # Jump if the expression was true
+                jne label_17            # Jump if the expression was true
                 movq $0, %r8            # Moves false into reg_42
-                jmp label_16            # Jump to end of expression
-label_15:
+                jmp label_18            # Jump to end of expression
+label_17:
                 movq $1, %r8            # Moves true into reg_42
-label_16:
+label_18:
                                         # PRINTING
                 leaq form(%rip), %rdi   # pass 1. argument in %rdi
                 movq %r8, %rsi          # Moves printable object to rsi
@@ -228,8 +228,55 @@ label_16:
 
                 callq printf@plt        # calls the printf method
                                         # END OF PRINTING
-                jmp label_17            # Jump to start of while
-label_18:
+                jmp label_15            # Jump to start of while
+label_16:
+label_19:
+                movq $1, %r8            # Moves boolean into reg_43
+                cmpq %r8, $1            # Compare: reg_43 == true
+                jne label_20            # Jump to else if false
+                movq $1, %r8            # Moves boolean into reg_44
+                cmpq %r8, $1            # Compare: reg_44 == true
+                jne label_25            # Jump to else if false
+                movq $1, %r8            # Moves boolean into reg_45
+                cmpq %r8, $1            # Compare: reg_45 == true
+                je label_21             # Jump if the expression was true
+                movq $0, %r8            # Moves false into reg_46
+                jmp label_22            # Jump to end of expression
+label_21:
+                movq $1, %r8            # Moves true into reg_46
+label_22:
+                cmpq %r8, $1            # Compare: reg_46 == true
+                je label_23             # Jump if the expression was true
+                movq $0, %r8            # Moves false into reg_47
+                jmp label_24            # Jump to end of expression
+label_23:
+                movq $1, %r8            # Moves true into reg_47
+label_24:
+                                        # PRINTING
+                leaq form(%rip), %rdi   # pass 1. argument in %rdi
+                movq %r8, %rsi          # Moves printable object to rsi
+                xorq %rax, %rax         # No floating point arguments
+
+                callq printf@plt        # calls the printf method
+                                        # END OF PRINTING
+                movq $5, %r8            # Moves integer into reg_48
+                movq %r8, %r9           # Move reg_48 to reg_49
+                subq $0, %r9            # Operation: $0 - reg_49
+                movq %r9, %r8           # Move reg_49 to reg_50
+                subq $0, %r8            # Operation: $0 - reg_50
+                                        # PRINTING
+                leaq form(%rip), %rdi   # pass 1. argument in %rdi
+                movq %r8, %rsi          # Moves printable object to rsi
+                xorq %rax, %rax         # No floating point arguments
+
+                callq printf@plt        # calls the printf method
+                                        # END OF PRINTING
+                jmp label_26            # Jump to end
+label_25:
+                jmp label_20            # Break of while
+label_26:
+                jmp label_19            # Jump to start of while
+label_20:
 end_main:
 
                 popq %r15               # restore callee save register %r15

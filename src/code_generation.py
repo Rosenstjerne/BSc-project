@@ -402,3 +402,7 @@ class ASTCodeGenerationVisitor(VisitorsBase):
         self._app(Ins(Operation.LABEL, Arg(Target(TargetType.MEM, t.end_label), Mode(AddressingMode.DIR)),
                       c="end of while"))
 
+    def postVisit_statement_break(self, t):
+        self._app(Ins(Operation.JMP,
+                      Arg(Target(TargetType.MEM, t.goto_label), Mode(AddressingMode.DIR)),
+                      c="Break of while"))

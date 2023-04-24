@@ -13,3 +13,10 @@ if(4<5) print(8);
 if(false) print(false); else print(true);
 
 while(!true) print(8!=5);
+
+while(true) {
+  if(false){
+    print(!!true);
+    print(--5);
+  } else break;
+}
