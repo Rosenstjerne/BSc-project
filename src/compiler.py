@@ -98,20 +98,22 @@ def compiler(showSource, showAST, macOS, input_file, output_file):
         # Distributes the register needed for the intermediate operations
         register_distributor = ASTRegDistributor(symTab_flattener.var_table)
         the_program.accept(register_distributor)
-        register_distributor.colorRegisters()
 
 
         intermediate_code_generator = ASTCodeGenerationVisitor(symTab_flattener.var_table)
         the_program.accept(intermediate_code_generator)
+        register_distributor.colorRegisters()
         intermediate_code = intermediate_code_generator.get_code()
 
         # Emit the target code:
         emitter = Emit(intermediate_code)
         emitter.emit()
         code = emitter.get_code()
+        
+        # for r in register_distributor.registers:
+        #     print(f"name = {r.name} | color = {r.color} | from {r.firstUse} to {r.lastUse} | n = {[n.name for n in r.neighbours]}")
 
         return code
-        # return "not implemented yet"
 """
     else:
 

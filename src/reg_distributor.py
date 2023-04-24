@@ -5,8 +5,8 @@ from visitors_base import VisitorsBase
 class intermediateRegister:
     def __init__(self, name):
         self.name = name
-        self.firstUse = 0 # Based on line no
-        self.lastUse = 0  # Based on line no
+        self.firstUse = -1 # Based on line no
+        self.lastUse = -1  # Based on line no
         self.color = None # For later use
         self.neighbours = [] # For later use
 
@@ -14,9 +14,10 @@ class intermediateRegister:
         return self.color
 
     def use(self, lineno):
-        if self.firstUse == 0:
+        if self.firstUse == -1:
             self.firstUse = lineno
         self.lastUse = lineno
+        return self
 
     def setcolor(self, color):
         self.color = color
@@ -27,11 +28,13 @@ class intermediateRegister:
 
     def addNeighboursConditionally(self, neighbours):
         for n in neighbours:
-            if self.name == n.name:
+            if n.firstUse in range(self.firstUse,self.lastUse+1):
                 self.neighbours.append(n)
-            elif n.firstUse >= self.firstUse and n.firstUse <= self.lastUse:
+            if n.lastUse in range(self.firstUse,self.lastUse+1):
                 self.neighbours.append(n)
-            elif n.lastUse >= self.firstUse and n.lastUse <= self.lastUse:
+            if self.firstUse in range(n.firstUse,n.lastUse+1):
+                self.neighbours.append(n)
+            if self.lastUse in range(n.firstUse,n.lastUse+1):
                 self.neighbours.append(n)
 
 
@@ -45,15 +48,6 @@ class ASTRegDistributor(VisitorsBase):
         self.chromatic_number = 0  # Number of actual registers we need to use in total
         self.flatTab = flatTab
         self.current_function_stack = []
-        self.pseudoLineno = 10
-
-    def useReg(self, *args):
-        self.pseudoLineno += 1
-        for reg in args:
-            reg.use(self.pseudoLineno)
-
-    def addLine(self, n = 1):
-        self.pseudoLineno += n
 
     def getExterRegisterCount(self):
         return 0 if self.chromatic_number <= len(regMap) else self.chromatic_number - len(regMap)
@@ -78,7 +72,6 @@ class ASTRegDistributor(VisitorsBase):
         reg = intermediateRegister(name)
         self.registers.append(reg)
         self.counter += 1
-        self.useReg(reg)
         return reg
 
     def newLbl(self):
@@ -105,21 +98,17 @@ class ASTRegDistributor(VisitorsBase):
 
     def postVisit_expression_integer(self,t):
         t.retReg = self.newReg()
-        self.useReg(t.retReg)
     
     def postVisit_expression_negative(self, t):
         t.inReg = t.exp.retReg
         t.retReg = self.newReg()
-        self.useReg(t.inReg, t.retReg)
 
     def postVisit_expression_boolean(self, t):
         t.retReg = self.newReg()
-        self.useReg(t.retReg)
 
     def postVisit_expression_neg(self, t):
         t.inReg = t.exp.retReg
         t.retReg = self.newReg()
-        self.useReg(t.inReg, t.retReg)
         t.true_label = self.newLbl()
         t.end_label = self.newLbl()
 
@@ -130,10 +119,8 @@ class ASTRegDistributor(VisitorsBase):
 
     def postVisit_expression_binop(self, t):
         t.inReg1 = t.lhs.retReg
-        self.useReg(t.inReg1)
         t.inReg2 = t.rhs.retReg
         t.retReg = self.newReg()
-        self.useReg(t.inReg1, t.inReg2, t.retReg)
 
         if t.op in ["==","!=","<",">","<=",">="]:
             t.true_label = self.newLbl()
@@ -141,29 +128,24 @@ class ASTRegDistributor(VisitorsBase):
 
     def postVisit_statement_print(self, t): 
         t.inReg = t.exp.retReg
-        self.useReg(t.inReg)
 
     def postVisit_statement_assignment(self, t):
         t.inReg = t.rhs.retReg
         t.assignReg = t.lhs.retReg  # Not a register
-        self.useReg(t.inReg)
 
     def postVisit_statement_ifthen(self, t):
         t.end_lbl = self.newLbl()
         t.inReg = t.exp.retReg
-        self.useReg(t.inReg)
 
     def postVisit_statement_ifthenelse(self, t):
         t.else_lbl = self.newLbl()
         t.end_lbl = self.newLbl()
         t.inReg = t.exp.retReg
-        self.useReg(t.inReg)
 
     def postVisit_statement_while(self, t):
         t.begin_lbl = self.newLbl()
         t.end_lbl = self.newLbl()
         t.inReg = t.exp.retReg
-        self.useReg(t.inReg)
 
     def postVisit_statement_break(self, t):
         t.goto_lbl = t.parent.end_lbl
@@ -175,7 +157,6 @@ class ASTRegDistributor(VisitorsBase):
     def postVisit_expression_new_array(self, t):
         t.retReg = self.newReg()
         t.sizeReg = t.exp.retReg
-        self.useReg(t.sizeReg)
 
     def postVisit_expression_call(self, t):  # TODO: Should we have this here? 
         pass
@@ -183,17 +164,14 @@ class ASTRegDistributor(VisitorsBase):
     def postVisit_dot_variable(self, t):
         t.retReg = self.newReg()
         t.inReg = t.exp.retRet
-        self.useReg(t.inReg)
 
     def postVisit_expression_index(self, t):
         t.retReg = self.newReg()
         t.inReg = t.exp.retReg
         t.indexReg = t.index.retReg
-        self.useReg(t.inReg, t.indexReg)
     
     def postVisit_statement_return(self, t):
         t.inReg = t.exp.retReg
-        self.useReg(t.inReg)
 
 # end of visitor
 

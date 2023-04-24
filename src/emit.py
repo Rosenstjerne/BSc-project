@@ -170,7 +170,7 @@ class Emit:
         elif target.spec is TargetType.RSL:
             text = "%rdx"
         elif target.spec is TargetType.REG:
-            text = target.val
+            text = target.val.getReg()
 
         addressing = arg.addressing
         if addressing.mode is AddressingMode.DIR:
@@ -330,7 +330,7 @@ class Emit:
         self._ins("", "PRINTING")
         self._ins("leaq form(%rip), %rdi", "pass 1. argument in %rdi")
         # By-passing caller save values on the stack:
-        self._ins(f"movq {instr.args[1].target.val}, %rsi","Moves printable object to rsi")
+        self._ins(f"movq {instr.args[1].target.val.getReg()}, %rsi","Moves printable object to rsi")
         self._ins("xorq %rax, %rax","No floating point arguments") 
         self._raw("")
         self._ins("callq printf@plt","calls the printf method")
