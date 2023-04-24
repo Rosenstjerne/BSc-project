@@ -8,8 +8,8 @@ class flatFun:
     def __init__(self, name, info, parentList):
         self.name = name
         self.info = info
-        self.varCounter = 0
-        self.paramCounter = 0
+        self.varCount = 0
+        self.paramCount = 0
         self.parentList = []
         for i in range(len(parentList)):
             self.parentList.append(parentList[i])
@@ -38,8 +38,8 @@ class ASTTabFlattener(VisitorsBase):
                 name = "var_" + str(self.current_variable_count) + "_" + a
                 self.current_variable_count += 1
                 metaName = [self.current_function_stack[-1], name]
-                var = variable(metaName, self.current_function_stack[-1].name, self.current_function_stack[-1].varCounter)
-                self.current_function_stack[-1].varCounter += 1
+                var = variable(metaName, self.current_function_stack[-1].name, self.current_function_stack[-1].varCount)
+                self.current_function_stack[-1].varCount += 1
                 scope[a].var = var
                 self.var_table[self.current_function_stack[-1]].varTab[name] = var
 
@@ -47,8 +47,8 @@ class ASTTabFlattener(VisitorsBase):
                 name = "param_" + str(self.current_variable_count) + "_" + a
                 self.current_variable_count += 1
                 metaName = [self.current_function_stack[-1], name]
-                param = variable(metaName, self.current_function_stack[-1].name, self.current_function_stack[-1].paramCounter)
-                self.current_function_stack[-1].paramCounter += 1
+                param = variable(metaName, self.current_function_stack[-1].name, self.current_function_stack[-1].paramCount)
+                self.current_function_stack[-1].paramCount += 1
                 scope[a].var = param
                 self.var_table[self.current_function_stack[-1]].paramTab[name] = param
 

@@ -11,7 +11,7 @@ class intermediateRegister:
         self.neighbours = [] # For later use
 
     def getReg(self):
-        return self.name
+        return self.color
 
     def use(self, lineno):
         if self.firstUse == 0:
@@ -108,6 +108,8 @@ class ASTRegDistributor(VisitorsBase):
 
     def preVisit_function(self, t):
         self.current_function_stack.append(t.metaName)
+        t.start_label = t.metaName
+        t.end_label = f"end_{t.name}"
 
     def postVisit_function(self, t):
         self.current_function_stack.pop
@@ -168,22 +170,31 @@ class ASTRegDistributor(VisitorsBase):
         t.goto_lbl = t.parent.end_lbl
 
     def postVisit_expression_new(self, t):
-        pass
+        t.retReg = self.newReg()
+        t.size = None # TODO : Figure out where the size is stored or how to calculate it
 
     def postVisit_expression_new_array(self, t):
-        pass
+        t.retReg = self.newReg()
+        t.sizeReg = t.exp.retReg
+        self.useReg(t.sizeReg)
 
-    def postVisit_expression_call(self, t):
+    def postVisit_expression_call(self, t):  # TODO: Should we have this here? 
         pass
 
     def postVisit_dot_variable(self, t):
-        pass
+        t.retReg = self.newReg()
+        t.inReg = t.exp.retRet
+        self.useReg(t.inReg)
 
     def postVisit_expression_index(self, t):
-        pass
+        t.retReg = self.newReg()
+        t.inReg = t.exp.retReg
+        t.indexReg = t.index.retReg
+        self.useReg(t.inReg, t.indexReg)
     
     def postVisit_statement_return(self, t):
-        pass
+        t.inReg = t.exp.retReg
+        self.useReg(t.inReg)
 
 # end of visitor
 

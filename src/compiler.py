@@ -99,22 +99,19 @@ def compiler(showSource, showAST, macOS, input_file, output_file):
         register_distributor = ASTRegDistributor(symTab_flattener.var_table)
         the_program.accept(register_distributor)
         register_distributor.colorRegisters()
-        print(register_distributor.chromatic_number)
 
 
-        # intermediate_code_generator = ASTCodeGenerationVisitor()
-        # the_program.accept(intermediate_code_generator)
-        # intermediate_code = intermediate_code_generator.get_code()
+        intermediate_code_generator = ASTCodeGenerationVisitor(symTab_flattener.var_table)
+        the_program.accept(intermediate_code_generator)
+        intermediate_code = intermediate_code_generator.get_code()
 
         # Emit the target code:
-        # emitter = Emit(intermediate_code,
-        #                intermediate_code_generator.getLabelsGenerator(),
-        #                macOS)
-        # emitter.emit()
-        # code = emitter.get_code()
+        emitter = Emit(intermediate_code)
+        emitter.emit()
+        code = emitter.get_code()
 
-        # return code
-        return "not implemented yet"
+        return code
+        # return "not implemented yet"
 """
     else:
 
