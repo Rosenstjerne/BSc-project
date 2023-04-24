@@ -75,24 +75,13 @@ class ASTRegDistributor(VisitorsBase):
         for r in self.registers:
             r.addNeighboursConditionally(self.registers) 
 
-        # colores all the registers in the graph
-        # for r in self.registers:
-        #     c = 0
-        #     while not r.canHavecolor(getRegName(c)):
-        #         c += 1 
-        #     r.setcolor(getRegName(c))
-        #     if c + 1 > self.chromatic_number:
-        #         self.chromatic_number = c + 1
-
         # Greedy algorithme for coloring the graph
         for r in self.registers:
-             used_colors = {neighbor.color for neighbor in r.neighbors if neighbor.color is not None}
-             min_available_color = next((color for color in (getRegName(c) for c in itertools.count()) if color not in used_colors), None)
-             r.setcolor(min_available_color)
-             if min_available_color:
-                c = int(min_available_color[1:])
-                if c + 1 > self.chromatic_number:
-                   self.chromatic_number = c + 1
+            used_colors = {neighbour.color for neighbour in r.neighbours if neighbour.color is not None}
+            min_available_color = next((c for c in itertools.count() if getRegName(c) not in used_colors), -1)
+            r.setcolor(getRegName(min_available_color))
+            if min_available_color + 1 > self.chromatic_number:
+                self.chromatic_number = min_available_color + 1
 
 
     def newReg(self):
@@ -135,8 +124,8 @@ class ASTRegDistributor(VisitorsBase):
 
     def postVistit_exression_neg(self, t):
         t.inReg = t.ext.retReg
-        self.useReg(t.inReg)
         t.retReg = self.newReg()
+        self.useReg(t.inReg)
 
     def postVisit_variable(self, t):
         if self._current_scope:
@@ -146,8 +135,8 @@ class ASTRegDistributor(VisitorsBase):
     def postVisit_expression_binop(self, t):
         t.inReg1 = t.lhs.retReg
         t.inReg2 = t.rhs.retReg
-        self.useReg(t.inReg1, t.inReg2)
         t.retReg = self.newReg()
+        self.useReg(t.inReg1, t.inReg2)
 
     def postVisit_statement_print(self, t): 
         t.inReg = t.exp.retReg
@@ -155,8 +144,8 @@ class ASTRegDistributor(VisitorsBase):
 
     def postVisit_statement_assignment(self, t):
         t.inReg = t.rhs.retReg
-        self.useReg(t.inReg)
         t.assignReg = t.lhs.retReg  # Not a register
+        self.useReg(t.inReg)
 
     def postVisit_statement_ifthen(self, t):
         t.end_lbl = self.newLbl()
@@ -210,7 +199,7 @@ regMap = {
         }
 
 def getRegName(n):
-    if n in regMap.keys:
+    if n in regMap.keys():
         return regMap[n]
     else:
         i = n - len(regMap) + 1

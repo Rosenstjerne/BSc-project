@@ -98,6 +98,8 @@ def compiler(showSource, showAST, macOS, input_file, output_file):
         # Distributes the register needed for the intermediate operations
         register_distributor = ASTRegDistributor(symTab_flattener.var_table)
         the_program.accept(register_distributor)
+        register_distributor.colorRegisters()
+        print(register_distributor.chromatic_number)
 
 
         # intermediate_code_generator = ASTCodeGenerationVisitor()
