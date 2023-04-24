@@ -34,17 +34,6 @@ class intermediateRegister:
             elif n.lastUse in range(self.firstUse, self.lastUse+1):
                 self.neighbours.append(n)
 
-    def hasNeighbour(self, neighbour):
-        return neighbour in self.neighbours
-
-    def hascolor(self, color):
-        return self.color == color
-
-    def canHavecolor(self, color):
-        for n in self.neighbours:
-            if n.hascolor(color):
-                return False
-        return True
 
 
 class ASTRegDistributor(VisitorsBase):
@@ -85,7 +74,7 @@ class ASTRegDistributor(VisitorsBase):
 
 
     def newReg(self):
-        name = "reg_" + str(self.counter)
+        name = f"reg_{self.counter}"
         reg = intermediateRegister(name)
         self.registers.append(reg)
         self.counter += 1
@@ -93,7 +82,7 @@ class ASTRegDistributor(VisitorsBase):
         return reg
 
     def newLbl(self):
-        lbl = "lable_" + str(self.lableCounter)
+        lbl = f"label_{self.label_counter}"
         self.lableCounter+= 1
         return lbl
 
