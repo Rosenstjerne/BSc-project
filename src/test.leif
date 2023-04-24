@@ -1,0 +1,6 @@
+print(5+5);
+print(true);
+
+if(true) {
+  1 + 2 + 3 + 4 + 5;
+}

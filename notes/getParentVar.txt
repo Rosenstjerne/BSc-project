@@ -44,5 +44,50 @@ H_var2
 We are curently in function H.
 For accessing F_var2 from function H we calculate its location like so:
 
-movq -16(RBP), RSL
-movq 16(RSL), someRegister
+movq 16(%rbp), %rsl
+movq -16(%rsl), someRegister
+
+Another way to do this would be to make a stack like so:
+
+.
+.
+.
+????????  <---- main_RBP
+main_var1
+main_var2
+.
+.
+.
+F_param3
+F_param2
+F_param1
+main_RBP
+F_caller_RBP  <---- F_RBP
+F_var1
+F_var2
+F_var3
+.
+.
+.
+G_param2
+G_param1
+F_RBP
+G_caller_RBP <--- G_RBP
+G_var1
+.
+.
+.
+H_param2
+H_param1
+G_RBP
+H_caller_RBP  <--- RBP
+H_var1
+H_var2
+.
+.
+
+Where we could find F_var2 from H like so:
+
+movq 8(%rbp), %rsl
+movq 8(%rls), %rsl
+movq -16(%rsl), someRegister

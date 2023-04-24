@@ -23,7 +23,7 @@ class variable:
         self.index = index
 
 
-class tabFlattener(VisitorsBase):
+class ASTTabFlattener(VisitorsBase):
     def __init__(self):
         self._current_level = 0
         self.current_function_count = 0
@@ -33,7 +33,7 @@ class tabFlattener(VisitorsBase):
 
     def preVisit_body(self,t):
         scope = t.scope._tab
-        for a in scope.keys:
+        for a in scope.keys():
             if scope[a].cat == NameCategory.VARIABLE:
                 name = "var_" + str(self.current_variable_count) + "_" + a
                 self.current_variable_count += 1

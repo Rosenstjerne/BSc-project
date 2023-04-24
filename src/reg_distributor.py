@@ -1,3 +1,4 @@
+import itertools
 
 from visitors_base import VisitorsBase
 
@@ -6,7 +7,7 @@ class intermediateRegister:
         self.name = name
         self.firstUse = 0 # Based on line no
         self.lastUse = 0  # Based on line no
-        self.collor = None # For later use
+        self.color = None # For later use
         self.neighbours = [] # For later use
 
     def getReg(self):
@@ -17,8 +18,8 @@ class intermediateRegister:
             self.firstUse = lineno
         self.lastUse = lineno
 
-    def setCollor(self, collor):
-        self.collor = collor
+    def setcolor(self, color):
+        self.color = color
 
     def addNeighbour(self, *args):
         for n in args:
@@ -36,52 +37,62 @@ class intermediateRegister:
     def hasNeighbour(self, neighbour):
         return neighbour in self.neighbours
 
-    def hasCollor(self, collor):
-        return self.collor == collor
+    def hascolor(self, color):
+        return self.color == color
 
-    def canHaveCollor(self, collor):
+    def canHavecolor(self, color):
         for n in self.neighbours:
-            if n.hasCollor(collor):
+            if n.hascolor(color):
                 return False
         return True
 
 
-class regDistributor(VisitorsBase):
+class ASTRegDistributor(VisitorsBase):
     def __init__(self, flatTab):
         self.counter = 0
         self.lableCounter = 0
         self._current_scope = None
         self.registers = []  # List of all intermediate registers
-        self.cromaticNumber = 0  # Number of actual registers we need to use in total
+        self.chromatic_number = 0  # Number of actual registers we need to use in total
         self.flatTab = flatTab
         self.current_function_stack = []
         self.pseudoLineno = 1
 
     def useReg(self, *args):
         for reg in args:
-            reg.use()
+            reg.use(self.pseudoLineno)
         self.pseudoLineno += 1
 
     def addLine(self, n = 1):
         self.pseudoLineno += n
 
     def getExterRegisterCount(self):
-        return 0 if self.cromaticNumber <= len(regMap) else self.cromaticNumber - len(regMap)
+        return 0 if self.chromatic_number <= len(regMap) else self.chromatic_number - len(regMap)
 
-    def collorRegisters(self):
+    def colorRegisters(self):
 
         # Makes edges between concurently used registers
         for r in self.registers:
             r.addNeighboursConditionally(self.registers) 
 
-        # Collores all the registers in the graph
+        # colores all the registers in the graph
+        # for r in self.registers:
+        #     c = 0
+        #     while not r.canHavecolor(getRegName(c)):
+        #         c += 1 
+        #     r.setcolor(getRegName(c))
+        #     if c + 1 > self.chromatic_number:
+        #         self.chromatic_number = c + 1
+
+        # Greedy algorithme for coloring the graph
         for r in self.registers:
-            c = 0
-            while not r.canHaveCollor(getRegName(c)):
-                c += 1 
-            r.setCollor(getRegName(c))
-            if c + 1 > self.cromaticNumber:
-                self.cromaticNumber = c + 1
+             used_colors = {neighbor.color for neighbor in r.neighbors if neighbor.color is not None}
+             min_available_color = next((color for color in (getRegName(c) for c in itertools.count()) if color not in used_colors), None)
+             r.setcolor(min_available_color)
+             if min_available_color:
+                c = int(min_available_color[1:])
+                if c + 1 > self.chromatic_number:
+                   self.chromatic_number = c + 1
 
 
     def newReg(self):
@@ -133,8 +144,8 @@ class regDistributor(VisitorsBase):
         t.retReg = t.var  # Should not return a ragister 
 
     def postVisit_expression_binop(self, t):
-        t.inReg1 = t.lsh.retReg
-        t.inReg2 = t.rsh.retReg
+        t.inReg1 = t.lhs.retReg
+        t.inReg2 = t.rhs.retReg
         self.useReg(t.inReg1, t.inReg2)
         t.retReg = self.newReg()
 
@@ -203,5 +214,5 @@ def getRegName(n):
         return regMap[n]
     else:
         i = n - len(regMap) + 1
-        name = "-" + str(i*8) + "RBX" # TODO: What base should we use ?
+        name = f"-{i*8}(%rbx)" # TODO: What base should we use ?
         return name

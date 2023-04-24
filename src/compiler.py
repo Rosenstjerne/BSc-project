@@ -26,6 +26,8 @@ from type_checking import ASTTypeCheckingVisitor
 # from ast_printer import ASTTreePrinterVisitor
 from code_generation import ASTCodeGenerationVisitor
 from emit import Emit
+from symbol_table_flattener import ASTTabFlattener
+from reg_distributor import ASTRegDistributor
 
 
 __version__ = "unfinished beta"
@@ -89,18 +91,28 @@ def compiler(showSource, showAST, macOS, input_file, output_file):
         type_checker = ASTTypeCheckingVisitor()
         the_program.accept(type_checker)
 
-        intermediate_code_generator = ASTCodeGenerationVisitor()
-        the_program.accept(intermediate_code_generator)
-        intermediate_code = intermediate_code_generator.get_code()
+        # Flattens the symbol table
+        symTab_flattener = ASTTabFlattener() 
+        the_program.accept(symTab_flattener)
+
+        # Distributes the register needed for the intermediate operations
+        register_distributor = ASTRegDistributor(symTab_flattener.var_table)
+        the_program.accept(register_distributor)
+
+
+        # intermediate_code_generator = ASTCodeGenerationVisitor()
+        # the_program.accept(intermediate_code_generator)
+        # intermediate_code = intermediate_code_generator.get_code()
 
         # Emit the target code:
-        emitter = Emit(intermediate_code,
-                       intermediate_code_generator.getLabelsGenerator(),
-                       macOS)
-        emitter.emit()
-        code = emitter.get_code()
+        # emitter = Emit(intermediate_code,
+        #                intermediate_code_generator.getLabelsGenerator(),
+        #                macOS)
+        # emitter.emit()
+        # code = emitter.get_code()
 
-        return code
+        # return code
+        return "not implemented yet"
 """
     else:
 
