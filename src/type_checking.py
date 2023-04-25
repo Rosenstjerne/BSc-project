@@ -68,7 +68,7 @@ class ASTTypeCheckingVisitor(VisitorsBase):
 
 
     def postVisit_statement_print(self, t): 
-        if t.exp._type.replace("[]","") in ["int","bool"]:
+        if t.exp._type in ["int","bool"]:
             t.printType = t.exp._type
         else:
             error_message(

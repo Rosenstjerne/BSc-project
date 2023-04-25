@@ -57,6 +57,12 @@ class Emit:
         self.instruction_width = 24
         self.max_width = 79
         self.code = []
+        self.lbl_counter = 0
+
+    def getLbl(self):
+        lbl = f"LBL_{self.lbl_counter}"
+        self.lbl_counter += 1
+        return lbl
 
     def emit(self):
         self.program_prologue()
@@ -227,6 +233,12 @@ class Emit:
         self._lbl("form")
         self._ins('.string "%d\\n"', "form string for C printf")
         self._raw("")
+        self._lbl("formTrue")
+        self._ins('.string "true\\n"', "form string for C printf")
+        self._raw("")
+        self._lbl("formFalse")
+        self._ins('.string "false\\n"', "form string for C printf")
+        self._raw("")
         self._raw(".text")
         self._raw("")
         self._raw(f".globl main")
@@ -328,13 +340,26 @@ class Emit:
 
     def call_printf(self, instr):
         self._ins("", "PRINTING")
-        self._ins("leaq form(%rip), %rdi", "pass 1. argument in %rdi")
+        if instr.args[2] == "bool":
+            self._ins(f"movq $1, %rax", "Moves true into %rax")
+            self._ins(f"cmpq {instr.args[1].target.val.getReg()}, %rax","")
+            true_lbl = self.getLbl()
+            end_lbl = self.getLbl()
+            self._ins(f"je {true_lbl}","")
+            self._ins("leaq formFalse(%rip), %rdi", "pass 1. argument in %rdi")
+            self._ins(f"jmp {end_lbl}","")
+            self._ins(f"{true_lbl}:","")
+            self._ins("leaq formTrue(%rip), %rdi", "pass 1. argument in %rdi")
+            self._ins(f"{end_lbl}:","")
+        else:
+            self._ins("leaq form(%rip), %rdi", "pass 1. argument in %rdi")
         # By-passing caller save values on the stack:
         self._ins(f"movq {instr.args[1].target.val.getReg()}, %rsi","Moves printable object to rsi")
         self._ins("xorq %rax, %rax","No floating point arguments") 
         self._raw("")
         self._ins("callq printf@plt","calls the printf method")
         self._ins("","END OF PRINTING")
+
 
     def allocate_stack_space(self, words):
         self._ins(f"addq ${-8*words}, %rsp",

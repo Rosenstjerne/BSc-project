@@ -208,8 +208,8 @@ class ASTCodeGenerationVisitor(VisitorsBase):
     def postVisit_statement_print(self, t):
         self._app(Ins(Operation.META, 
                       Meta.CALL_PRINTF,
-                      Arg(Target(TargetType.REG, self._use(t.inReg)), Mode(AddressingMode.DIR))
-                      ))
+                      Arg(Target(TargetType.REG, self._use(t.inReg)), Mode(AddressingMode.DIR)),
+                      t.printType))
 
     
     def postVisit_expression_integer(self, t):

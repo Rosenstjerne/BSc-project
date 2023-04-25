@@ -4,10 +4,10 @@ objects = test
 all: $(objects)
 
 %.asm: %.leif
-	python compiler.py -i $^ -o $@; 
+	python compiler.py -i $^ -o $@ 
 
 %.o: %.asm
-	as $^ -o $@;
+	as $^ -o $@
 
 %: %.o
 	gcc $^ -o $@
