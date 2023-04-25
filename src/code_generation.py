@@ -236,8 +236,8 @@ class ASTCodeGenerationVisitor(VisitorsBase):
 
         """
         self._app(Ins(Operation.CMP,
-                      Arg(Target(TargetType.REG, self._use(t.inReg1)), Mode(AddressingMode.DIR)),
                       Arg(Target(TargetType.REG, self._use(t.inReg2)), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, self._use(t.inReg1)), Mode(AddressingMode.DIR)),
                       c=f"eval {t.inReg1.name} {t.op} {t.inReg2.name}"))
         self._app(Ins(trueJump,
                       Arg(Target(TargetType.MEM, t.true_label), Mode(AddressingMode.DIR)),
@@ -263,11 +263,11 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                     aritmatic_op reg2, retReg
         """
         self._app(Ins(Operation.MOVE,
-                      Arg(Target(TargetType.REG, self._use(t.inReg2)), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, self._use(t.inReg1)), Mode(AddressingMode.DIR)),
                       Arg(Target(TargetType.REG, self._use(t.retReg)), Mode(AddressingMode.DIR)),
                       c=f"Move {t.inReg2.name} to {t.retReg.name}"))
         self._app(Ins(op,
-                      Arg(Target(TargetType.REG, self._use(t.inReg1)), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, self._use(t.inReg2)), Mode(AddressingMode.DIR)),
                       Arg(Target(TargetType.REG, self._use(t.retReg)), Mode(AddressingMode.DIR)),
                       c=f"Operation: {t.inReg1.name} {t.op} {t.retReg.name}"))
 
@@ -315,11 +315,11 @@ class ASTCodeGenerationVisitor(VisitorsBase):
 
     def postVisit_expression_negative(self, t):
         self._app(Ins(Operation.MOVE,
-                      Arg(Target(TargetType.REG, self._use(t.inReg)), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.IMI, 0), Mode(AddressingMode.DIR)),
                       Arg(Target(TargetType.REG, self._use(t.retReg)), Mode(AddressingMode.DIR)),
                       c=f"Move {t.inReg.name} to {t.retReg.name}"))
         self._app(Ins(Operation.SUB,
-                      Arg(Target(TargetType.IMI, 0), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, self._use(t.inReg)), Mode(AddressingMode.DIR)),
                       Arg(Target(TargetType.REG, self._use(t.retReg)), Mode(AddressingMode.DIR)),
                       c=f"Operation: $0 - {t.retReg.name}"))
 
@@ -332,9 +332,9 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                       Arg(Target(TargetType.REG, self._use(t.inReg)), Mode(AddressingMode.DIR)),
                       Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                       c=f"Compare: {t.inReg.name} == true"))
-        self._app(Ins(Operation.JE,
+        self._app(Ins(Operation.JNE,
                       Arg(Target(TargetType.MEM, t.true_label), Mode(AddressingMode.DIR)),
-                      c="Jump if the expression was true"))
+                      c="Jump if the expression was fasle"))
         self._app(Ins(Operation.MOVE,
                       Arg(Target(TargetType.IMB, False), Mode(AddressingMode.DIR)),
                       Arg(Target(TargetType.REG, self._use(t.retReg)), Mode(AddressingMode.DIR)),

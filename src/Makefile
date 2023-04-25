@@ -1,13 +1,18 @@
+objects = test
 
 .PHONY: all
-all: test
+all: $(objects)
 
-test: test.o
-	$(./compiler.py -i test.leif -o test.asm)
-	$(as test.asm -o test.o)
-	$(gcc test.o -o test)
+%.asm: %.leif
+	python compiler.py -i $^ -o $@; 
+
+%.o: %.asm
+	as $^ -o $@;
+
+%: %.o
+	gcc $^ -o $@
 
 
 .PHONY: clean
 clean:
-	rm -f *.asm *.o test
+	rm -f *.asm *.o $(objects)
