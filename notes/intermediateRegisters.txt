@@ -1,0 +1,17 @@
+we use the following registers as intermediate registers for expressions and such:
+
+%r8
+%r9
+%r10
+%r11
+%r12
+%r13
+%r14
+%r15
+
+We use a liveliness analysis and a graph coloring algorithm to "color" our
+pseudo intermediate registers with the "colors" of the real registers.
+
+For any chromatic number (minimal needed colors needed to color the graph from the liveliness analysis)
+above 8, we will allocate some space on the stack at the begining, and keep a pointer to it at all times in a
+register. These will the be accesed indirectly with an offset when needed
