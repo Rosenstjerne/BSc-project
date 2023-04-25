@@ -158,7 +158,7 @@ class Emit:
         if target.spec is TargetType.IMI or target.spec is TargetType.IML:  # Immidiate Integer or Lable
             text = f"${target.val}"
         elif target.spec is TargetType.IMB:
-            text = f"${1 if target.val else 0}"  # Immidiate boolean
+            text = f"${1 if target.val == True else 0}"  # Immidiate boolean
         elif target.spec is TargetType.MEM:
             text = f"{target.val}"
         elif target.spec is TargetType.RBP:

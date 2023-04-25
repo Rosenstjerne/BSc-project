@@ -324,9 +324,13 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                       c=f"Operation: $0 - {t.retReg.name}"))
 
     def postVisit_expression_neg(self, t):
+        self._app(Ins(Operation.MOVE,
+                      Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                      c="Moves true into %rax"))
         self._app(Ins(Operation.CMP,
                       Arg(Target(TargetType.REG, self._use(t.inReg)), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                       c=f"Compare: {t.inReg.name} == true"))
         self._app(Ins(Operation.JE,
                       Arg(Target(TargetType.MEM, t.true_label), Mode(AddressingMode.DIR)),
@@ -347,9 +351,13 @@ class ASTCodeGenerationVisitor(VisitorsBase):
 
 
     def midVisit_statement_ifthen(self, t):
+        self._app(Ins(Operation.MOVE,
+                      Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                      c="Moves true into %rax"))
         self._app(Ins(Operation.CMP,
                       Arg(Target(TargetType.REG, self._use(t.inReg)), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                       c=f"Compare: {t.inReg.name} == true"))
         self._app(Ins(Operation.JNE,
                       Arg(Target(TargetType.MEM, t.end_label), Mode(AddressingMode.DIR)),
@@ -361,9 +369,13 @@ class ASTCodeGenerationVisitor(VisitorsBase):
 
 
     def preMidVisit_statement_ifthenelse(self, t):
+        self._app(Ins(Operation.MOVE,
+                      Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                      c="Moves true into %rax"))
         self._app(Ins(Operation.CMP,
                       Arg(Target(TargetType.REG, self._use(t.inReg)), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                       c=f"Compare: {t.inReg.name} == true"))
         self._app(Ins(Operation.JNE,
                       Arg(Target(TargetType.MEM, t.else_label), Mode(AddressingMode.DIR)),
@@ -387,9 +399,13 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                       c="Start of while"))
 
     def midVisit_statement_while(self, t):
+        self._app(Ins(Operation.MOVE,
+                      Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                      c="Moves true into %rax"))
         self._app(Ins(Operation.CMP,
                       Arg(Target(TargetType.REG, self._use(t.inReg)), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                       c=f"Compare: {t.inReg.name} == true"))
         self._app(Ins(Operation.JNE,
                       Arg(Target(TargetType.MEM, t.end_label), Mode(AddressingMode.DIR)),

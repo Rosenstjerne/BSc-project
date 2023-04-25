@@ -90,8 +90,12 @@ class ASTRegDistributor(VisitorsBase):
 
     def preVisit_function(self, t):
         self.current_function_stack.append(t.metaName)
-        t.start_label = t.metaName
-        t.end_label = f"end_{t.name}"
+        if t.name == "main":
+            t.start_label = "main"
+            t.end_label = "end_main"
+        else:
+            t.start_label = t.metaName
+            t.end_label = f"end_{t.metaName}"
 
     def postVisit_function(self, t):
         self.current_function_stack.pop

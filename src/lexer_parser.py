@@ -89,7 +89,7 @@ def t_INT(t):
 def t_BOOL(t):
     r'(true)|(false)'
     try:
-        t.value = bool(t.value)
+        t.value = t.value == "true"
     except ValueError:
         error_message("Lexical analyser",f"Something went lexing the boolean.",t.lexer.lineno)
     return t
