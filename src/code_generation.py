@@ -35,6 +35,7 @@ class Operation(Enum):
     OR = auto()
     LABEL = auto()
     META = auto()
+    TEST = auto()
 
 
 class TargetType(Enum):
@@ -226,18 +227,17 @@ class ASTCodeGenerationVisitor(VisitorsBase):
 
     def _comparison_op(self, trueJump, t):
         """
-                    cmp reg1, reg2
-                    cond_jump true_label
-                    movq $0 retReg
-                    jmp end_label
+            test reg1, reg2
+            cond_jump true_label
+            movq $0 retReg
+            jmp end_label
         true_label:
-                    movq $1 retReg
+            movq $1 retReg
         end_label:
-
         """
-        self._app(Ins(Operation.CMP,
-                      Arg(Target(TargetType.REG, self._use(t.inReg2)), Mode(AddressingMode.DIR)),
+        self._app(Ins(Operation.TEST,
                       Arg(Target(TargetType.REG, self._use(t.inReg1)), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, self._use(t.inReg2)), Mode(AddressingMode.DIR)),
                       c=f"eval {t.inReg1.name} {t.op} {t.inReg2.name}"))
         self._app(Ins(trueJump,
                       Arg(Target(TargetType.MEM, t.true_label), Mode(AddressingMode.DIR)),
@@ -255,6 +255,7 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                       Arg(Target(TargetType.REG, self._use(t.retReg)), Mode(AddressingMode.DIR)),
                       c=f"Moves true into {t.retReg.name}"))
         self._app(Ins(Operation.LABEL, Arg(Target(TargetType.MEM, t.end_label), Mode(AddressingMode.DIR))))
+
         
 
     def _arithmetic_op(self, op, t):
