@@ -35,7 +35,6 @@ class Operation(Enum):
     OR = auto()
     LABEL = auto()
     META = auto()
-    TEST = auto()
 
 
 class TargetType(Enum):
@@ -235,7 +234,7 @@ class ASTCodeGenerationVisitor(VisitorsBase):
             movq $1 retReg
         end_label:
         """
-        self._app(Ins(Operation.TEST,
+        self._app(Ins(Operation.CMP,
                       Arg(Target(TargetType.REG, self._use(t.inReg1)), Mode(AddressingMode.DIR)),
                       Arg(Target(TargetType.REG, self._use(t.inReg2)), Mode(AddressingMode.DIR)),
                       c=f"eval {t.inReg1.name} {t.op} {t.inReg2.name}"))
