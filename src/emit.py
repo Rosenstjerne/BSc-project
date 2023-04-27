@@ -342,7 +342,7 @@ class Emit:
         self._ins("", "PRINTING")
         if instr.args[2] == "bool":
             self._ins(f"movq $1, %rax", "Moves true into %rax")
-            self._ins(f"test {instr.args[1].target.val.getReg()}, %rax","")
+            self._ins(f"cmpq {instr.args[1].target.val.getReg()}, %rax","")
             true_lbl = self.getLbl()
             end_lbl = self.getLbl()
             self._ins(f"je {true_lbl}","")

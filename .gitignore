@@ -1,1 +1,7 @@
+*
+!*Makefile
+!*/
+!*.*
+*.o
+*.asm
 *__pycache__
