@@ -16,6 +16,17 @@ class flatFun:
         self.varTab = {}
         self.paramTab = {}
 
+    def getStaticLinkClimb(self, elm):
+        if elm.scope == self.name:
+            return 0
+        i = 0
+        while i < len(self.parentList):
+            if self.parentList[i] == elm.scope:
+                return len(self.parentList) - i - 1
+            i += 1
+        return None
+
+
 class variable:
     def __init__(self, name, scope, index):
         self.name = name
@@ -37,27 +48,28 @@ class ASTTabFlattener(VisitorsBase):
             if scope[a].cat == NameCategory.VARIABLE:
                 name = "var_" + str(self.current_variable_count) + "_" + a
                 self.current_variable_count += 1
-                metaName = [self.current_function_stack[-1], name]
+                metaName = [self.current_function_stack[-1].name, name]
                 var = variable(metaName, self.current_function_stack[-1].name, self.current_function_stack[-1].varCount)
                 self.current_function_stack[-1].varCount += 1
-                scope[a].var = var
-                self.var_table[self.current_function_stack[-1]].varTab[name] = var
+                scope[a].metaVar = var
+                self.current_function_stack[-1].varTab[name] = var
 
             elif scope[a].cat == NameCategory.PARAMETER:
                 name = "param_" + str(self.current_variable_count) + "_" + a
                 self.current_variable_count += 1
-                metaName = [self.current_function_stack[-1], name]
+                metaName = [self.current_function_stack[-1].name, name]
                 param = variable(metaName, self.current_function_stack[-1].name, self.current_function_stack[-1].paramCount)
                 self.current_function_stack[-1].paramCount += 1
-                scope[a].var = param
-                self.var_table[self.current_function_stack[-1]].paramTab[name] = param
+                scope[a].metaVar = param
+                self.current_function_stack[-1].paramTab[name] = param
 
     def preVisit_function(self, t):
         self.current_function_count += 1
         name = "fun_" + str(self.current_function_count) + "_" + t.name
         funFlatTab = flatFun(name, t.scope, self.current_function_stack)
         self.var_table[name] = funFlatTab
-        self.current_function_stack.append(name)
+        self.current_function_stack.append(funFlatTab)
+        t.flatFun = funFlatTab
         t.metaName = name
 
     def postVisit_function(self, t):

@@ -50,7 +50,7 @@ class Emit:
     """The class that emits 64 bit x86 assembler code. Attempts are made
        to make the code human readable.
     """
-    def __init__(self, intermediate_representation):
+    def __init__(self, intermediate_representation, extra_intermediate_regs):
         self.intermediate_representation = intermediate_representation
         # The unique labels generator:
         self.instruction_indent = 16
@@ -58,6 +58,7 @@ class Emit:
         self.max_width = 79
         self.code = []
         self.lbl_counter = 0
+        self.extra_intermediate_regs = extra_intermediate_regs
 
     def getLbl(self):
         lbl = f"LBL_{self.lbl_counter}"

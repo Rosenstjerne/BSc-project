@@ -118,8 +118,8 @@ class ASTRegDistributor(VisitorsBase):
 
     def postVisit_variable(self, t):
         if self._current_scope:
-            t.var = self._current_scope.lookup(t.name).var 
-        t.retReg = t.var  # Should not return a ragister 
+            t.metaVar = self._current_scope.lookup(t.name).metaVar 
+        t.retReg = self.newReg() 
 
     def postVisit_expression_binop(self, t):
         t.inReg1 = t.lhs.retReg

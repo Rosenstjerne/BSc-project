@@ -58,6 +58,7 @@ def compiler(showSource, showAST, macOS, input_file, output_file):
 
     # Read and verify ASCII input:
     encodingError = False
+    text = ""
     try:
         if input_file:
             with open(input_file) as f:
@@ -78,6 +79,8 @@ def compiler(showSource, showAST, macOS, input_file, output_file):
 
     # the_program is the resulting AST:
     the_program = interfacing_parser.the_program
+    if the_program is None:
+        return ""
 
     if showSource or showAST:
             return str(the_program)
@@ -106,7 +109,7 @@ def compiler(showSource, showAST, macOS, input_file, output_file):
         intermediate_code = intermediate_code_generator.get_code()
 
         # Emit the target code:
-        emitter = Emit(intermediate_code)
+        emitter = Emit(intermediate_code, register_distributor.getExterRegisterCount())
         emitter.emit()
         code = emitter.get_code()
         

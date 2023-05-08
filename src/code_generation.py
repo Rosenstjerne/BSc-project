@@ -224,6 +224,42 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                       Arg(Target(TargetType.REG, self._use(t.retReg)), Mode(AddressingMode.DIR)),
                       c=f"Moves boolean into {t.retReg.name}"))
 
+    def postVisit_variable(self, t):
+        if t.assign:
+            pass
+        else:
+            var = t.metaVar
+            level_difference = self.flatTab[var.scope].getStaticLinkClimb(var)
+            self._follow_static_link(level_difference)
+            offset = var.index
+            if t.var.cat == NameCategory.PARAMETER:
+                self._app(Ins(Operation.MOVE,
+                              Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, -(offset + 3))),
+                              Arg(Target(TargetType.REG, self._use(t.retReg)), Mode(AddressingMode.DIR)),
+                              c=f"Move param {var.name} ({t.name}) into {t.retReg.name}"))
+            elif t.var.cat == NameCategory.VARIABLE:
+                self._app(Ins(Operation.MOVE,
+                              Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, offset + 1)),
+                              Arg(Target(TargetType.REG, self._use(t.retReg)), Mode(AddressingMode.DIR)),
+                              c=f"Move param {var.name} ({t.name}) into {t.retReg.name}"))
+        
+    def postVisit_statement_assignment(self, t):
+        var = t.lhs.metaVar
+        level_difference = self.flatTab[var.scope].getStaticLinkClimb(var)
+        self._follow_static_link(level_difference)
+        offset = var.index
+        if t.lhs.var.cat == NameCategory.PARAMETER:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.REG, self._use(t.rhs.retReg)), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, -(offset + 3))),
+                          c=f"Move param {t.rhs.retReg.name} into {var.name} ({t.lhs.name})"))
+        elif t.lhs.var.cat == NameCategory.VARIABLE:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.REG, self._use(t.rhs.retReg)), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, offset + 1)),
+                          c=f"Move param {t.rhs.retReg.name} into {var.name} ({t.lhs.name})"))
+
+
     def _comparison_op(self, trueJump, t):
         """
             test reg1, reg2
@@ -235,8 +271,8 @@ class ASTCodeGenerationVisitor(VisitorsBase):
         end_label:
         """
         self._app(Ins(Operation.CMP,
-                      Arg(Target(TargetType.REG, self._use(t.inReg1)), Mode(AddressingMode.DIR)),
                       Arg(Target(TargetType.REG, self._use(t.inReg2)), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, self._use(t.inReg1)), Mode(AddressingMode.DIR)),
                       c=f"eval {t.inReg1.name} {t.op} {t.inReg2.name}"))
         self._app(Ins(trueJump,
                       Arg(Target(TargetType.MEM, t.true_label), Mode(AddressingMode.DIR)),

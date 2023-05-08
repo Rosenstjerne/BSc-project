@@ -426,6 +426,7 @@ class expression_index:
         self.index = index
         self.lineno = lineno
         self._type = "unknown" # for later use
+        self.assign = False # for later use
 
     def accept(self, visitor):
         visitor.preVisit(self)
@@ -442,6 +443,7 @@ class variable:
         self.name = name
         self.lineno = lineno
         self._type = "unknown" # for later use
+        self.assign = False # for later use
 
     def accept(self, visitor):
         visitor.postVisit(self)
@@ -456,6 +458,7 @@ class dot_variable:
         self.elm = elm 
         self.lineno = lineno
         self._type = "unknown" # for later use
+        self.assign = False # for later use
 
     def accept(self, visitor):
         visitor.preVisit(self)

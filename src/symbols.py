@@ -29,6 +29,7 @@ class SymVal():
         self.info = info
         self.rtype = vtype
         self.metaName = ["",""] # For later use
+        self.metaVar = None # For later use
 
 class SymbolTable:
     """Implements a classic symbol table for static nested scope.

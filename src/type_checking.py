@@ -80,6 +80,7 @@ class ASTTypeCheckingVisitor(VisitorsBase):
     def postVisit_statement_assignment(self, t):
         if t.lhs._type == t.rhs._type:
             t._type = t.lhs._type
+            t.lhs.assign = True
         else:
             error_message(
                     "Type Checking",
