@@ -28,6 +28,7 @@ from code_generation import ASTCodeGenerationVisitor
 from emit import Emit
 from symbol_table_flattener import ASTTabFlattener
 from reg_distributor import ASTRegDistributor
+from function_decoupeler import ASTFunDecouple
 
 
 __version__ = "unfinished beta"
@@ -101,11 +102,16 @@ def compiler(showSource, showAST, macOS, input_file, output_file):
         # Distributes the register needed for the intermediate operations
         register_distributor = ASTRegDistributor(symTab_flattener.var_table)
         the_program.accept(register_distributor)
+        register_distributor.colorRegisters()
 
+        fun_decoupeler = ASTFunDecouple()
+        the_program.accept(fun_decoupeler)
+        function_list = fun_decoupeler.getFunctions()
 
         intermediate_code_generator = ASTCodeGenerationVisitor(symTab_flattener.var_table)
-        the_program.accept(intermediate_code_generator)
-        register_distributor.colorRegisters()
+        for f in function_list:
+            f.accept(intermediate_code_generator)
+
         intermediate_code = intermediate_code_generator.get_code()
 
         # Emit the target code:

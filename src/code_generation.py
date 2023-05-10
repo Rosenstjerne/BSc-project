@@ -130,10 +130,6 @@ class ASTCodeGenerationVisitor(VisitorsBase):
     def get_code(self):
         return self._code
 
-    def _use(self, reg):
-        reg.use(self.lineno)
-        return reg
-
     def _app(self, instruction):
         self._code.append(instruction)
         self.lineno = self.lineno + 1
@@ -196,32 +192,75 @@ class ASTCodeGenerationVisitor(VisitorsBase):
 
         self._function_stack.pop()
 
+    def preVisit_expression_call(self, t):
+        self._app(Ins(Operation.META, Meta.CALLER_SAVE))
+        self._app(Ins(Operation.META, Meta.CALLER_PROLOGUE))
+
+    def postVisit_expression_list(self, t):
+        self._app(Ins(Operation.PUSH,
+                      Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
+                      c="push arguement to stack"
+                      )) 
+
+    def postVisit_expression_call(self, t):
+        level_difference = self.flatTab[self._function_stack[-1].metaName].getStaticLinkFunClimb(t.call_meta_function)
+        if level_difference == -1:
+            # Calling inwards, i.e., a local function:
+            self._app(Ins(Operation.PUSH, Arg(Target(TargetType.RBP), Mode(AddressingMode.DIR)),
+                      c="set up static link for inner function"))
+        else:
+            # Calling outwards, i.e., same or outer level:
+            self._follow_static_link(level_difference)
+            self._app(Ins(Operation.PUSH,
+                      Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, -2)),
+                      c="set up static link for outer function"))
+
+        self._app(Ins(Operation.CALL,
+                      Arg(Target(TargetType.MEM, t.call_label), Mode(AddressingMode.DIR))))
+
+        self._app(Ins(Operation.MOVE,
+                      Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
+                      c=f"Moves the return value from %rax into {t.retReg.name}"
+                      ))
+        for i in range(t.number_of_parameters):
+            self._app(Ins(Operation.POP,
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                          c="Pops argument from stack"
+                          ))
+
+        self._app(Ins(Operation.META, Meta.CALLER_EPILOGUE))
+        self._app(Ins(Operation.META, Meta.CALLER_RESTORE))
+
+
+
 
     def postVisit_statement_return(self, t):
         # Getting the function label from the nearest enclosing function:
-        label = self._function_stack[-1].end_label
-        self._app(Ins(Operation.RET, 
-                      Arg(Target(TargetType.REG, self._use(t.inReg)), Mode(AddressingMode.DIR)),
-                      c=label))
+        self._app(Ins(Operation.MOVE,
+                      Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                      c="Moves the return value into %rax"
+                      ))
 
 
     def postVisit_statement_print(self, t):
         self._app(Ins(Operation.META, 
                       Meta.CALL_PRINTF,
-                      Arg(Target(TargetType.REG, self._use(t.inReg)), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
                       t.printType))
 
     
     def postVisit_expression_integer(self, t):
         self._app(Ins(Operation.MOVE,
                       Arg(Target(TargetType.IMI, t.integer), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.REG, self._use(t.retReg)), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
                       c=f"Moves integer into {t.retReg.name}"))
         
     def postVisit_expression_boolean(self, t):
         self._app(Ins(Operation.MOVE,
                       Arg(Target(TargetType.IMB, t.boolean), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.REG, self._use(t.retReg)), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
                       c=f"Moves boolean into {t.retReg.name}"))
 
     def postVisit_variable(self, t):
@@ -229,33 +268,33 @@ class ASTCodeGenerationVisitor(VisitorsBase):
             pass
         else:
             var = t.metaVar
-            level_difference = self.flatTab[var.scope].getStaticLinkClimb(var)
+            level_difference = self.flatTab[self._function_stack[-1].metaName].getStaticLinkClimb(var)
             self._follow_static_link(level_difference)
             offset = var.index
             if t.var.cat == NameCategory.PARAMETER:
                 self._app(Ins(Operation.MOVE,
                               Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, -(offset + 3))),
-                              Arg(Target(TargetType.REG, self._use(t.retReg)), Mode(AddressingMode.DIR)),
+                              Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
                               c=f"Move param {var.name} ({t.name}) into {t.retReg.name}"))
             elif t.var.cat == NameCategory.VARIABLE:
                 self._app(Ins(Operation.MOVE,
                               Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, offset + 1)),
-                              Arg(Target(TargetType.REG, self._use(t.retReg)), Mode(AddressingMode.DIR)),
+                              Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
                               c=f"Move param {var.name} ({t.name}) into {t.retReg.name}"))
         
     def postVisit_statement_assignment(self, t):
         var = t.lhs.metaVar
-        level_difference = self.flatTab[var.scope].getStaticLinkClimb(var)
+        level_difference = self.flatTab[self._function_stack[-1].metaName].getStaticLinkClimb(var)
         self._follow_static_link(level_difference)
         offset = var.index
         if t.lhs.var.cat == NameCategory.PARAMETER:
             self._app(Ins(Operation.MOVE,
-                          Arg(Target(TargetType.REG, self._use(t.rhs.retReg)), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.REG, t.rhs.retReg), Mode(AddressingMode.DIR)),
                           Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, -(offset + 3))),
                           c=f"Move param {t.rhs.retReg.name} into {var.name} ({t.lhs.name})"))
         elif t.lhs.var.cat == NameCategory.VARIABLE:
             self._app(Ins(Operation.MOVE,
-                          Arg(Target(TargetType.REG, self._use(t.rhs.retReg)), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.REG, t.rhs.retReg), Mode(AddressingMode.DIR)),
                           Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, offset + 1)),
                           c=f"Move param {t.rhs.retReg.name} into {var.name} ({t.lhs.name})"))
 
@@ -271,15 +310,15 @@ class ASTCodeGenerationVisitor(VisitorsBase):
         end_label:
         """
         self._app(Ins(Operation.CMP,
-                      Arg(Target(TargetType.REG, self._use(t.inReg2)), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.REG, self._use(t.inReg1)), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.inReg2), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.inReg1), Mode(AddressingMode.DIR)),
                       c=f"eval {t.inReg1.name} {t.op} {t.inReg2.name}"))
         self._app(Ins(trueJump,
                       Arg(Target(TargetType.MEM, t.true_label), Mode(AddressingMode.DIR)),
                       c="Jump if the expression was true"))
         self._app(Ins(Operation.MOVE,
                       Arg(Target(TargetType.IMB, False), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.REG, self._use(t.retReg)), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
                       c=f"Moves false into {t.retReg.name}"))
         self._app(Ins(Operation.JMP,
                       Arg(Target(TargetType.MEM, t.end_label), Mode(AddressingMode.DIR)),
@@ -287,7 +326,7 @@ class ASTCodeGenerationVisitor(VisitorsBase):
         self._app(Ins(Operation.LABEL, Arg(Target(TargetType.MEM, t.true_label), Mode(AddressingMode.DIR))))
         self._app(Ins(Operation.MOVE,
                       Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.REG, self._use(t.retReg)), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
                       c=f"Moves true into {t.retReg.name}"))
         self._app(Ins(Operation.LABEL, Arg(Target(TargetType.MEM, t.end_label), Mode(AddressingMode.DIR))))
 
@@ -299,12 +338,12 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                     aritmatic_op reg2, retReg
         """
         self._app(Ins(Operation.MOVE,
-                      Arg(Target(TargetType.REG, self._use(t.inReg1)), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.REG, self._use(t.retReg)), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.inReg1), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
                       c=f"Move {t.inReg2.name} to {t.retReg.name}"))
         self._app(Ins(op,
-                      Arg(Target(TargetType.REG, self._use(t.inReg2)), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.REG, self._use(t.retReg)), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.inReg2), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
                       c=f"Operation: {t.inReg1.name} {t.op} {t.retReg.name}"))
 
     def _logic_op(self, op, t):
@@ -313,12 +352,12 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                     logic_op reg2, retReg
         """
         self._app(Ins(Operation.MOVE,
-                      Arg(Target(TargetType.REG, self._use(t.inReg1)), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.REG, self._use(t.retReg)), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.inReg1), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
                       c=f"Move {t.inReg2.name} to {t.retReg.name}"))
         self._app(Ins(op,
-                      Arg(Target(TargetType.REG, self._use(t.inReg2)), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.REG, self._use(t.retReg)), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.inReg2), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
                       c=f"Operation: {t.inReg1.name} {t.op} {t.retReg.name}"))
 
     def postVisit_expression_binop(self, t):
@@ -352,11 +391,11 @@ class ASTCodeGenerationVisitor(VisitorsBase):
     def postVisit_expression_negative(self, t):
         self._app(Ins(Operation.MOVE,
                       Arg(Target(TargetType.IMI, 0), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.REG, self._use(t.retReg)), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
                       c=f"Move {t.inReg.name} to {t.retReg.name}"))
         self._app(Ins(Operation.SUB,
-                      Arg(Target(TargetType.REG, self._use(t.inReg)), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.REG, self._use(t.retReg)), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
                       c=f"Operation: $0 - {t.retReg.name}"))
 
     def postVisit_expression_neg(self, t):
@@ -365,7 +404,7 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                       Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                       c="Moves true into %rax"))
         self._app(Ins(Operation.CMP,
-                      Arg(Target(TargetType.REG, self._use(t.inReg)), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
                       Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                       c=f"Compare: {t.inReg.name} == true"))
         self._app(Ins(Operation.JNE,
@@ -373,7 +412,7 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                       c="Jump if the expression was fasle"))
         self._app(Ins(Operation.MOVE,
                       Arg(Target(TargetType.IMB, False), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.REG, self._use(t.retReg)), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
                       c=f"Moves false into {t.retReg.name}"))
         self._app(Ins(Operation.JMP,
                       Arg(Target(TargetType.MEM, t.end_label), Mode(AddressingMode.DIR)),
@@ -381,7 +420,7 @@ class ASTCodeGenerationVisitor(VisitorsBase):
         self._app(Ins(Operation.LABEL, Arg(Target(TargetType.MEM, t.true_label), Mode(AddressingMode.DIR))))
         self._app(Ins(Operation.MOVE,
                       Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.REG, self._use(t.retReg)), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
                       c=f"Moves true into {t.retReg.name}"))
         self._app(Ins(Operation.LABEL, Arg(Target(TargetType.MEM, t.end_label), Mode(AddressingMode.DIR))))
 
@@ -392,7 +431,7 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                       Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                       c="Moves true into %rax"))
         self._app(Ins(Operation.CMP,
-                      Arg(Target(TargetType.REG, self._use(t.inReg)), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
                       Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                       c=f"Compare: {t.inReg.name} == true"))
         self._app(Ins(Operation.JNE,
@@ -410,7 +449,7 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                       Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                       c="Moves true into %rax"))
         self._app(Ins(Operation.CMP,
-                      Arg(Target(TargetType.REG, self._use(t.inReg)), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
                       Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                       c=f"Compare: {t.inReg.name} == true"))
         self._app(Ins(Operation.JNE,
@@ -440,7 +479,7 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                       Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                       c="Moves true into %rax"))
         self._app(Ins(Operation.CMP,
-                      Arg(Target(TargetType.REG, self._use(t.inReg)), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
                       Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                       c=f"Compare: {t.inReg.name} == true"))
         self._app(Ins(Operation.JNE,

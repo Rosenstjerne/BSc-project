@@ -48,6 +48,7 @@ class ASTRegDistributor(VisitorsBase):
         self.chromatic_number = 0  # Number of actual registers we need to use in total
         self.flatTab = flatTab
         self.current_function_stack = []
+        self.lineno = 1
 
     def getExterRegisterCount(self):
         return 0 if self.chromatic_number <= len(regMap) else self.chromatic_number - len(regMap)
@@ -73,6 +74,11 @@ class ASTRegDistributor(VisitorsBase):
         self.registers.append(reg)
         self.counter += 1
         return reg
+
+    def useReg(self, *args):
+        for r in args:
+            r.use(self.lineno)
+        self.lineno += 1
 
     def newLbl(self, s=""):
         lbl = f"lbl{self.labelCounter}_{s}"        
@@ -100,31 +106,50 @@ class ASTRegDistributor(VisitorsBase):
     def postVisit_function(self, t):
         self.current_function_stack.pop
 
+    def postVisit_expression_list(self, t):
+        t.inReg = t.exp.retReg
+        self.useReg(t.inReg)
+
+    def postVisit_expression_call(self, t):
+        t.call_label = t.function.start_label
+        t.call_meta_function = t.function.metaName
+        t.number_of_parameters = t.function.number_of_parameters
+        t.retReg = self.newReg()
+        self.useReg(t.retReg)
+
     def postVisit_expression_integer(self,t):
         t.retReg = self.newReg()
+        self.useReg(t.retReg)
     
     def postVisit_expression_negative(self, t):
         t.inReg = t.exp.retReg
         t.retReg = self.newReg()
+        self.useReg(t.inReg, t.retReg)
 
     def postVisit_expression_boolean(self, t):
         t.retReg = self.newReg()
+        self.useReg(t.retReg)
 
     def postVisit_expression_neg(self, t):
         t.inReg = t.exp.retReg
         t.retReg = self.newReg()
         t.true_label = self.newLbl("exp_neg_true")
         t.end_label = self.newLbl("exp_neg_end")
+        self.useReg(t.inReg)
+        self.useReg(t.retReg)
 
     def postVisit_variable(self, t):
         if self._current_scope:
             t.metaVar = self._current_scope.lookup(t.name).metaVar 
         t.retReg = self.newReg() 
+        self.useReg(t.retReg)
 
     def postVisit_expression_binop(self, t):
         t.inReg1 = t.lhs.retReg
         t.inReg2 = t.rhs.retReg
         t.retReg = self.newReg()
+        self.useReg(t.inReg2, t.retReg)
+        self.useReg(t.inReg1, t.retReg)
 
         if t.op in ["==","!=","<",">","<=",">="]:
             t.true_label = self.newLbl(f"cmp_true")
@@ -132,24 +157,29 @@ class ASTRegDistributor(VisitorsBase):
 
     def postVisit_statement_print(self, t): 
         t.inReg = t.exp.retReg
+        self.useReg(t.inReg)
 
     def postVisit_statement_assignment(self, t):
         t.inReg = t.rhs.retReg
-        t.assignReg = t.lhs.retReg  # Not a register
+        # t.assignReg = t.lhs.retReg
+        self.useReg(t.inReg)
 
     def postVisit_statement_ifthen(self, t):
         t.end_label = self.newLbl("if_end")
         t.inReg = t.exp.retReg
+        self.useReg(t.inReg)
 
     def postVisit_statement_ifthenelse(self, t):
         t.else_label = self.newLbl("if_else_else")
         t.end_label = self.newLbl("if_else_end")
         t.inReg = t.exp.retReg
+        self.useReg(t.inReg)
 
     def midVisit_statement_while(self, t):
         t.begin_label = self.newLbl("while_begin")
         t.end_label = self.newLbl("while_end")
         t.inReg = t.exp.retReg
+        self.useReg(t.inReg)
 
     def postVisit_statement_break(self, t):
         t.goto_label = t.parent.end_label
@@ -157,25 +187,27 @@ class ASTRegDistributor(VisitorsBase):
     def postVisit_expression_new(self, t):
         t.retReg = self.newReg()
         t.size = None # TODO : Figure out where the size is stored or how to calculate it
+        self.useReg(t.retReg)
 
     def postVisit_expression_new_array(self, t):
         t.retReg = self.newReg()
         t.sizeReg = t.exp.retReg
-
-    def postVisit_expression_call(self, t):  # TODO: Should we have this here? 
-        pass
+        self.useReg(t.sizeReg, t.retReg)
 
     def postVisit_dot_variable(self, t):
         t.retReg = self.newReg()
         t.inReg = t.exp.retRet
+        self.useReg(t.inReg, t.retReg)
 
     def postVisit_expression_index(self, t):
         t.retReg = self.newReg()
         t.inReg = t.exp.retReg
         t.indexReg = t.index.retReg
+        self.useReg(t.inReg, t.indexReg, t.retReg)
     
     def postVisit_statement_return(self, t):
         t.inReg = t.exp.retReg
+        self.useReg(t.inReg)
 
 # end of visitor
 

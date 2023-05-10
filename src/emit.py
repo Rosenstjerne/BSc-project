@@ -223,7 +223,7 @@ class Emit:
 
     def _ret(self, instr):
         self._ins("popq %rax", "move return value to return register")
-        self._ins(f"jmp {instr.args[0]}", "jump to function epiloque")
+        # self._ins(f"jmp {instr.args[0]}", "jump to function epiloque")
 
     # Block code for prologues, epilogues, printing, etc.:
 

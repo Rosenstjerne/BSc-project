@@ -1,29 +1,12 @@
 var int i, j;
-var bool b;
+function null bob(int j) {
+  print(j);
+}
 
-i = 1;
-j = 4;
-
-print(i);
+j = 10;
+i = 10;
+while(i>0) {
+  bob(i);
+  i = i - 1;
+}
 print(j);
-b = true;
-print(b);
-i = j;
-print(i+j*2);
-
-i = 0;
-while(i < 6) {
-  print(i);
-  i = i + 1;
-}
-
-b = i == j;
-print(b);
-
-j = 0;
-
-while(j == j) {
-  if(j == 8) break;
-  else print(j*2);
-  j = j + 1;
-}

@@ -21,10 +21,20 @@ class flatFun:
             return 0
         i = 0
         while i < len(self.parentList):
-            if self.parentList[i] == elm.scope:
-                return len(self.parentList) - i - 1
+            if self.parentList[i].name == elm.scope:
+                return len(self.parentList) - i
             i += 1
         return None
+
+    def getStaticLinkFunClimb(self, fun_name):
+        if fun_name == self.name:
+            return 0
+        i = 0
+        while i < len(self.parentList):
+            if self.parentList[i].name == fun_name:
+                return len(self.parentList) - i - 1
+            i += 1
+        return -1
 
 
 class variable:
