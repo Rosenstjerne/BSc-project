@@ -9,6 +9,8 @@ class intermediateRegister:
         self.lastUse = -1  # Based on line no
         self.color = None # For later use
         self.neighbours = [] # For later use
+        self.regType = 0
+        self.offset = 0
 
     def getReg(self):
         return self.color
@@ -63,7 +65,8 @@ class ASTRegDistributor(VisitorsBase):
         for r in self.registers:
             used_colors = {neighbour.color for neighbour in r.neighbours if neighbour.color is not None}
             min_available_color = next((c for c in itertools.count() if getRegName(c) not in used_colors), 0)
-            r.setcolor(getRegName(min_available_color))
+            colorReg(r,min_available_color)
+            # r.setcolor(getRegName(min_available_color))
             if min_available_color + 1 > self.chromatic_number:
                 self.chromatic_number = min_available_color + 1
 
@@ -227,5 +230,12 @@ def getRegName(n):
         return regMap[n]
     else:
         i = n - len(regMap) + 1
-        name = f"-{i*8}(%rbx)" # TODO: What base should we use ?
+        name = f"stackReg{i}" # TODO: What base should we use ?
         return name
+
+def colorReg(r,n):
+    r.setcolor(getRegName(n))
+    if n not in regMap.keys():
+        r.regType = 1
+        i = n - len(regMap)
+        r.offset = i 

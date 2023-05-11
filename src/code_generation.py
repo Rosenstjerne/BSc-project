@@ -47,6 +47,8 @@ class TargetType(Enum):
     RSP = auto()  # register: stack pointer
     RRT = auto()  # register: return value
     RSL = auto()  # register: static link computation
+    RBX = auto()  # register: intermediate values stack pointer
+    RCX = auto()  # register: for intermediate use only
     REG = auto()  # general-purpose registers
 
 
@@ -197,10 +199,16 @@ class ASTCodeGenerationVisitor(VisitorsBase):
         self._app(Ins(Operation.META, Meta.CALLER_PROLOGUE))
 
     def postVisit_expression_list(self, t):
-        self._app(Ins(Operation.PUSH,
-                      Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
-                      c="push arguement to stack"
-                      )) 
+        if t.inReg.regType == 0:
+            self._app(Ins(Operation.PUSH,
+                          Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
+                          c="push arguement to stack"
+                          )) 
+        else:
+            self._app(Ins(Operation.PUSH,
+                          Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.inReg.offset)),
+                          c="push arguement to stack"
+                          )) 
 
     def postVisit_expression_call(self, t):
         level_difference = self.flatTab[self._function_stack[-1].metaName].getStaticLinkFunClimb(t.call_meta_function)
@@ -237,14 +245,30 @@ class ASTCodeGenerationVisitor(VisitorsBase):
 
     def postVisit_statement_return(self, t):
         # Getting the function label from the nearest enclosing function:
-        self._app(Ins(Operation.MOVE,
-                      Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
-                      c="Moves the return value into %rax"
-                      ))
+        if t.inReg.regType == 0:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.inReg.name} out into %rax for return"))
+        else:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.inReg.offset)),
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.inReg.name} out of the stack for return"))
 
 
     def postVisit_statement_print(self, t):
+        if t.inReg.regType == 0:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.inReg.name} out into %rcx for print"))
+        else:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.inReg.offset)),
+                          Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.inReg.name} out of the stack for print"))
+
         self._app(Ins(Operation.META, 
                       Meta.CALL_PRINTF,
                       Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
@@ -252,16 +276,28 @@ class ASTCodeGenerationVisitor(VisitorsBase):
 
     
     def postVisit_expression_integer(self, t):
-        self._app(Ins(Operation.MOVE,
-                      Arg(Target(TargetType.IMI, t.integer), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
-                      c=f"Moves integer into {t.retReg.name}"))
+        if t.retReg.regType == 0:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.IMI, t.integer), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
+                          c=f"Moves integer into {t.retReg.name}"))
+        else: 
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.IMI, t.integer), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.retReg.offset)),
+                          c=f"Moves integer into {t.retReg.name}"))
         
     def postVisit_expression_boolean(self, t):
-        self._app(Ins(Operation.MOVE,
-                      Arg(Target(TargetType.IMB, t.boolean), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
-                      c=f"Moves boolean into {t.retReg.name}"))
+        if t.retReg.regType == 0:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.IMB, t.boolean), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
+                          c=f"Moves boolean into {t.retReg.name}"))
+        else: 
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.IMI, t.integer), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.retReg.offset)),
+                          c=f"Moves integer into {t.retReg.name}"))
 
     def postVisit_variable(self, t):
         if t.assign:
@@ -272,15 +308,33 @@ class ASTCodeGenerationVisitor(VisitorsBase):
             self._follow_static_link(level_difference)
             offset = var.index
             if t.var.cat == NameCategory.PARAMETER:
-                self._app(Ins(Operation.MOVE,
-                              Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, -(offset + 3))),
-                              Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
-                              c=f"Move param {var.name} ({t.name}) into {t.retReg.name}"))
+                if t.retReg.regType == 0:
+                    self._app(Ins(Operation.MOVE,
+                                  Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, -(offset + 3))),
+                                  Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
+                                  c=f"Move param {var.name[1]} ({t.name}) into {t.retReg.name}"))
+                else:
+                    self._app(Ins(Operation.MOVE,
+                                  Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, -(offset + 3))),
+                                  Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR))))
+                    self._app(Ins(Operation.MOVE,
+                                  Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                                  Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.retReg.offset)),
+                                  c=f"Move param {var.name[1]} ({t.name}) into {t.retReg.name}"))
             elif t.var.cat == NameCategory.VARIABLE:
-                self._app(Ins(Operation.MOVE,
-                              Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, offset + 1)),
-                              Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
-                              c=f"Move param {var.name} ({t.name}) into {t.retReg.name}"))
+                if t.retReg.regType == 0:
+                    self._app(Ins(Operation.MOVE,
+                                  Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, offset + 1)),
+                                  Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
+                                  c=f"Move param {var.name[1]} ({t.name}) into {t.retReg.name}"))
+                else:
+                    self._app(Ins(Operation.MOVE,
+                                  Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, offset + 1)),
+                                  Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR))))
+                    self._app(Ins(Operation.MOVE,
+                                  Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                                  Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.retReg.offset)),
+                                  c=f"Move param {var.name[1]} ({t.name}) into {t.retReg.name}"))
         
     def postVisit_statement_assignment(self, t):
         var = t.lhs.metaVar
@@ -288,15 +342,33 @@ class ASTCodeGenerationVisitor(VisitorsBase):
         self._follow_static_link(level_difference)
         offset = var.index
         if t.lhs.var.cat == NameCategory.PARAMETER:
-            self._app(Ins(Operation.MOVE,
-                          Arg(Target(TargetType.REG, t.rhs.retReg), Mode(AddressingMode.DIR)),
-                          Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, -(offset + 3))),
-                          c=f"Move param {t.rhs.retReg.name} into {var.name} ({t.lhs.name})"))
+            if t.rhs.retReg.regType == 0:
+                self._app(Ins(Operation.MOVE,
+                              Arg(Target(TargetType.REG, t.rhs.retReg), Mode(AddressingMode.DIR)),
+                              Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, -(offset + 3))),
+                              c=f"Move param {t.rhs.retReg.name} into {var.name} ({t.lhs.name})"))
+            else:
+                self._app(Ins(Operation.MOVE,
+                              Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.rhs.retReg.offset)),
+                              Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR))))
+                self._app(Ins(Operation.MOVE,
+                              Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                              Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, -(offset + 3))),
+                              c=f"Move param {t.rhs.retReg.name} into {var.name} ({t.lhs.name})"))
         elif t.lhs.var.cat == NameCategory.VARIABLE:
-            self._app(Ins(Operation.MOVE,
-                          Arg(Target(TargetType.REG, t.rhs.retReg), Mode(AddressingMode.DIR)),
-                          Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, offset + 1)),
-                          c=f"Move param {t.rhs.retReg.name} into {var.name} ({t.lhs.name})"))
+            if t.rhs.retReg.regType == 0:
+                self._app(Ins(Operation.MOVE,
+                              Arg(Target(TargetType.REG, t.rhs.retReg), Mode(AddressingMode.DIR)),
+                              Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, offset + 1)),
+                              c=f"Move param {t.rhs.retReg.name} into {var.name} ({t.lhs.name})"))
+            else:
+                self._app(Ins(Operation.MOVE,
+                              Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.rhs.retReg.offset)),
+                              Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR))))
+                self._app(Ins(Operation.MOVE,
+                              Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                              Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, offset + 1)),
+                              c=f"Move param {t.rhs.retReg.name} into {var.name} ({t.lhs.name})"))
 
 
     def _comparison_op(self, trueJump, t):
@@ -309,27 +381,59 @@ class ASTCodeGenerationVisitor(VisitorsBase):
             movq $1 retReg
         end_label:
         """
+        if t.inReg2.regType == 0:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.REG, t.inReg2), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.inReg2.name} out into %rcx for cmp"))
+        else:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.inReg2.offset)),
+                          Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.inReg2.name} out of the stack for cmp"))
+
+        if t.inReg1.regType == 0:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.REG, t.inReg1), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.inReg1.name} out into %rax for cmp"))
+        else:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.inReg1.offset)),
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.inReg1.name} out of the stack for cmp"))
+
         self._app(Ins(Operation.CMP,
-                      Arg(Target(TargetType.REG, t.inReg2), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.REG, t.inReg1), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.RRT, t.inReg1), Mode(AddressingMode.DIR)),
                       c=f"eval {t.inReg1.name} {t.op} {t.inReg2.name}"))
         self._app(Ins(trueJump,
                       Arg(Target(TargetType.MEM, t.true_label), Mode(AddressingMode.DIR)),
                       c="Jump if the expression was true"))
         self._app(Ins(Operation.MOVE,
                       Arg(Target(TargetType.IMB, False), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
-                      c=f"Moves false into {t.retReg.name}"))
+                      Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                      c=f"Moves false into %rax"))
         self._app(Ins(Operation.JMP,
                       Arg(Target(TargetType.MEM, t.end_label), Mode(AddressingMode.DIR)),
                       c="Jump to end of expression"))
         self._app(Ins(Operation.LABEL, Arg(Target(TargetType.MEM, t.true_label), Mode(AddressingMode.DIR))))
         self._app(Ins(Operation.MOVE,
                       Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
-                      c=f"Moves true into {t.retReg.name}"))
+                      Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                      c=f"Moves true into %rax"))
         self._app(Ins(Operation.LABEL, Arg(Target(TargetType.MEM, t.end_label), Mode(AddressingMode.DIR))))
 
+        if t.retReg.regType == 0:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.retReg.name} out into %rax for cmp"))
+        else:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.retReg.offset)),
+                          c=f"Moves result into {t.retReg.name}"))
         
 
     def _arithmetic_op(self, op, t):
@@ -337,28 +441,88 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                     movq reg1, retReg
                     aritmatic_op reg2, retReg
         """
-        self._app(Ins(Operation.MOVE,
-                      Arg(Target(TargetType.REG, t.inReg1), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
-                      c=f"Move {t.inReg2.name} to {t.retReg.name}"))
+        if t.inReg2.regType == 0:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.REG, t.inReg2), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.inReg2.name} out into %rcx for operation"))
+        else:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.inReg2.offset)),
+                          Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.inReg2.name} out of the stack for operation"))
+
+        if t.inReg1.regType == 0:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.REG, t.inReg1), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.inReg1.name} out into %rax for operation"))
+        else:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.inReg1.offset)),
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.inReg1.name} out of the stack for operation"))
+
         self._app(Ins(op,
-                      Arg(Target(TargetType.REG, t.inReg2), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.RCX, t.inReg2), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.RRT, t.retReg), Mode(AddressingMode.DIR)),
                       c=f"Operation: {t.inReg1.name} {t.op} {t.retReg.name}"))
+
+        if t.retReg.regType == 0:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
+                          c=f"Moves result into {t.retReg.name}"))
+        else:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.retReg.offset)),
+                          c=f"Moves result into {t.retReg.name}"))
+
+
 
     def _logic_op(self, op, t):
         """
                     movq reg1, retReg
                     logic_op reg2, retReg
         """
-        self._app(Ins(Operation.MOVE,
-                      Arg(Target(TargetType.REG, t.inReg1), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
-                      c=f"Move {t.inReg2.name} to {t.retReg.name}"))
+        if t.inReg2.regType == 0:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.REG, t.inReg2), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.inReg2.name} out into %rcx for operation"))
+        else:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.inReg2.offset)),
+                          Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.inReg2.name} out of the stack for operation"))
+
+        if t.inReg1.regType == 0:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.REG, t.inReg1), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.inReg1.name} out into %rax for operation"))
+        else:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.inReg1.offset)),
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.inReg1.name} out of the stack for operation"))
+
         self._app(Ins(op,
-                      Arg(Target(TargetType.REG, t.inReg2), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.RCX, t.inReg2), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.RRT, t.retReg), Mode(AddressingMode.DIR)),
                       c=f"Operation: {t.inReg1.name} {t.op} {t.retReg.name}"))
+
+        if t.retReg.regType == 0:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
+                          c=f"Moves result into {t.retReg.name}"))
+        else:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.retReg.offset)),
+                          c=f"Moves result into {t.retReg.name}"))
 
     def postVisit_expression_binop(self, t):
         if t.op == "==":
@@ -389,22 +553,59 @@ class ASTCodeGenerationVisitor(VisitorsBase):
             self._logic_op(Operation.OR, t)
 
     def postVisit_expression_negative(self, t):
+
+
+        if t.inReg.regType == 0:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.inReg.name} out into %rax for operation"))
+        else:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.inReg.offset)),
+                          Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.inReg.name} out of the stack for operation"))
+
         self._app(Ins(Operation.MOVE,
                       Arg(Target(TargetType.IMI, 0), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                       c=f"Move {t.inReg.name} to {t.retReg.name}"))
         self._app(Ins(Operation.SUB,
-                      Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                       c=f"Operation: $0 - {t.retReg.name}"))
 
+        if t.retReg.regType == 0:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
+                          c=f"Moves result into {t.retReg.name}"))
+        else:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.retReg.offset)),
+                          c=f"Moves result into {t.retReg.name}"))
+
+
+
     def postVisit_expression_neg(self, t):
+        if t.inReg.regType == 0:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.inReg.name} out into %rax for operation"))
+        else:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.inReg.offset)),
+                          Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.inReg.name} out of the stack for operation"))
+
         self._app(Ins(Operation.MOVE,
                       Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
                       Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                       c="Moves true into %rax"))
         self._app(Ins(Operation.CMP,
-                      Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
                       Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                       c=f"Compare: {t.inReg.name} == true"))
         self._app(Ins(Operation.JNE,
@@ -412,7 +613,7 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                       c="Jump if the expression was fasle"))
         self._app(Ins(Operation.MOVE,
                       Arg(Target(TargetType.IMB, False), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                       c=f"Moves false into {t.retReg.name}"))
         self._app(Ins(Operation.JMP,
                       Arg(Target(TargetType.MEM, t.end_label), Mode(AddressingMode.DIR)),
@@ -420,18 +621,41 @@ class ASTCodeGenerationVisitor(VisitorsBase):
         self._app(Ins(Operation.LABEL, Arg(Target(TargetType.MEM, t.true_label), Mode(AddressingMode.DIR))))
         self._app(Ins(Operation.MOVE,
                       Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                       c=f"Moves true into {t.retReg.name}"))
         self._app(Ins(Operation.LABEL, Arg(Target(TargetType.MEM, t.end_label), Mode(AddressingMode.DIR))))
 
+        if t.retReg.regType == 0:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
+                          c=f"Moves result into {t.retReg.name}"))
+        else:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.retReg.offset)),
+                          c=f"Moves result into {t.retReg.name}"))
+
+
 
     def midVisit_statement_ifthen(self, t):
+        if t.inReg.regType == 0:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.inReg.name} out into %rax for operation"))
+        else:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.inReg.offset)),
+                          Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.inReg.name} out of the stack for operation"))
+
         self._app(Ins(Operation.MOVE,
                       Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
                       Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                       c="Moves true into %rax"))
         self._app(Ins(Operation.CMP,
-                      Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
                       Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                       c=f"Compare: {t.inReg.name} == true"))
         self._app(Ins(Operation.JNE,
@@ -444,12 +668,23 @@ class ASTCodeGenerationVisitor(VisitorsBase):
 
 
     def preMidVisit_statement_ifthenelse(self, t):
+        if t.inReg.regType == 0:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.inReg.name} out into %rax for operation"))
+        else:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.inReg.offset)),
+                          Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.inReg.name} out of the stack for operation"))
+
         self._app(Ins(Operation.MOVE,
                       Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
                       Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                       c="Moves true into %rax"))
         self._app(Ins(Operation.CMP,
-                      Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
                       Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                       c=f"Compare: {t.inReg.name} == true"))
         self._app(Ins(Operation.JNE,
@@ -474,12 +709,23 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                       c="Start of while"))
 
     def midVisit_statement_while(self, t):
+        if t.inReg.regType == 0:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.inReg.name} out into %rax for operation"))
+        else:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.inReg.offset)),
+                          Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.inReg.name} out of the stack for operation"))
+
         self._app(Ins(Operation.MOVE,
                       Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
                       Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                       c="Moves true into %rax"))
         self._app(Ins(Operation.CMP,
-                      Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
+                      Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
                       Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                       c=f"Compare: {t.inReg.name} == true"))
         self._app(Ins(Operation.JNE,

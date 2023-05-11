@@ -176,6 +176,10 @@ class Emit:
             text = "%rax"
         elif target.spec is TargetType.RSL:
             text = "%rdx"
+        elif target.spec is TargetType.RBX:
+            text = "%rbx"
+        elif target.spec is TargetType.RCX:
+            text = "%rcx"
         elif target.spec is TargetType.REG:
             text = target.val.getReg()
 
@@ -250,7 +254,10 @@ class Emit:
 
     def main_callee_save(self):
         self._raw("")
-        self._ins("pushq %rbx", "%rbx is callee save")
+        self._ins("movq %rsp, %rbx", "Saves stack pointer in %rbx")
+        self._ins(f"addq ${-8*self.extra_intermediate_regs}, %rsp",
+                  "allocate space for extra intermediate stack memory")
+        self._raw("")
         self._ins("pushq %r8",  "%r8  is callee save")
         self._ins("pushq %r9",  "%r9  is callee save")
         self._ins("pushq %r10", "%r10 is callee save")
@@ -275,7 +282,9 @@ class Emit:
         self._ins("popq %r10", "restore callee save register %r10")
         self._ins("popq %r9",  "restore callee save register %r9 ")
         self._ins("popq %r8",  "restore callee save register %r8 ")
-        self._ins("popq %rbx", "restore callee save register %rbx")
+        self._raw("")
+        self._ins(f"addq ${8*self.extra_intermediate_regs}, %rsp",
+                  "deallocate stack space for extra intermediate stack memory")
         self._raw("")
 
     def callee_restore(self):
@@ -300,7 +309,7 @@ class Emit:
     def caller_save(self):
         if _full_caller_callee_save:
             self._raw("")
-            self._ins("pushq %rcx", "%rcx is caller save")
+            # self._ins("pushq %rcx", "%rcx is caller save")
             self._ins("pushq %rdx", "%rdx is caller save")
             self._ins("pushq %rsi", "%rsi is caller save")
             self._ins("pushq %rdi", "%rdi is caller save")
@@ -328,7 +337,7 @@ class Emit:
             self._ins("popq %rdi", "restore caller save register %rdi")
             self._ins("popq %rsi", "restore caller save register %rsi")
             self._ins("popq %rdx", "restore caller save register %rdx")
-            self._ins("popq %rcx", "restore caller save register %rcx")
+            # self._ins("popq %rcx", "restore caller save register %rcx")
             self._raw("")
 
     def caller_prologue(self):
@@ -343,7 +352,7 @@ class Emit:
         self._ins("", "PRINTING")
         if instr.args[2] == "bool":
             self._ins(f"movq $1, %rax", "Moves true into %rax")
-            self._ins(f"cmpq {instr.args[1].target.val.getReg()}, %rax","")
+            self._ins(f"cmpq %rcx, %rax","")
             true_lbl = self.getLbl()
             end_lbl = self.getLbl()
             self._ins(f"je {true_lbl}","")
