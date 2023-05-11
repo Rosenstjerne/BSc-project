@@ -4,6 +4,7 @@ class A{
 
 var A a;
 a = new A;
-a.p = 4;
-a.q = 5;
+#a.p = 4;
+#a.q = 5;
+print(a.p);
 print(a.q);

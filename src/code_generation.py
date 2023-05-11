@@ -383,21 +383,21 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                               Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                               c=f"Moves {t.inReg.name} out for indexing"))
 
-                if t.rhs.retReg.regType == 0:
-                    self._app(Ins(Operation.MOVE,
-                                  Arg(Target(TargetType.REG, t.rhs.retReg), Mode(AddressingMode.DIR)),
-                                  Arg(Target(TargetType.RRT), Mode(AddressingMode.IRL, t.index)),
-                                  c=f"Moves {t.inReg.name} into the dot variable"))
-                    print(t.index)
-                else:
-                    self._app(Ins(Operation.MOVE,
-                                  Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.rhs.retReg.offset)),
-                                  Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR))))
-                    self._app(Ins(Operation.MOVE,
-                                  Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
-                                  Arg(Target(TargetType.RRT), Mode(AddressingMode.IRL, t.index)),
-                                  c=f"Moves {t.inReg.name} into the dot variable"))
-                    print(t.index)
+            if t.rhs.retReg.regType == 0:
+                self._app(Ins(Operation.MOVE,
+                              Arg(Target(TargetType.REG, t.rhs.retReg), Mode(AddressingMode.DIR)),
+                              Arg(Target(TargetType.RRT), Mode(AddressingMode.IRL, -t.lhs.index-1)),
+                              c=f"Moves {t.inReg.name} into the dot variable"))
+                print(t.lhs.index)
+            else:
+                self._app(Ins(Operation.MOVE,
+                              Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.rhs.retReg.offset)),
+                              Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR))))
+                self._app(Ins(Operation.MOVE,
+                              Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                              Arg(Target(TargetType.RRT), Mode(AddressingMode.IRL, -t.lhs.index-1)),
+                              c=f"Moves {t.inReg.name} into the dot variable"))
+                print(t.lhs.index)
 
         if t.lhs.varType == "index_variable":
             pass
@@ -441,7 +441,7 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                               c=f"Moves {t.inReg.name} out for indexing"))
 
             self._app(Ins(Operation.MOVE,
-                          Arg(Target(TargetType.RCX), Mode(AddressingMode.IRL, t.index)),
+                          Arg(Target(TargetType.RCX), Mode(AddressingMode.IRL, -t.index-1)),
                           Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                           c="Gets the dot variable into %rax"))
             print(t.index)
