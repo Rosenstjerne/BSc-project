@@ -157,6 +157,8 @@ class Emit:
                 self.deallocate_stack_space(instr.args[1])
             elif method is Meta.REVERSE_PUSH_ARGUMENTS:
                 self.reverse_push_arguments(instr.args[1])
+            elif method is Meta.ALLOCATE_HEAP_SPACE:
+                self.allocate_heap_space()
 
     def _do_arg(self, arg):
         """Formats one instruction argument."""
@@ -190,6 +192,8 @@ class Emit:
             text = f"({text})"
         elif addressing.mode is AddressingMode.IRL:
             text = f"{-8*addressing.offset}({text})"
+        elif addressing.mode is AddressingMode.IRR:
+            text = f"%rcx({text})"
         return text
 
     def _simple_instruction(self, instr):
@@ -391,3 +395,24 @@ class Emit:
             offset = 8 * (_caller_registers + 2 * i)
             self._ins(f"pushq {offset}(%rsp)",
                       "push arguments in reverse order")
+
+    def allocate_heap_space(self):
+            self._ins("pushq %rdx", "%rdx is caller save")
+            self._ins("pushq %rsi", "%rsi is caller save")
+            self._ins("pushq %rdi", "%rdi is caller save")
+            self._ins("pushq %r8",  "%r8  is caller save")
+            self._ins("pushq %r9",  "%r9  is caller save")
+
+            self._ins("movq %rcx, %rsi", "moves size form %rxc into %rsi")
+            self._ins("movq $9, %rax", "prepare mmap syscall")
+            self._ins("movq $0, %rdx", "")
+            self._ins("movq $0, %r8", "")
+            self._ins("movq $0, %r9", "")
+            self._ins("syscall","allocates the memory")
+
+            self._ins("popq %r9",  "restore caller save register %r9 ")
+            self._ins("popq %r8",  "restore caller save register %r8 ")
+            self._ins("popq %rdi", "restore caller save register %rdi")
+            self._ins("popq %rsi", "restore caller save register %rsi")
+            self._ins("popq %rdx", "restore caller save register %rdx")
+

@@ -1,3 +1,9 @@
-var int i;
-i = 1;
-print(i+(1+(i+(1+(i+(1+(i+(1+(i+(1+(i+(1))))))))))));
+class A{
+  var int q, p;
+}
+
+var A a;
+a = new A;
+a.p = 4;
+a.q = 5;
+print(a.q);

@@ -304,9 +304,12 @@ class ASTSymbolVisitor(VisitorsBase):
                     )
         t.scope = self._current_scope
 
-    def preVisit_expression_new(self, t):
-        if self._current_scope.type_lookup(t.r_type) is not None:
-            t.class_type = self._current_scope.type_lookup(t.r_type)
+    def postVisit_expression_new(self, t):
+        ct = self._current_scope.type_lookup(t.r_type)
+        if ct is not None:
+            t.class_type = ct
+            t.alloc_size = len(ct)
+            print(t.alloc_size)
         else:
             error_message(
                 "Symbol Collection",

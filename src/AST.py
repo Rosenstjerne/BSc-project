@@ -427,10 +427,12 @@ class expression_index:
         self.lineno = lineno
         self._type = "unknown" # for later use
         self.assign = False # for later use
+        self.varType = "index_variable"
 
     def accept(self, visitor):
         visitor.preVisit(self)
         self.exp.accept(visitor)
+        self.index.accept(visitor)
         visitor.postVisit(self)
 
     def __str__(self) -> str:
@@ -444,6 +446,7 @@ class variable:
         self.lineno = lineno
         self._type = "unknown" # for later use
         self.assign = False # for later use
+        self.varType = "variable"
 
     def accept(self, visitor):
         visitor.postVisit(self)
@@ -459,6 +462,7 @@ class dot_variable:
         self.lineno = lineno
         self._type = "unknown" # for later use
         self.assign = False # for later use
+        self.varType = "dot_variable"
 
     def accept(self, visitor):
         visitor.preVisit(self)

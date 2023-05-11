@@ -57,6 +57,7 @@ class AddressingMode(Enum):
     DIR = auto()  # direct
     IND = auto()  # indirect
     IRL = auto()  # indirect relative
+    IRR = auto()  # indirect relative by register
 
 
 class Target:
@@ -295,7 +296,7 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                           c=f"Moves boolean into {t.retReg.name}"))
         else: 
             self._app(Ins(Operation.MOVE,
-                          Arg(Target(TargetType.IMI, t.integer), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.IMB, t.boolean), Mode(AddressingMode.DIR)),
                           Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.retReg.offset)),
                           c=f"Moves integer into {t.retReg.name}"))
 
@@ -337,38 +338,195 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                                   c=f"Move param {var.name[1]} ({t.name}) into {t.retReg.name}"))
         
     def postVisit_statement_assignment(self, t):
-        var = t.lhs.metaVar
-        level_difference = self.flatTab[self._function_stack[-1].metaName].getStaticLinkClimb(var)
-        self._follow_static_link(level_difference)
-        offset = var.index
-        if t.lhs.var.cat == NameCategory.PARAMETER:
-            if t.rhs.retReg.regType == 0:
+        if t.lhs.varType == "variable":
+            var = t.lhs.metaVar
+            level_difference = self.flatTab[self._function_stack[-1].metaName].getStaticLinkClimb(var)
+            self._follow_static_link(level_difference)
+            offset = var.index
+            if t.lhs.var.cat == NameCategory.PARAMETER:
+                if t.rhs.retReg.regType == 0:
+                    self._app(Ins(Operation.MOVE,
+                                  Arg(Target(TargetType.REG, t.rhs.retReg), Mode(AddressingMode.DIR)),
+                                  Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, -(offset + 3))),
+                                  c=f"Move param {t.rhs.retReg.name} into {var.name} ({t.lhs.name})"))
+                else:
+                    self._app(Ins(Operation.MOVE,
+                                  Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.rhs.retReg.offset)),
+                                  Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR))))
+                    self._app(Ins(Operation.MOVE,
+                                  Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                                  Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, -(offset + 3))),
+                                  c=f"Move param {t.rhs.retReg.name} into {var.name} ({t.lhs.name})"))
+            elif t.lhs.var.cat == NameCategory.VARIABLE:
+                if t.rhs.retReg.regType == 0:
+                    self._app(Ins(Operation.MOVE,
+                                  Arg(Target(TargetType.REG, t.rhs.retReg), Mode(AddressingMode.DIR)),
+                                  Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, offset + 1)),
+                                  c=f"Move param {t.rhs.retReg.name} into {var.name} ({t.lhs.name})"))
+                else:
+                    self._app(Ins(Operation.MOVE,
+                                  Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.rhs.retReg.offset)),
+                                  Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR))))
+                    self._app(Ins(Operation.MOVE,
+                                  Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                                  Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, offset + 1)),
+                                  c=f"Move param {t.rhs.retReg.name} into {var.name} ({t.lhs.name})"))
+        if t.lhs.varType == "dot_variable":
+            if t.inReg.regType == 0:
                 self._app(Ins(Operation.MOVE,
-                              Arg(Target(TargetType.REG, t.rhs.retReg), Mode(AddressingMode.DIR)),
-                              Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, -(offset + 3))),
-                              c=f"Move param {t.rhs.retReg.name} into {var.name} ({t.lhs.name})"))
+                              Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
+                              Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                              c=f"Moves {t.inReg.name} out for indexing"))
             else:
                 self._app(Ins(Operation.MOVE,
-                              Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.rhs.retReg.offset)),
-                              Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR))))
+                              Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.inReg.offset)),
+                              Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                              c=f"Moves {t.inReg.name} out for indexing"))
+
+                if t.rhs.retReg.regType == 0:
+                    self._app(Ins(Operation.MOVE,
+                                  Arg(Target(TargetType.REG, t.rhs.retReg), Mode(AddressingMode.DIR)),
+                                  Arg(Target(TargetType.RRT), Mode(AddressingMode.IRL, t.index)),
+                                  c=f"Moves {t.inReg.name} into the dot variable"))
+                    print(t.index)
+                else:
+                    self._app(Ins(Operation.MOVE,
+                                  Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.rhs.retReg.offset)),
+                                  Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR))))
+                    self._app(Ins(Operation.MOVE,
+                                  Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                                  Arg(Target(TargetType.RRT), Mode(AddressingMode.IRL, t.index)),
+                                  c=f"Moves {t.inReg.name} into the dot variable"))
+                    print(t.index)
+
+        if t.lhs.varType == "index_variable":
+            pass
+
+
+    def postVisit_expression_new(self, t):
+        self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.IMI, t.alloc_size), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                          c=f"Moves size out into %rcx for allication"))
+
+        self._app(Ins(Operation.META, 
+                      Meta.ALLOCATE_HEAP_SPACE,
+                      c=f"allocates memory"))
+
+        if t.retReg.regType == 0:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
+                          c=f"Moves new array into {t.retReg.name}"))
+        else:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.retReg.offset)),
+                          c=f"Moves new array into {t.retReg.name}"))
+
+
+    def postVisit_dot_variable(self, t):
+        if t.assign:
+            pass
+        else:
+            if t.inReg.regType == 0:
                 self._app(Ins(Operation.MOVE,
+                              Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
                               Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
-                              Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, -(offset + 3))),
-                              c=f"Move param {t.rhs.retReg.name} into {var.name} ({t.lhs.name})"))
-        elif t.lhs.var.cat == NameCategory.VARIABLE:
-            if t.rhs.retReg.regType == 0:
-                self._app(Ins(Operation.MOVE,
-                              Arg(Target(TargetType.REG, t.rhs.retReg), Mode(AddressingMode.DIR)),
-                              Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, offset + 1)),
-                              c=f"Move param {t.rhs.retReg.name} into {var.name} ({t.lhs.name})"))
+                              c=f"Moves {t.inReg.name} out for indexing"))
             else:
                 self._app(Ins(Operation.MOVE,
-                              Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.rhs.retReg.offset)),
-                              Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR))))
-                self._app(Ins(Operation.MOVE,
+                              Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.inReg.offset)),
                               Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
-                              Arg(Target(TargetType.RSL), Mode(AddressingMode.IRL, offset + 1)),
-                              c=f"Move param {t.rhs.retReg.name} into {var.name} ({t.lhs.name})"))
+                              c=f"Moves {t.inReg.name} out for indexing"))
+
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RCX), Mode(AddressingMode.IRL, t.index)),
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                          c="Gets the dot variable into %rax"))
+            print(t.index)
+
+            if t.retReg.regType == 0:
+                self._app(Ins(Operation.MOVE,
+                              Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                              Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
+                              c=f"Moves new array into {t.retReg.name}"))
+            else:
+                self._app(Ins(Operation.MOVE,
+                              Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                              Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.retReg.offset)),
+                              c=f"Moves new array into {t.retReg.name}"))
+
+    def postVisit_new_array(self, t):
+        if t.inReg.regType == 0:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.inReg.name} out into %rcx for allication size"))
+        else:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.inReg.offset)),
+                          Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                          c=f"Moves {t.inReg.name} out of the stack for allocation size"))
+
+        self._app(Ins(Operation.META, 
+                      Meta.ALLOCATE_HEAP_SPACE,
+                      c=f"allocates memory"))
+
+        if t.retReg.regType == 0:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
+                          c=f"Moves new array into {t.retReg.name}"))
+        else:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.retReg.offset)),
+                          c=f"Moves new array into {t.retReg.name}"))
+
+    def postVisit_expression_index(self, t):
+        if t.assign:
+            pass
+        else:
+            if t.inReg.regType == 0:
+                self._app(Ins(Operation.MOVE,
+                              Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
+                              Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                              c=f"Moves {t.indexReg.name} out for indexing in"))
+            else:
+                self._app(Ins(Operation.MOVE,
+                              Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.inReg.offset)),
+                              Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                              c=f"Moves {t.inReg.name} out for indexing in"))
+
+            if t.indexReg.regType == 0:
+                self._app(Ins(Operation.MOVE,
+                              Arg(Target(TargetType.REG, t.indexReg), Mode(AddressingMode.DIR)),
+                              Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                              c=f"Moves {t.indexReg.name} out for indexing in"))
+            else:
+                self._app(Ins(Operation.MOVE,
+                              Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.inReg.offset)),
+                              Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                              c=f"Moves {t.indexReg.name} out for indexing in"))
+
+                self._app(Ins(Operation.MOVE,
+                              Arg(Target(TargetType.RRT), Mode(AddressingMode.IRR)),
+                              Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                              c="Gets the dot variable into %rax"))
+
+            if t.retReg.regType == 0:
+                self._app(Ins(Operation.MOVE,
+                              Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                              Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
+                              c=f"Moves new array into {t.retReg.name}"))
+            else:
+                self._app(Ins(Operation.MOVE,
+                              Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                              Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.retReg.offset)),
+                              c=f"Moves new array into {t.retReg.name}"))
+
+
 
 
     def _comparison_op(self, trueJump, t):

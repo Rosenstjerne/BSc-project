@@ -189,17 +189,16 @@ class ASTRegDistributor(VisitorsBase):
 
     def postVisit_expression_new(self, t):
         t.retReg = self.newReg()
-        t.size = None # TODO : Figure out where the size is stored or how to calculate it
         self.useReg(t.retReg)
 
     def postVisit_expression_new_array(self, t):
         t.retReg = self.newReg()
-        t.sizeReg = t.exp.retReg
+        t.sizeReg = t.len.retReg
         self.useReg(t.sizeReg, t.retReg)
 
     def postVisit_dot_variable(self, t):
         t.retReg = self.newReg()
-        t.inReg = t.exp.retRet
+        t.inReg = t.exp.retReg
         self.useReg(t.inReg, t.retReg)
 
     def postVisit_expression_index(self, t):
