@@ -405,13 +405,13 @@ class Emit:
             self._ins("pushq %r10",  "%r9  is caller save")
 
             self._ins("movq %rcx, %rsi", "moves size form %rxc into %rsi")
-
-            self._ins("movq $1, %rdi", "")
+            self._ins("shlq $3, %rsi", "")
+            self._ins("xor %rdi, %rdi", "")
             self._ins("movq $9, %rax", "prepare mmap syscall")
             self._ins("movq $0x3, %rdx", "")
             self._ins("movq $-1, %r8", "")
             self._ins("movq $0, %r9", "")
-            self._ins("movq $0x22, %r10", "")
+            self._ins("movq $0x8002, %r10", "")
             self._ins("syscall","allocates the memory")
 
             self._ins("popq %r10",  "restore caller save register %r9 ")
