@@ -309,7 +309,6 @@ class ASTSymbolVisitor(VisitorsBase):
         if ct is not None:
             t.class_type = ct
             t.alloc_size = len(ct)
-            print(t.alloc_size)
         else:
             error_message(
                 "Symbol Collection",

@@ -383,7 +383,8 @@ class Emit:
         else:
             self._ins("leaq form(%rip), %rdi", "pass 1. argument in %rdi")
         # By-passing caller save values on the stack:
-        self._ins(f"movq {instr.args[1].target.val.getReg()}, %rsi","Moves printable object to rsi")
+        # self._ins(f"movq {instr.args[1].target.val.getReg()}, %rsi","Moves printable object to rsi")
+        self._ins(f"movq %rcx, %rsi","Moves printable object to rsi")
         self._ins("xorq %rax, %rax","No floating point arguments") 
         self._raw("")
         self._ins("callq printf@plt","calls the printf method")
@@ -424,10 +425,13 @@ class Emit:
             self._ins("xor %rdi, %rdi", "")
             self._ins("movq $9, %rax", "prepare mmap syscall")
             self._ins("movq $0x3, %rdx", "")
-            self._ins("movq $-1, %r8", "")
+            self._ins("movq $0, %r8", "")
             self._ins("movq $0, %r9", "")
-            self._ins("movq $0x8002, %r10", "")
+            self._ins("movq $0x22, %r10", "")
             self._ins("syscall","allocates the memory")
+
+            # self._ins("movq $0, 8(%rax)", "")
+
             #self._ins("cmpq $-1, %rax", "checks if mmap was successful")
             #self._ins("je .error_mmap", "jumps to mmap error if not")
 

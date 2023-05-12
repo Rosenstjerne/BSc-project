@@ -166,6 +166,8 @@ class ASTRegDistributor(VisitorsBase):
         t.inReg = t.rhs.retReg
         # t.assignReg = t.lhs.retReg
         self.useReg(t.inReg)
+        if t.lhs.varType == "dot_variable":
+            self.useReg(t.lhs.inReg)
 
     def postVisit_statement_ifthen(self, t):
         t.end_label = self.newLbl("if_end")

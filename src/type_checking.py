@@ -98,7 +98,6 @@ class ASTTypeCheckingVisitor(VisitorsBase):
             t.paren = class_list[t.exp._type]
             t._type = class_list[t.exp._type][t.elm].rtype
             t.index = class_list[t.exp._type][t.elm].info
-            print(t.index)
         else:
             error_message(
                     "Type Checking",

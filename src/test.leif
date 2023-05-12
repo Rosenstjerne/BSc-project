@@ -1,10 +1,35 @@
 class A{
   var int q, p;
+  var A r;
 }
 
 var A a;
+
+function null bob(A c) {
+  print(c.q);
+  print(c.p);
+
+  c.p = 80;
+  c.q = 150;
+}
+
+
 a = new A;
-a.p = 4;
-#a.q = 5;
+a.r = new A;
+a.r.q = 101;
+a.r.p = 202;
+print(a.r.q);
+print(a.r.p);
+
+a.q = 4;
+a.p = 5;
+print(a.q);
 print(a.p);
-#print(a.q);
+
+bob(a);
+
+
+print(a.q);
+print(a.p);
+
+bob(a.r);
