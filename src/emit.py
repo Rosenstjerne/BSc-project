@@ -259,7 +259,7 @@ class Emit:
         self._raw("")
 
     def program_epilogue(self):
-        self._raw("error_mmap:")
+        self._raw(".error_mmap:")
         self._ins("movq $1, %rax", "prepare for write syscall")
         self._ins("movq $1, %rdi", "write to stdout")
         self._ins("movq $error_mmap, %rsi", "address of error message")
@@ -428,7 +428,7 @@ class Emit:
             self._ins("movq $0x8002, %r10", "")
             self._ins("syscall","allocates the memory")
             self._ins("cmpq $-1, %rax", "checks if mmap was successful")
-            self._ins("je error_mmap", "jumps to mmap error if not")
+            self._ins("je .error_mmap", "jumps to mmap error if not")
 
 
             self._ins("popq %r10",  "restore caller save register %r9 ")
