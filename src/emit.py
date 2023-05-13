@@ -238,11 +238,8 @@ class Emit:
     def program_prologue(self):
         self._raw("")
         self._raw(".data")
-        #self._lbl("error_mmap")
-        #self._ins('.string "mmap failed\\n"', "error message string for mmap")
-        #self._raw("")
-        #self._lbl("error_len")
-        #self._ins('.equ $ - error_mmap', "length of error message string")
+        self._lbl("mmapEr")
+        self._ins('.string "mmap failed\\n"', "error message string for mmap")
         self._raw("")
         self._lbl("form")
         self._ins('.string "%d\\n"', "form string for C printf")
@@ -259,17 +256,15 @@ class Emit:
         self._raw("")
 
     def program_epilogue(self):
-        pass
-        #self._raw(".error_mmap:")
-        #self._ins("movq $1, %rax", "prepare for write syscall")
-        #self._ins("movq $1, %rdi", "write to stdout")
-        #self._ins("movq $error_mmap, %rsi", "address of error message")
-        #self._ins("movq $error_len, %rdx", "length of error message")
-        #self._ins("syscall", "write error message")
-        #self._raw("")
-        #self._ins("movq $60, %rax", "prepare for exit syscall")
-        #self._ins("xor %rdi, %rdi", "exit status 0")
-        #self._ins("syscall", "exit")
+        self._raw("mmap_error:")
+        self._ins("leaq mmapEr(%rip), %rdi", " pass 1. arg in %rdi")
+        self._ins("xor %rax, %rax", "no floating point arguments")
+        self._ins("callq printf", "calls printf method")
+        self._raw("")
+        self._ins("movq $60, %rax", "prepare for exit syscall")
+        self._ins("xor %rdi, %rdi", "exit status 0")
+        self._ins("syscall", "exit")
+
 
     def main_callee_save(self):
         self._raw("")
@@ -429,11 +424,9 @@ class Emit:
             self._ins("movq $0, %r9", "")
             self._ins("movq $0x22, %r10", "")
             self._ins("syscall","allocates the memory")
-
-            # self._ins("movq $0, 8(%rax)", "")
-
-            #self._ins("cmpq $-1, %rax", "checks if mmap was successful")
-            #self._ins("je .error_mmap", "jumps to mmap error if not")
+            self._raw("")
+            self._ins("cmpq $-1, %rax", "checks if mmap was successful")
+            self._ins("je mmap_error", "jumps to mmap error if not")
 
 
             self._ins("popq %r10",  "restore caller save register %r9 ")
