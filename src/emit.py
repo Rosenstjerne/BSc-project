@@ -39,7 +39,8 @@ _intermediate_to_x86 = {
     Operation.SUB: "subq",
     Operation.MUL: "imulq",
     Operation.AND: "andq",
-    Operation.OR: "orq"
+    Operation.OR: "orq",
+    Operation.SHL: "shlq"
     }
 
 
@@ -193,7 +194,7 @@ class Emit:
         elif addressing.mode is AddressingMode.IRL:
             text = f"{-8*addressing.offset}({text})"
         elif addressing.mode is AddressingMode.IRR:
-            text = f"%rcx({text})"
+            text = f"({text}, %rcx, 8)"
         return text
 
     def _simple_instruction(self, instr):

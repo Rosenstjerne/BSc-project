@@ -33,6 +33,7 @@ class Operation(Enum):
     MOD = auto()
     AND = auto()
     OR = auto()
+    SHL = auto()
     LABEL = auto()
     META = auto()
 
@@ -403,7 +404,46 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                               c=f"Moves {t.inReg.name} into the dot variable"))
 
         if t.lhs.varType == "index_variable":
-            pass
+            if t.inReg.regType == 0:
+                self._app(Ins(Operation.MOVE,
+                              Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
+                              Arg(Target(TargetType.RSL), Mode(AddressingMode.DIR)),
+                              c=f"Moves {t.inReg.name} out for insert"))
+            else:
+                self._app(Ins(Operation.MOVE,
+                              Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.inReg.offset)),
+                              Arg(Target(TargetType.RSL), Mode(AddressingMode.DIR)),
+                              c=f"Moves {t.inReg.name} out for insert"))
+
+
+            if t.lhs.indexReg.regType == 0:
+                self._app(Ins(Operation.MOVE,
+                              Arg(Target(TargetType.REG, t.lhs.indexReg), Mode(AddressingMode.DIR)),
+                              Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                              c=f"Moves {t.lhs.indexReg.name} out for indexing in"))
+            else:
+                self._app(Ins(Operation.MOVE,
+                              Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.lhs.indexReg.offset)),
+                              Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                              c=f"Moves {t.lhs.indexReg.name} out for indexing in"))
+
+        
+            if t.lhs.retReg.regType == 0:
+                self._app(Ins(Operation.MOVE,
+                              Arg(Target(TargetType.REG, t.lhs.inReg), Mode(AddressingMode.DIR)),
+                              Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                              c=f"Moves {t.lhs.inReg.name} for indexing"))
+            else:
+                self._app(Ins(Operation.MOVE,
+                              Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.lhs.inReg.offset)),
+                              Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                              c=f"Moves {t.lhs.inReg.name} for indexing"))
+
+
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RSL), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.IRR)),
+                          c=f"Moves {t.inReg.name} into the dot variable"))
 
 
     def postVisit_expression_new(self, t):
@@ -415,15 +455,6 @@ class ASTCodeGenerationVisitor(VisitorsBase):
         self._app(Ins(Operation.META, 
                       Meta.ALLOCATE_HEAP_SPACE,
                       c=f"allocates memory"))
-
-        # self._app(Ins(Operation.MOVE,
-        #                   Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
-        #                   Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
-        #                   c=f"Moves size out into %rcx for allication"))
-        # self._app(Ins(Operation.META, 
-        #               Meta.CALL_PRINTF,
-        #               "",
-        #               "int"))
 
         if t.retReg.regType == 0:
             self._app(Ins(Operation.MOVE,
@@ -468,17 +499,17 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                               Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.retReg.offset)),
                               c=f"Moves new array into {t.retReg.name}"))
 
-    def postVisit_new_array(self, t):
-        if t.inReg.regType == 0:
+    def postVisit_expression_new_array(self, t):
+        if t.sizeReg.regType == 0:
             self._app(Ins(Operation.MOVE,
-                          Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.REG, t.sizeReg), Mode(AddressingMode.DIR)),
                           Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
-                          c=f"Moves {t.inReg.name} out into %rcx for allication size"))
+                          c=f"Moves {t.sizeReg.name} out into %rcx for allication size"))
         else:
             self._app(Ins(Operation.MOVE,
-                          Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.inReg.offset)),
+                          Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.sizeReg.offset)),
                           Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
-                          c=f"Moves {t.inReg.name} out of the stack for allocation size"))
+                          c=f"Moves {t.sizeReg.name} out of the stack for allocation size"))
 
         self._app(Ins(Operation.META, 
                       Meta.ALLOCATE_HEAP_SPACE,
@@ -517,14 +548,20 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                               c=f"Moves {t.indexReg.name} out for indexing in"))
             else:
                 self._app(Ins(Operation.MOVE,
-                              Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.inReg.offset)),
+                              Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.indexReg.offset)),
                               Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
                               c=f"Moves {t.indexReg.name} out for indexing in"))
 
-                self._app(Ins(Operation.MOVE,
-                              Arg(Target(TargetType.RRT), Mode(AddressingMode.IRR)),
-                              Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
-                              c="Gets the dot variable into %rax"))
+            # self._app(Ins(Operation.SHL,
+            #               Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+            #               Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+            #               c="Gets the index variable into %rax"))
+
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.IRR)),
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                          c="Gets the index variable into %rax"))
+
 
             if t.retReg.regType == 0:
                 self._app(Ins(Operation.MOVE,
