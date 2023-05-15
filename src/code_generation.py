@@ -856,13 +856,9 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                           Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
                           c=f"Moves {t.inReg.name} out of the stack for operation"))
 
-        self._app(Ins(Operation.MOVE,
-                      Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
-                      c="Moves true into %rax"))
         self._app(Ins(Operation.CMP,
+                      Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
                       Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                       c=f"Compare: {t.inReg.name} == true"))
         self._app(Ins(Operation.JNE,
                       Arg(Target(TargetType.MEM, t.end_label), Mode(AddressingMode.DIR)),
@@ -885,13 +881,9 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                           Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
                           c=f"Moves {t.inReg.name} out of the stack for operation"))
 
-        self._app(Ins(Operation.MOVE,
-                      Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
-                      c="Moves true into %rax"))
         self._app(Ins(Operation.CMP,
+                      Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
                       Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                       c=f"Compare: {t.inReg.name} == true"))
         self._app(Ins(Operation.JNE,
                       Arg(Target(TargetType.MEM, t.else_label), Mode(AddressingMode.DIR)),
@@ -926,13 +918,9 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                           Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
                           c=f"Moves {t.inReg.name} out of the stack for operation"))
 
-        self._app(Ins(Operation.MOVE,
-                      Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
-                      c="Moves true into %rax"))
         self._app(Ins(Operation.CMP,
+                      Arg(Target(TargetType.IMB, True), Mode(AddressingMode.DIR)),
                       Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                       c=f"Compare: {t.inReg.name} == true"))
         self._app(Ins(Operation.JNE,
                       Arg(Target(TargetType.MEM, t.end_label), Mode(AddressingMode.DIR)),
