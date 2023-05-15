@@ -274,15 +274,15 @@ def p_statement_assignment(t):
 
 def p_normal_variable(t):
     'variable : IDENT'
-    t[0] = AST.variable(t[1], t.lineno)
+    t[0] = AST.variable(t[1], t.lexer.lineno)
 
 def p_dot_varable(t):
     'variable : expression DOT IDENT'
-    t[0] = AST.dot_variable(t[1], t[3], t.lineno)
+    t[0] = AST.dot_variable(t[1], t[3], t.lexer.lineno)
 
 def p_index_variable(t):
     'variable : expression LBRAC expression RBRAC'
-    t[0] = AST.expression_index(t[1], t[3], t.lineno)
+    t[0] = AST.expression_index(t[1], t[3], t.lexer.lineno)
 
 def p_statement_ifthenelse(t):
     'statement_ifthenelse : IF LPAREN expression RPAREN statement ELSE statement'
@@ -299,7 +299,7 @@ def p_statement_while(t):
 
 def p_statement_break(t):
     'statement_break : BREAK SEMICOLON'
-    t[0] = AST.statement_break(t.lineno)
+    t[0] = AST.statement_break(t.lexer.lineno)
 
 def p_statement_expression(t):
     'statement_expression : expression SEMICOLON'
@@ -396,11 +396,11 @@ def p_expression_group(t):
 
 def p_expression_new_class(t):
     'expression_new : NEW variable_type'
-    t[0] = AST.expression_new(t[2], t.lineno)
+    t[0] = AST.expression_new(t[2], t.lexer.lineno)
 
 def p_expression_new_array(t):
     'expression_new : NEW variable_type LBRAC expression RBRAC'
-    t[0] = AST.expression_new_array(t[2], t[4], t.lineno)
+    t[0] = AST.expression_new_array(t[2], t[4], t.lexer.lineno)
 
 
 def p_error(t):
