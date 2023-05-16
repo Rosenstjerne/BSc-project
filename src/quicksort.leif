@@ -1,0 +1,60 @@
+var int[] array;
+var int N;
+var int i;
+
+function int partition(int[] array, int low, int high) {
+    var int pivot;
+    var int i;
+    var int j;
+    var int temp;
+
+    pivot = array[high];
+    i = low - 1;
+
+    j = low;
+    while (j < high) {
+        if (array[j] <= pivot) {
+            i = i + 1;
+
+            # Swapping element at i with element at j
+            temp = array[i];
+            array[i] = array[j];
+            array[j] = temp;
+        }
+        j = j + 1;
+    }
+
+    # Swap the pivot element with the greater element specified by i
+    temp = array[i + 1];
+    array[i + 1] = array[high];
+    array[high] = temp;
+
+    return i + 1;
+}
+
+function null quicksort(int[] array, int low, int high) {
+    var int pi;
+
+    if (low < high) {
+        pi = partition(array, low, high);
+
+        # Recursive call on the left of pivot
+        quicksort(array, low, pi - 1);
+
+        # Recursive call on the right of pivot
+        quicksort(array, pi + 1, high);
+    }
+}
+
+while (i < 6) {
+    array[i] = i * 2;
+    i = i + 1;
+  }
+N = 6;
+
+quicksort(array, 0, N - 1);
+i = 0;
+while (i < N) {
+    print(array[i]);
+    i = i + 1;
+}
