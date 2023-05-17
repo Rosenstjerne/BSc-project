@@ -255,6 +255,7 @@ class ASTSymbolVisitor(VisitorsBase):
                                    t._type))
             t.variable_offset = self.variable_offset
             self.variable_offset += 1
+            t.var = self._current_scope.lookup(t.variable)
 
         # Hansd the variable type to the next varaible for later use
         if t.next:

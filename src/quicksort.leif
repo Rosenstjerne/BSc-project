@@ -47,6 +47,7 @@ function null quicksort(int[] array, int low, int high) {
     }
 }
 
+i = 0;
 j = 1000;
 while (j > 0) {
     array[i] = j;

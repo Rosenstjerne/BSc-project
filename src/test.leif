@@ -1,14 +1,11 @@
-var bool b;
 var int i;
 
-i = 5;
-if(i == 5)
-  print(i);
-else
-  print(-i);
-
-i = 0;
-while(i<5) {
-  print(i);
+while(i<7) {
+  {
+    var int j;
+    if(i==1) j = i;
+    j = j + 1;
+    print(j);
+  }
   i = i + 1;
 }

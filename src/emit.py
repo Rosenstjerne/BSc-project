@@ -429,6 +429,16 @@ class Emit:
             self._ins("cmpq $-1, %rax", "checks if mmap was successful")
             self._ins("je mmap_error", "jumps to mmap error if not")
 
+            start_lbl = self.getLbl()
+            end_lbl = self.getLbl()
+
+            self._ins(f"{start_lbl}:","initializes the memory")
+            self._ins("cmpq $0, %rsi","")
+            self._ins(f"je {end_lbl}","Jumps to end when all is initializes")
+            self._ins("decq %rsi","decrement the pointer")
+            self._ins("movq $0, (%rax,%rsi,8)","initializes the index")
+            self._ins(f"jmp {start_lbl}","")
+            self._ins(f"{end_lbl}:","")
 
             self._ins("popq %r10",  "restore caller save register %r9 ")
             self._ins("popq %r9",  "restore caller save register %r9 ")

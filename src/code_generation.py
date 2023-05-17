@@ -301,6 +301,18 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                           Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.retReg.offset)),
                           c=f"Moves integer into {t.retReg.name}"))
 
+
+    def postVisit_variables_list(self, t):
+        if hasattr(t, "attLst"):
+            pass
+        else:
+            var = t.var.metaVar
+            offset = var.index
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.IMI, 0), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RBP), Mode(AddressingMode.IRL, offset + 1)),
+                          c=f"Initializes {t.variable} to 0"))
+
     def postVisit_variable(self, t):
         if t.assign:
             pass
