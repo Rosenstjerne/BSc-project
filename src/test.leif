@@ -1,11 +1,11 @@
-var int i;
+var int s,i;
+var int[] A;
 
-while(i<7) {
-  {
-    var int j;
-    if(i==1) j = i;
-    j = j + 1;
-    print(j);
-  }
+s = 100;
+A = new int[s];
+
+i = 0;
+while(i<s) {
+  print(A[i]);
   i = i + 1;
 }

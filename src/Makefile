@@ -1,4 +1,4 @@
-objects = test
+objects = test quicksort
 
 .PHONY: all
 all: $(objects)
