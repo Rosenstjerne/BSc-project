@@ -2,8 +2,8 @@ function null main() {
 	var int a, b;
 	var int[] c;
 	
-	c = ((new int)[5]);
-	a = ;
+	c = (new int[5]);
+	a = 0;
 	b = 5;
 	while((a < b)) {
 	#begin while
