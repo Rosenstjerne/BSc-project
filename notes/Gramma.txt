@@ -1,0 +1,209 @@
+IF -> "if"
+ELSE -> "else"
+WHILE -> "while"
+FUNCTION ->"function"
+VAR -> "var"
+BREAK -> "break"
+PRINT -> "print"
+CLASS -> "class"
+RETURN -> "return"
+NEW -> "new"
+_INT -> "int"
+_BOOL -> "bool"
+NULL -> "null"
+
+IDENT -> [a-zA-Z_][a-zA-Z_0-9]*
+INT -> \d+
+BOOL -> "true" | "false"
+PLUS -> "+"
+MINUS -> "-"
+MULTIPLY -> "*"
+DEVIDE -> "/"
+MODULO -> "%"
+EQ -> "=="
+NEQ -> "!="
+LT -> "<"
+GT -> ">"
+LTE -> "<="
+GTL -> ">="
+AND -> "&&"
+OR -> "||"
+NOT -> "!"
+LPAREN -> "("
+RPAREN -> ")"
+LCURL -> "{"
+RCURL -> "}"
+LBRAC -> "["
+RBRAC -> "]"
+ASSIGN -> "="
+COMMA -> ","
+SEMICOLON -> ";"
+DOT -> "."
+
+newLine -> \n+
+
+COMMENT -> \#.(?!\*).*
+
+COMMENTBLOCK -> \#\*(((?!\*\#).)|\n)*\*\#
+
+program 
+  -> body
+
+empty 
+  -> ""
+
+body 
+  -> optional_class_declaration_list
+      optional_variables_declaration_list
+        optional_functions_declaration_list 
+          statement_list
+
+optional_class_declaration_list 
+  -> empty
+   | class_declaration_list
+
+class_declaration_list
+  -> class_declaration 
+   | class_declaration class_declaration_list
+
+p_class_declaration 
+  -> CLASS IDENT LCURL variables_declaration_list RCURL
+
+optional_variables_declaration_list 
+  -> VAR variable_type variables_list SEMICOLON 
+   | VAR variable_type variables_list SEMICOLON variables_declaration_list
+
+variable_type 
+  -> _BOOL 
+   | _INT 
+   | NULL 
+   | IDNET 
+   | variable_type LBRAC RBRAC
+
+variables_list
+  -> IDENT 
+   | IDENT COMMA variables_list
+
+optional_functions_declaration_list 
+  -> empty 
+   | functions_declaration_list
+
+functions_declaration_list
+  -> function 
+   | function functions_declaration_list
+
+function 
+  -> FUNCTION variable_type IDENT LPAREN 
+       optional_parameter_list RPAREN LCURL body RCURL
+
+optional_parameter_list 
+  -> empty 
+   | parameter_list
+
+parameter_list 
+  -> variable_type IDENT 
+   | variable_type IDENT parameter_list
+
+statement_list 
+  -> statement 
+   | statement statement_list
+
+statement 
+  -> statement_return 
+   | statement_print 
+   | statement_assignment 
+   | statement_ifthenelse 
+   | statement_ifthen 
+   | statement_while 
+   | statement_compound 
+   | statement_break 
+   | statement_expression
+
+statement_return 
+  -> RETURN expression SEMICOLON
+
+statement_print 
+  -> PRINT LPAREN expression RPAREN SEMICOLOM
+
+statement_assignment 
+  -> variable ASSIGN expression PRAREN SEMICOLON
+
+variable 
+  -> IDENT 
+   | expression DOT IDENT 
+   | expression LBRAC expression RBRAC
+
+statement_ifthenelse 
+  -> IF LPAREN expression RPAREN statement
+       ELSE statement
+
+statement_ifthen 
+  -> IF LPAREN expression RPAREN statement
+
+statement_while 
+  -> WHILE LPAREN expression RPAREN statement
+
+statement_break 
+  -> BREAK SEMICOLON
+
+statement_compound 
+  -> LCURL body RCURL
+
+expression 
+  -> expression_integer 
+   | expression_boolean 
+   | expression_identifier 
+   | expression_call 
+   | expression_binop 
+   | expression_group 
+   | expression_neq 
+   | expression_negative 
+   | expression_new
+
+expression_integer 
+  -> INT
+
+expression_boolean 
+  -> BOOL
+
+expression_neg 
+  -> NOT expression
+
+expression_negative 
+  -> MINUS expression
+
+expression_identifier 
+  -> variable
+
+expression_call 
+  -> IDENT LPAREN optional_expression_list RPAREN
+
+optional_expression_list 
+  -> empty 
+   | expression_list
+
+expression_list 
+  -> expression 
+   | expression COMMA expression_list
+
+expression_binop 
+  -> expression PLUS expression 
+   | expression MINUS expression 
+   | expression MULTIPLY expression 
+   | expression DEVIDE expression 
+   | expression MODULO expression 
+   | expression EQ expression 
+   | expression NEQ expression 
+   | expression LT expression 
+   | expression GT expression 
+   | expression LTE expression 
+   | expression GTE expression 
+   | expression AND expression 
+   | expression OR expression
+
+expression_group 
+  -> LPAREN expression PAREN
+
+expression_new 
+  -> NEW variable_type 
+   | NEW variable_type LBRAC expression RBRAC

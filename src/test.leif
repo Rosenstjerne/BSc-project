@@ -1,7 +1,7 @@
 var int s,i;
 var int[] A;
 
-s = 100;
+s = 15;
 A = new int[s];
 
 i = 0;
