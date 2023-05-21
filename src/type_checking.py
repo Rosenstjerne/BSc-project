@@ -42,7 +42,7 @@ class ASTTypeCheckingVisitor(VisitorsBase):
                         error_message(
                                 "Type Checking",
                                 f"Function '{self.current_function_stack[-1].name}' is missing a return statement",
-                                self._current_scope.name
+                                t.lineno
                                 )
                     
     def preVisit_statement_return(self, t):

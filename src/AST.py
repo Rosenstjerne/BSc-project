@@ -405,20 +405,6 @@ class expression_neg:
         return s
 
 
-# Might not be used at all
-# class expression_identifier:
-#     def __init__(self, identifier, lineno):
-#         self.identifier = identifier
-#         self.lineno = lineno
-#         self._type = "unknown" # for later use
-
-#     def accept(self, visitor):
-#         visitor.postVisit(self)
-
-#     def __str__(self) -> str:
-#         s = ""
-#         s += toStr(self.identifier)
-#         return s
 
 class expression_index:
     def __init__(self, exp, index, lineno):

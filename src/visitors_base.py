@@ -1,10 +1,3 @@
-
-# This module provides the base class for all the visitors. The purpose
-# is to allow the implementer of the subsequent phases in the compiler
-# to write code only for the parts of the AST where the given phase
-# has to take action.
-
-
 class VisitorsBase:
 
     def _visit(self, t, s):

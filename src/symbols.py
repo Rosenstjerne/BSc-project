@@ -23,12 +23,10 @@ class SymVal():
     """The information for a name (symbol) is its category together with
        supplementary information.
     """
-    def __init__(self, cat, level, info, vtype):
+    def __init__(self, cat, info, vtype):
         self.cat = cat
-        self.level = level
         self.info = info
         self.rtype = vtype
-        self.metaName = ["",""] # For later use
         self.metaVar = None # For later use
 
 class SymbolTable:
@@ -36,10 +34,9 @@ class SymbolTable:
        Names for each scope are collected in a Python dictionary.
        The parent scope can be accessed via the parent reference.
     """
-    def __init__(self, parent, lineno):
+    def __init__(self, parent):
         self._tab = {}
         self._types = {}
-        self.name = lineno
         self.parent = parent
         self.is_function = False
 
@@ -54,14 +51,6 @@ class SymbolTable:
             return self._tab[name]
         elif self.parent:
             return self.parent.lookup(name)
-        else:
-            return None
-
-    def lookup_table(self, name):
-        if name in self._tab:
-            return self._tab
-        elif self.parent:
-            return self.parent.lookup_table(name)
         else:
             return None
 
@@ -101,20 +90,18 @@ class ASTSymbolVisitor(VisitorsBase):
     """The visitor implementing the symbol phase."""
     def __init__(self):
         # The main scope does not have a surrounding scope
-        self._current_scope = SymbolTable(None, 0)
+        self._current_scope = SymbolTable(None)
         self._current_scope.insert_type('int', {})
         self._current_scope.insert_type('bool',{})
         self._current_scope.insert_type('null',{})
         # Have not entered the main scope (level 0) yet:
-        self._current_level = 0
 
     def preVisit_body(self, t):
         # Parameters, classes, variables and functions belonge to the scope of the body:
         if hasattr(t, 'function'):
             pass
         else:
-            self._current_level += 1
-            self._current_scope = SymbolTable(self._current_scope, t.lineno)
+            self._current_scope = SymbolTable(self._current_scope)
 
         # Preparing for processing local variables:
         t.scope = self._current_scope
@@ -150,13 +137,11 @@ class ASTSymbolVisitor(VisitorsBase):
 
         # Saving the current symbol table in the AST for future use:
         t.symbol_table = self._current_scope
-        t.scope_level = self._current_level
 
     def postVisit_body(self, t):
         # Returning to the outer scope after function processing is completed:
         if self._current_scope.parent is not None:
             self._current_scope = self._current_scope.parent
-            self._current_level -= 1
 
     def preVisit_function(self, t):
         # The name of the function belongs to the surrounding scope:
@@ -173,11 +158,10 @@ class ASTSymbolVisitor(VisitorsBase):
                         t.lineno
                         )
             self._current_scope.insert(
-                t.name, SymVal(NameCategory.FUNCTION, self._current_level, t, t.rtype))
+                t.name, SymVal(NameCategory.FUNCTION, t, t.rtype))
 
             # self.current_table = self.var_table[name].tab
-            self._current_level += 1
-            self._current_scope = SymbolTable(self._current_scope, t.lineno)
+            self._current_scope = SymbolTable(self._current_scope)
             self._current_scope.is_function = True
 
         # Saves the function declaration to its body in the AST for later use
@@ -213,7 +197,6 @@ class ASTSymbolVisitor(VisitorsBase):
                 t.lineno)
         self._current_scope.insert(
             t.parameter, SymVal(NameCategory.PARAMETER,
-                                self._current_level,
                                 self.parameter_offset,
                                 t.vtype))
 
@@ -250,7 +233,6 @@ class ASTSymbolVisitor(VisitorsBase):
         else:
             self._current_scope.insert(
                 t.variable, SymVal(NameCategory.VARIABLE,
-                                   self._current_level,
                                    t,
                                    t._type))
             t.variable_offset = self.variable_offset
@@ -277,7 +259,7 @@ class ASTSymbolVisitor(VisitorsBase):
     def postVisit_class_declaration(self, t):
         # creates a dictonary of all the internal atributes of the class and saves it as the value of said class
         l = list(range(len(t.attLst)))
-        values = {(a.variable):(SymVal(NameCategory.VARIABLE,self._current_level,l.pop(0),a.vtype)) for a in t.attLst} 
+        values = {(a.variable):(SymVal(NameCategory.VARIABLE,l.pop(0),a.vtype)) for a in t.attLst} 
         self._current_scope.insert_type(t.name, values)
 
     def postVisit_variable(self, t):
