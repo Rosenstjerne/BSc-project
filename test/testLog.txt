@@ -1,44 +1,81 @@
 
 Running test: ./parserTest/assigmentWithExp.leif
-Running test: ./parserTest/funcWithClassDecl.leif
-Running test: ./parserTest/binaryOpe.leif
-Running test: ./parserTest/declaInComment.leif
-Running test: ./parserTest/commentInPrint.leif
-Running test: ./parserTest/commentBeforeParan.leif
-Running test: ./parserTest/funcWithReturn.leif
-Running test: ./parserTest/rangeOverArrayWhile.leif
-Running test: ./parserTest/negativeOperator.leif
-Running test: ./parserTest/nestedFunc.leif
-Running test: ./parserTest/functionWithParam.leif
-Running test: ./parserTest/identToExp.leif
-Running test: ./parserTest/nonSimpleTypeExp.leif
-Running test: ./parserTest/commentInMultiline.leif
+Test passed
 Running test: ./parserTest/assigWithFuncCall.leif
-Running test: ./parserTest/IfStatement.leif
+Test passed
+Running test: ./parserTest/binaryOpe.leif
+Test passed
 Running test: ./parserTest/breakArrayWhile.leif
-Running test: ./parserTest/parentExp.leif
-Running test: ./parserTest/instNonSimpleType.leif
-Running test: ./parserTest/funcWithNonSimple.leif
-Running test: ./parserTest/multilLineAsSingle.leif
-Running test: ./parserTest/logicExp.leif
-Running test: ./parserTest/commentAfterParan.leif
+Test passed
+Running test: ./parserTest/breakWhile.leif
+Test passed
 Running test: ./parserTest/chainingIfElse.leif
-Running test: ./parserTest/nestedIfElse.leif
+Test passed
+Running test: ./parserTest/commentAfterParan.leif
+Test passed
+Running test: ./parserTest/commentBeforeParan.leif
+Test passed
+Running test: ./parserTest/commentInMultiline.leif
+Test passed
+Running test: ./parserTest/commentInPrint.leif
+Test passed
 Running test: ./parserTest/continueWhile.leif
-Running test: ./parserTest/recursiveFunc.leif
-Running test: ./parserTest/precedence.leif
+Test passed
+Running test: ./parserTest/declaInComment.leif
+Test passed
 Running test: ./parserTest/funcClass.leif
 
 Error in phase Syntax Analysis, line 2:
     Problem detected at 'function'.
+Test passed
+Running test: ./parserTest/functionWithParam.leif
+Test passed
+Running test: ./parserTest/funcWithClassDecl.leif
+Test passed
+Running test: ./parserTest/funcWithNonSimple.leif
+Test passed
+Running test: ./parserTest/funcWithReturn.leif
+Test passed
 Running test: ./parserTest/funcWithVarDecl.leif
+Test passed
+Running test: ./parserTest/identToExp.leif
+Test passed
+Running test: ./parserTest/IfStatement.leif
+Test passed
+Running test: ./parserTest/instNonSimpleType.leif
+Test passed
+Running test: ./parserTest/logicExp.leif
+Test passed
 Running test: ./parserTest/multiCommentLine.leif
-Running test: ./parserTest/nestedWhile.leif
+Test passed
+Running test: ./parserTest/multilLineAsSingle.leif
+Test passed
+Running test: ./parserTest/negativeOperator.leif
+Test passed
+Running test: ./parserTest/nestedFunc.leif
+Test passed
 Running test: ./parserTest/nestedIf.leif
-Running test: ./parserTest/breakWhile.leif
-Running test: ./parserTest/simpleWhile.leif
-Running test: ./parserTest/simpleAssigment.leif
+Test passed
+Running test: ./parserTest/nestedIfElse.leif
+Test passed
+Running test: ./parserTest/nestedWhile.leif
+Test passed
+Running test: ./parserTest/nonSimpleTypeExp.leif
+Test passed
 Running test: ./parserTest/notOperator.leif
+Test passed
+Running test: ./parserTest/parentExp.leif
+Test passed
+Running test: ./parserTest/precedence.leif
+Test passed
+Running test: ./parserTest/rangeOverArrayWhile.leif
+Test passed
+Running test: ./parserTest/recursiveFunc.leif
+Test passed
+Running test: ./parserTest/simpleAssigment.leif
+Test passed
+Running test: ./parserTest/simpleWhile.leif
+Test passed
 All tests completed.
-failed test: 1  
+Failed tests: 0
 Total tests run: 37

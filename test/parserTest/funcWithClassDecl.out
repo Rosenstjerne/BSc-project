@@ -7,7 +7,7 @@ function null main() {
 	var Person john;
 	
 	function int greet(Person p) {
-		return (((p.name) + p).age);
+		return ((p.name) + (p.age));
 		
 	}
 	
