@@ -179,8 +179,6 @@ class ASTSymbolVisitor(VisitorsBase):
         # processing is completed:
         t.number_of_parameters = self.parameter_offset
 
-    def postVisit_function(self, t):
-        pass
 
     def preVisit_parameter_list(self, t):
         # Recording formal parameter names in the symbol table:

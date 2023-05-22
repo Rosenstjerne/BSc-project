@@ -160,8 +160,6 @@ class ASTCodeGenerationVisitor(VisitorsBase):
     def preVisit_body(self, t):
         self._current_scope = t.scope
 
-    def postMidVisit_body(self, t):
-        pass
 
     def postVisit_body(self, t):
         if self._current_scope is not None:

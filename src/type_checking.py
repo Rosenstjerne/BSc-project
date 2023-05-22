@@ -88,9 +88,6 @@ class ASTTypeCheckingVisitor(VisitorsBase):
                     t.lineno
                     )
 
-    def postVisit_variable(self, t):
-        """saves its own type"""
-        pass
 
     def postVisit_dot_variable(self, t):
         class_list = t.scope.atribute_lookup(t.elm)
