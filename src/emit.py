@@ -428,7 +428,7 @@ class Emit:
             self._ins("movq $0x22, %r10", "")
             self._ins("syscall","allocates the memory")
             self._raw("")
-            self._ins("cmpq $-1, %rax", "checks if mmap was successful")
+            self._ins("cmpq $-22, %rax", "checks if mmap was successful")
             self._ins("je mmap_error", "jumps to mmap error if not")
 
             start_lbl = self.getLbl()

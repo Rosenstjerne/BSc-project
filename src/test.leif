@@ -1,12 +1,13 @@
-class bob { 
-  var int a;
+class bob{
+  var int jen;
+  var bool a, b, c, d, e, f, g;
 }
 
-function int bob() {
-  var int i;
-  i = 0;
-  return i;
-}
+var bob b;
+var int a;
 
-print(5+5*4+5);
 
+b = new bob;
+
+
+print(a);
