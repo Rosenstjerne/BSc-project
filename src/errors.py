@@ -1,10 +1,4 @@
-
-# The philosophy for this teaching-oriented compiler is to catch the first
-# error, report an appropriate error message, and terminate.
-
-
 import sys
-
 
 def error_message(phase, description, lineno):
 

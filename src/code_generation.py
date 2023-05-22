@@ -226,11 +226,19 @@ class ASTCodeGenerationVisitor(VisitorsBase):
         self._app(Ins(Operation.CALL,
                       Arg(Target(TargetType.MEM, t.call_label), Mode(AddressingMode.DIR))))
 
-        self._app(Ins(Operation.MOVE,
-                      Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
-                      Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
-                      c=f"Moves the return value from %rax into {t.retReg.name}"
-                      ))
+        if t.retReg.regType == 0:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.REG, t.retReg), Mode(AddressingMode.DIR)),
+                          c=f"Moves the return value from %rax into {t.retReg.name}"
+                          ))
+        else:
+            self._app(Ins(Operation.MOVE,
+                          Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
+                          Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.retReg.offset)),
+                          c=f"Moves the return value from %rax into {t.retReg.name}"
+                          ))
+
         for i in range(t.number_of_parameters):
             self._app(Ins(Operation.POP,
                           Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),

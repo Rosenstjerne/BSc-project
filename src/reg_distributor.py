@@ -55,7 +55,7 @@ class ASTRegDistributor(VisitorsBase):
     def getExterRegisterCount(self):
         return 0 if self.chromatic_number <= len(regMap) else self.chromatic_number - len(regMap)
 
-    def colorRegisters(self):
+    def colorRegistersGreedy(self):
 
         # Makes edges between concurently used registers
         for r in self.registers:
@@ -69,6 +69,14 @@ class ASTRegDistributor(VisitorsBase):
             # r.setcolor(getRegName(min_available_color))
             if min_available_color + 1 > self.chromatic_number:
                 self.chromatic_number = min_available_color + 1
+
+    def colorRegistersUnique(self):
+        color = 0
+        for r in self.registers:
+            colorReg(r,color)
+            color += 1
+
+        self.chromatic_number = color
 
 
     def newReg(self):

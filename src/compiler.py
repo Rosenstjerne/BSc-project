@@ -18,7 +18,7 @@ __version__ = "unfinished alpha"
 
 # MAIN
 
-def compiler(showSource, input_file):
+def compiler(showSource, input_file, color_choice):
 
     # Read and verify ASCII input:
     encodingError = False
@@ -65,7 +65,11 @@ def compiler(showSource, input_file):
         # Distributes the register needed for the intermediate operations
         register_distributor = ASTRegDistributor(symTab_flattener.var_table)
         the_program.accept(register_distributor)
-        register_distributor.colorRegisters()
+
+        if color_choice == 0:
+            register_distributor.colorRegistersGreedy()
+        elif color_choice == 1:
+            register_distributor.colorRegistersUnique()
 
         fun_decoupeler = ASTFunDecouple()
         the_program.accept(fun_decoupeler)
@@ -94,6 +98,8 @@ def main(argv):
 
     -s  Print back the parsed source code instead of target code.
 
+    -c  int choice: 0 (greedy algorithm) or 1 (unique coloring), register coloring choice
+
     -i source_file  Set source file; default is stdin.
 
     -o target_file  Set target file; default is stdout.
@@ -101,8 +107,9 @@ def main(argv):
     input_file = ""
     output_file = ""
     show_source = False
+    color_choice = 0
     try:
-        opts, args = getopt.getopt(argv, "hsvi:o:")
+        opts, args = getopt.getopt(argv, "hsvc:i:o:")
     except getopt.GetoptError:
         print(usage)
         sys.exit(1)
@@ -116,12 +123,17 @@ def main(argv):
             # sys.exit(0)
         elif opt == "-s":
             show_source = True
+        elif opt == "-c":
+            if arg not in ['0','1']:
+                print(f"{arg} is not a valid color choice")
+            else:
+                color_choice = int(arg)
         elif opt == "-i":
             input_file = arg
         elif opt == "-o":
             output_file = arg
     if input_file:
-        result = compiler(show_source, input_file)
+        result = compiler(show_source, input_file, color_choice)
     else:
         result = ""
     if output_file:

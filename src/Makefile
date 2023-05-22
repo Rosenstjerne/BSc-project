@@ -4,7 +4,7 @@ objects = test quicksort
 all: $(objects)
 
 %.asm: %.leif
-	python compiler.py -i $^ -o $@ 
+	python compiler.py -c 1 -i $^ -o $@ 
 
 %.o: %.asm
 	as $^ -o $@
