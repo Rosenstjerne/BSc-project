@@ -1,4 +1,8 @@
-function int bad() {
+class bob { 
+  var int a;
+}
+
+function int bob() {
   var int i;
   i = 0;
   return i;
