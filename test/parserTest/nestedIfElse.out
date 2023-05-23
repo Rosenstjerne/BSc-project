@@ -1,41 +1,288 @@
-function null main() {
-	var int a, b;
-	
-	a = 1;
-	b = 2;
-	if((a == 1))
-	#bein if
-		if((b == 2))
-		#bein if
-			print((a + b));
-		#end if
-		#begin else
-		else
-			print((a - b));
-		#end else
-	#end if
-	#begin else
-	else
-		print((a * b));
-	#end else
-	if((2 == b))
-	#bein if
-		if((1 == a))
-		#bein if
-			print((b - a));
-			
-		#end if
-		#begin else
-		else
-			print((a - b));
-			
-		#end else
-		
-	#end if
-	#begin else
-	else
-		print((a * b));
-		
-	#end else
-	
-}
+
+.data
+mmapEr:
+                .string "mmap failed\n" # error message string for mmap
+
+form:
+                .string "%d\n"          # form string for C printf
+
+formTrue:
+                .string "true\n"        # form string for C printf
+
+formFalse:
+                .string "false\n"       # form string for C printf
+
+.text
+
+.globl main
+
+main:
+
+                                        # CALLEE PROLOGUE
+                pushq %rbp              # save caller's base pointer
+                movq %rsp, %rbp         # make stack pointer new base pointer
+
+                addq $-16, %rsp         # allocate space for local variables
+
+
+                movq %rsp, %rbx         # Saves stack pointer in %rbx
+                addq $-208, %rsp        # allocate space for extra intermediate
+                                        # stack memory
+
+                pushq %r8               # %r8 is callee save
+                pushq %r9               # %r9 is callee save
+                pushq %r10              # %r10 is callee save
+                pushq %r11              # %r11 is callee save
+                pushq %r12              # %r12 is callee save
+                pushq %r13              # %r13 is callee save
+                pushq %r14              # %r14 is callee save
+                pushq %r15              # %r15 is callee save
+
+                movq $0, -16(%rbp)      # Initializes b to 0
+                movq $0, -8(%rbp)       # Initializes a to 0
+                movq $1, %r9            # Moves integer into reg1
+                movq %rbp, %rdx         # preparing for static link computation
+                movq %r9, -8(%rdx)      # Move param reg1 into ['fun_1_main',
+                                        # 'var_0_a'] (a)
+                movq $2, %r11           # Moves integer into reg3
+                movq %rbp, %rdx         # preparing for static link computation
+                movq %r11, -16(%rdx)    # Move param reg3 into ['fun_1_main',
+                                        # 'var_1_b'] (b)
+                movq %rbp, %rdx         # preparing for static link computation
+                movq -8(%rdx), %r12     # Move param var_0_a (a) into reg4
+                movq $1, %r13           # Moves integer into reg5
+                movq %r13, %rcx         # Moves reg5 out into %rcx for cmp
+                movq %r12, %rax         # Moves reg4 out into %rax for cmp
+                cmpq %rcx, %rax         # eval reg4 == reg5
+                je lbl0_cmp_true        # Jump if the expression was true
+                movq $0, %rax           # Moves false into %rax
+                jmp lbl1_cmp_end        # Jump to end of expression
+lbl0_cmp_true:
+                movq $1, %rax           # Moves true into %rax
+lbl1_cmp_end:
+                movq %rax, %r14         # Moves reg6 out into %rax for cmp
+                movq %r14, %rcx         # Moves reg6 out into %rax for
+                                        # operation
+                cmpq $1, %rcx           # Compare: reg6 == true
+                jne lbl6_if_else_else   # Jump to else if false
+                movq %rbp, %rdx         # preparing for static link computation
+                movq -16(%rdx), %r15    # Move param var_1_b (b) into reg7
+                movq $2, 0(%rbx)        # Moves integer into reg8
+                movq 0(%rbx), %rcx      # Moves reg8 out of the stack for cmp
+                movq %r15, %rax         # Moves reg7 out into %rax for cmp
+                cmpq %rcx, %rax         # eval reg7 == reg8
+                je lbl2_cmp_true        # Jump if the expression was true
+                movq $0, %rax           # Moves false into %rax
+                jmp lbl3_cmp_end        # Jump to end of expression
+lbl2_cmp_true:
+                movq $1, %rax           # Moves true into %rax
+lbl3_cmp_end:
+                movq %rax, -8(%rbx)     # Moves result into reg9
+                movq -8(%rbx), %rcx     # Moves reg9 out of the stack for
+                                        # operation
+                cmpq $1, %rcx           # Compare: reg9 == true
+                jne lbl4_if_else_else   # Jump to else if false
+                movq %rbp, %rdx         # preparing for static link computation
+                movq -8(%rdx), %rcx     # 
+                movq %rcx, -16(%rbx)    # Move param var_0_a (a) into reg10
+                movq %rbp, %rdx         # preparing for static link computation
+                movq -16(%rdx), %rcx    # 
+                movq %rcx, -24(%rbx)    # Move param var_1_b (b) into reg11
+                movq -24(%rbx), %rcx    # Moves reg11 out of the stack for
+                                        # operation
+                movq -16(%rbx), %rax    # Moves reg10 out of the stack for
+                                        # operation
+                addq %rcx, %rax         # Operation: reg10 + reg12
+                movq %rax, -32(%rbx)    # Moves result into reg12
+                movq -32(%rbx), %rcx    # Moves reg12 out of the stack for
+                                        # print
+                                        # PRINTING
+                leaq form(%rip), %rdi   # pass 1. argument in %rdi
+                movq %rcx, %rsi         # Moves printable object to rsi
+                xorq %rax, %rax         # No floating point arguments
+
+                callq printf@plt        # calls the printf method
+                                        # END OF PRINTING
+                jmp lbl5_if_else_end    # Jump to end
+lbl4_if_else_else:
+                movq %rbp, %rdx         # preparing for static link computation
+                movq -8(%rdx), %rcx     # 
+                movq %rcx, -40(%rbx)    # Move param var_0_a (a) into reg13
+                movq %rbp, %rdx         # preparing for static link computation
+                movq -16(%rdx), %rcx    # 
+                movq %rcx, -48(%rbx)    # Move param var_1_b (b) into reg14
+                movq -48(%rbx), %rcx    # Moves reg14 out of the stack for
+                                        # operation
+                movq -40(%rbx), %rax    # Moves reg13 out of the stack for
+                                        # operation
+                subq %rcx, %rax         # Operation: reg13 - reg15
+                movq %rax, -56(%rbx)    # Moves result into reg15
+                movq -56(%rbx), %rcx    # Moves reg15 out of the stack for
+                                        # print
+                                        # PRINTING
+                leaq form(%rip), %rdi   # pass 1. argument in %rdi
+                movq %rcx, %rsi         # Moves printable object to rsi
+                xorq %rax, %rax         # No floating point arguments
+
+                callq printf@plt        # calls the printf method
+                                        # END OF PRINTING
+lbl5_if_else_end:
+                jmp lbl7_if_else_end    # Jump to end
+lbl6_if_else_else:
+                movq %rbp, %rdx         # preparing for static link computation
+                movq -8(%rdx), %rcx     # 
+                movq %rcx, -64(%rbx)    # Move param var_0_a (a) into reg16
+                movq %rbp, %rdx         # preparing for static link computation
+                movq -16(%rdx), %rcx    # 
+                movq %rcx, -72(%rbx)    # Move param var_1_b (b) into reg17
+                movq -72(%rbx), %rcx    # Moves reg17 out of the stack for
+                                        # operation
+                movq -64(%rbx), %rax    # Moves reg16 out of the stack for
+                                        # operation
+                imulq %rcx, %rax        # Operation: reg16 * reg18
+                movq %rax, -80(%rbx)    # Moves result into reg18
+                movq -80(%rbx), %rcx    # Moves reg18 out of the stack for
+                                        # print
+                                        # PRINTING
+                leaq form(%rip), %rdi   # pass 1. argument in %rdi
+                movq %rcx, %rsi         # Moves printable object to rsi
+                xorq %rax, %rax         # No floating point arguments
+
+                callq printf@plt        # calls the printf method
+                                        # END OF PRINTING
+lbl7_if_else_end:
+                movq $2, -88(%rbx)      # Moves integer into reg19
+                movq %rbp, %rdx         # preparing for static link computation
+                movq -16(%rdx), %rcx    # 
+                movq %rcx, -96(%rbx)    # Move param var_1_b (b) into reg20
+                movq -96(%rbx), %rcx    # Moves reg20 out of the stack for cmp
+                movq -88(%rbx), %rax    # Moves reg19 out of the stack for cmp
+                cmpq %rcx, %rax         # eval reg19 == reg20
+                je lbl8_cmp_true        # Jump if the expression was true
+                movq $0, %rax           # Moves false into %rax
+                jmp lbl9_cmp_end        # Jump to end of expression
+lbl8_cmp_true:
+                movq $1, %rax           # Moves true into %rax
+lbl9_cmp_end:
+                movq %rax, -104(%rbx)   # Moves result into reg21
+                movq -104(%rbx), %rcx   # Moves reg21 out of the stack for
+                                        # operation
+                cmpq $1, %rcx           # Compare: reg21 == true
+                jne lbl14_if_else_else  # Jump to else if false
+                movq $1, -112(%rbx)     # Moves integer into reg22
+                movq %rbp, %rdx         # preparing for static link computation
+                movq -8(%rdx), %rcx     # 
+                movq %rcx, -120(%rbx)   # Move param var_0_a (a) into reg23
+                movq -120(%rbx), %rcx   # Moves reg23 out of the stack for cmp
+                movq -112(%rbx), %rax   # Moves reg22 out of the stack for cmp
+                cmpq %rcx, %rax         # eval reg22 == reg23
+                je lbl10_cmp_true       # Jump if the expression was true
+                movq $0, %rax           # Moves false into %rax
+                jmp lbl11_cmp_end       # Jump to end of expression
+lbl10_cmp_true:
+                movq $1, %rax           # Moves true into %rax
+lbl11_cmp_end:
+                movq %rax, -128(%rbx)   # Moves result into reg24
+                movq -128(%rbx), %rcx   # Moves reg24 out of the stack for
+                                        # operation
+                cmpq $1, %rcx           # Compare: reg24 == true
+                jne lbl12_if_else_else  # Jump to else if false
+                movq %rbp, %rdx         # preparing for static link computation
+                movq -16(%rdx), %rcx    # 
+                movq %rcx, -136(%rbx)   # Move param var_1_b (b) into reg25
+                movq %rbp, %rdx         # preparing for static link computation
+                movq -8(%rdx), %rcx     # 
+                movq %rcx, -144(%rbx)   # Move param var_0_a (a) into reg26
+                movq -144(%rbx), %rcx   # Moves reg26 out of the stack for
+                                        # operation
+                movq -136(%rbx), %rax   # Moves reg25 out of the stack for
+                                        # operation
+                subq %rcx, %rax         # Operation: reg25 - reg27
+                movq %rax, -152(%rbx)   # Moves result into reg27
+                movq -152(%rbx), %rcx   # Moves reg27 out of the stack for
+                                        # print
+                                        # PRINTING
+                leaq form(%rip), %rdi   # pass 1. argument in %rdi
+                movq %rcx, %rsi         # Moves printable object to rsi
+                xorq %rax, %rax         # No floating point arguments
+
+                callq printf@plt        # calls the printf method
+                                        # END OF PRINTING
+                jmp lbl13_if_else_end   # Jump to end
+lbl12_if_else_else:
+                movq %rbp, %rdx         # preparing for static link computation
+                movq -8(%rdx), %rcx     # 
+                movq %rcx, -160(%rbx)   # Move param var_0_a (a) into reg28
+                movq %rbp, %rdx         # preparing for static link computation
+                movq -16(%rdx), %rcx    # 
+                movq %rcx, -168(%rbx)   # Move param var_1_b (b) into reg29
+                movq -168(%rbx), %rcx   # Moves reg29 out of the stack for
+                                        # operation
+                movq -160(%rbx), %rax   # Moves reg28 out of the stack for
+                                        # operation
+                subq %rcx, %rax         # Operation: reg28 - reg30
+                movq %rax, -176(%rbx)   # Moves result into reg30
+                movq -176(%rbx), %rcx   # Moves reg30 out of the stack for
+                                        # print
+                                        # PRINTING
+                leaq form(%rip), %rdi   # pass 1. argument in %rdi
+                movq %rcx, %rsi         # Moves printable object to rsi
+                xorq %rax, %rax         # No floating point arguments
+
+                callq printf@plt        # calls the printf method
+                                        # END OF PRINTING
+lbl13_if_else_end:
+                jmp lbl15_if_else_end   # Jump to end
+lbl14_if_else_else:
+                movq %rbp, %rdx         # preparing for static link computation
+                movq -8(%rdx), %rcx     # 
+                movq %rcx, -184(%rbx)   # Move param var_0_a (a) into reg31
+                movq %rbp, %rdx         # preparing for static link computation
+                movq -16(%rdx), %rcx    # 
+                movq %rcx, -192(%rbx)   # Move param var_1_b (b) into reg32
+                movq -192(%rbx), %rcx   # Moves reg32 out of the stack for
+                                        # operation
+                movq -184(%rbx), %rax   # Moves reg31 out of the stack for
+                                        # operation
+                imulq %rcx, %rax        # Operation: reg31 * reg33
+                movq %rax, -200(%rbx)   # Moves result into reg33
+                movq -200(%rbx), %rcx   # Moves reg33 out of the stack for
+                                        # print
+                                        # PRINTING
+                leaq form(%rip), %rdi   # pass 1. argument in %rdi
+                movq %rcx, %rsi         # Moves printable object to rsi
+                xorq %rax, %rax         # No floating point arguments
+
+                callq printf@plt        # calls the printf method
+                                        # END OF PRINTING
+lbl15_if_else_end:
+end_main:
+
+                popq %r15               # restore callee save register %r15
+                popq %r14               # restore callee save register %r14
+                popq %r13               # restore callee save register %r13
+                popq %r12               # restore callee save register %r12
+                popq %r11               # restore callee save register %r11
+                popq %r10               # restore callee save register %r10
+                popq %r9                # restore callee save register %r9
+                popq %r8                # restore callee save register %r8
+
+                addq $208, %rsp         # deallocate stack space for extra
+                                        # intermediate stack memory
+
+
+                                        # CALLEE EPILOGUE
+                movq %rbp, %rsp         # restore stack pointer
+                popq %rbp               # restore base pointer
+                ret                     # return from call
+
+mmap_error:
+                leaq mmapEr(%rip), %rdi # pass 1. arg in %rdi
+                xor %rax, %rax          # no floating point arguments
+                callq printf            # calls printf method
+
+                movq $60, %rax          # prepare for exit syscall
+                xor %rdi, %rdi          # exit status 0
+                syscall                 # exit
+
+

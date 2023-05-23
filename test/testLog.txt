@@ -1,81 +1,69 @@
 
 Running test: ./parserTest/assigmentWithExp.leif
-Test passed
 Running test: ./parserTest/assigWithFuncCall.leif
-Test passed
 Running test: ./parserTest/binaryOpe.leif
-Test passed
 Running test: ./parserTest/breakArrayWhile.leif
-Test passed
 Running test: ./parserTest/breakWhile.leif
-Test passed
 Running test: ./parserTest/chainingIfElse.leif
-Test passed
+Running test: ./parserTest/combTypeDecl.leif
+
+Error in phase Syntax Analysis, line 1:
+    Problem detected at '='.
 Running test: ./parserTest/commentAfterParan.leif
-Test passed
 Running test: ./parserTest/commentBeforeParan.leif
-Test passed
 Running test: ./parserTest/commentInMultiline.leif
-Test passed
 Running test: ./parserTest/commentInPrint.leif
-Test passed
 Running test: ./parserTest/continueWhile.leif
-Test passed
+
+Error in phase Symbol Collection, line 8:
+    Variable 'continue' was not declared, or is not accesible in this scope
 Running test: ./parserTest/declaInComment.leif
-Test passed
+
+Error in phase Symbol Collection, line 5:
+    Variable 'b' was not declared, or is not accesible in this scope
 Running test: ./parserTest/funcClass.leif
 
 Error in phase Syntax Analysis, line 2:
     Problem detected at 'function'.
-Test passed
 Running test: ./parserTest/functionWithParam.leif
-Test passed
 Running test: ./parserTest/funcWithClassDecl.leif
-Test passed
 Running test: ./parserTest/funcWithNonSimple.leif
-Test passed
 Running test: ./parserTest/funcWithReturn.leif
-Test passed
 Running test: ./parserTest/funcWithVarDecl.leif
-Test passed
 Running test: ./parserTest/identToExp.leif
-Test passed
 Running test: ./parserTest/IfStatement.leif
-Test passed
 Running test: ./parserTest/instNonSimpleType.leif
-Test passed
 Running test: ./parserTest/logicExp.leif
-Test passed
 Running test: ./parserTest/multiCommentLine.leif
-Test passed
 Running test: ./parserTest/multilLineAsSingle.leif
-Test passed
 Running test: ./parserTest/negativeOperator.leif
-Test passed
 Running test: ./parserTest/nestedFunc.leif
-Test passed
 Running test: ./parserTest/nestedIf.leif
-Test passed
 Running test: ./parserTest/nestedIfElse.leif
-Test passed
 Running test: ./parserTest/nestedWhile.leif
-Test passed
 Running test: ./parserTest/nonSimpleTypeExp.leif
-Test passed
+Running test: ./parserTest/noStmList.leif
+
+Error in phase Syntax Analysis, line unknown:
+    Problem detected - check for missing closing braces.
 Running test: ./parserTest/notOperator.leif
-Test passed
 Running test: ./parserTest/parentExp.leif
-Test passed
 Running test: ./parserTest/precedence.leif
-Test passed
 Running test: ./parserTest/rangeOverArrayWhile.leif
-Test passed
 Running test: ./parserTest/recursiveFunc.leif
-Test passed
+
+Error in phase Type Checking, line 5:
+    Illigaly places return statement
+Running test: ./parserTest/returnDecl.leif
+
+Error in phase Syntax Analysis, line 1:
+    Problem detected at 'var'.
 Running test: ./parserTest/simpleAssigment.leif
-Test passed
 Running test: ./parserTest/simpleWhile.leif
-Test passed
+Running test: ./parserTest/unfinishedMultiCom.leif
+
+Error in phase Lexical Analysis, line 4:
+    Illegal character '#'.
 All tests completed.
-Failed tests: 0
-Total tests run: 37
+failed test: 8  
+Total tests run: 41

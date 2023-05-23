@@ -1,6 +1,96 @@
-function null main() {
-	var int a;
-	
-	a = ((2 + (5 * 3)) + 2);
-	
-}
+
+.data
+mmapEr:
+                .string "mmap failed\n" # error message string for mmap
+
+form:
+                .string "%d\n"          # form string for C printf
+
+formTrue:
+                .string "true\n"        # form string for C printf
+
+formFalse:
+                .string "false\n"       # form string for C printf
+
+.text
+
+.globl main
+
+main:
+
+                                        # CALLEE PROLOGUE
+                pushq %rbp              # save caller's base pointer
+                movq %rsp, %rbp         # make stack pointer new base pointer
+
+                addq $-8, %rsp          # allocate space for local variables
+
+
+                movq %rsp, %rbx         # Saves stack pointer in %rbx
+                addq $0, %rsp           # allocate space for extra intermediate
+                                        # stack memory
+
+                pushq %r8               # %r8 is callee save
+                pushq %r9               # %r9 is callee save
+                pushq %r10              # %r10 is callee save
+                pushq %r11              # %r11 is callee save
+                pushq %r12              # %r12 is callee save
+                pushq %r13              # %r13 is callee save
+                pushq %r14              # %r14 is callee save
+                pushq %r15              # %r15 is callee save
+
+                movq $0, -8(%rbp)       # Initializes a to 0
+                movq $2, %r9            # Moves integer into reg1
+                movq $5, %r10           # Moves integer into reg2
+                movq $3, %r11           # Moves integer into reg3
+                movq %r11, %rcx         # Moves reg3 out into %rcx for
+                                        # operation
+                movq %r10, %rax         # Moves reg2 out into %rax for
+                                        # operation
+                imulq %rcx, %rax        # Operation: reg2 * reg4
+                movq %rax, %r12         # Moves result into reg4
+                movq %r12, %rcx         # Moves reg4 out into %rcx for
+                                        # operation
+                movq %r9, %rax          # Moves reg1 out into %rax for
+                                        # operation
+                addq %rcx, %rax         # Operation: reg1 + reg5
+                movq %rax, %r13         # Moves result into reg5
+                movq $2, %r14           # Moves integer into reg6
+                movq %r14, %rcx         # Moves reg6 out into %rcx for
+                                        # operation
+                movq %r13, %rax         # Moves reg5 out into %rax for
+                                        # operation
+                addq %rcx, %rax         # Operation: reg5 + reg7
+                movq %rax, %r15         # Moves result into reg7
+                movq %rbp, %rdx         # preparing for static link computation
+                movq %r15, -8(%rdx)     # Move param reg7 into ['fun_1_main',
+                                        # 'var_0_a'] (a)
+end_main:
+
+                popq %r15               # restore callee save register %r15
+                popq %r14               # restore callee save register %r14
+                popq %r13               # restore callee save register %r13
+                popq %r12               # restore callee save register %r12
+                popq %r11               # restore callee save register %r11
+                popq %r10               # restore callee save register %r10
+                popq %r9                # restore callee save register %r9
+                popq %r8                # restore callee save register %r8
+
+                addq $0, %rsp           # deallocate stack space for extra
+                                        # intermediate stack memory
+
+
+                                        # CALLEE EPILOGUE
+                movq %rbp, %rsp         # restore stack pointer
+                popq %rbp               # restore base pointer
+                ret                     # return from call
+
+mmap_error:
+                leaq mmapEr(%rip), %rdi # pass 1. arg in %rdi
+                xor %rax, %rax          # no floating point arguments
+                callq printf            # calls printf method
+
+                movq $60, %rax          # prepare for exit syscall
+                xor %rdi, %rdi          # exit status 0
+                syscall                 # exit
+
+
