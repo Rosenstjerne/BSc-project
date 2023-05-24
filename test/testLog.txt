@@ -3,6 +3,10 @@ Running test: ./parserTest/assigmentWithExp.leif
 Running test: ./parserTest/assigWithFuncCall.leif
 Running test: ./parserTest/binaryOpe.leif
 Running test: ./parserTest/breakArrayWhile.leif
+Running test: ./parserTest/breakOutside.leif
+
+Error in phase Syntax Analysis, line 7:
+    Problem detected at '}'.
 Running test: ./parserTest/breakWhile.leif
 Running test: ./parserTest/chainingIfElse.leif
 Running test: ./parserTest/combTypeDecl.leif
@@ -65,5 +69,5 @@ Running test: ./parserTest/unfinishedMultiCom.leif
 Error in phase Lexical Analysis, line 4:
     Illegal character '#'.
 All tests completed.
-failed test: 8  
-Total tests run: 41
+failed test: 9  
+Total tests run: 42
