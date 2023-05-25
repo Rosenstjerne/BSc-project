@@ -1,9 +1,119 @@
-function null main() {
-	var int a, b, c;
-	
-	a = 5;
-	b = 10;
-	c = ((2 + (5 * 2)) + 3);
-	print(c);
-	
-}
+
+.data
+mmapEr:
+                .string "mmap failed\n" # error message string for mmap
+
+form:
+                .string "%d\n"          # form string for C printf
+
+formTrue:
+                .string "true\n"        # form string for C printf
+
+formFalse:
+                .string "false\n"       # form string for C printf
+
+.text
+
+.globl main
+
+main:
+
+                                        # CALLEE PROLOGUE
+                pushq %rbp              # save caller's base pointer
+                movq %rsp, %rbp         # make stack pointer new base pointer
+
+                addq $-24, %rsp         # allocate space for local variables
+
+
+                movq %rsp, %rbx         # Saves stack pointer in %rbx
+                addq $-40, %rsp         # allocate space for extra intermediate
+                                        # stack memory
+
+                pushq %r8               # %r8 is callee save
+                pushq %r9               # %r9 is callee save
+                pushq %r10              # %r10 is callee save
+                pushq %r11              # %r11 is callee save
+                pushq %r12              # %r12 is callee save
+                pushq %r13              # %r13 is callee save
+                pushq %r14              # %r14 is callee save
+                pushq %r15              # %r15 is callee save
+
+                movq $0, -24(%rbp)      # Initializes c to 0
+                movq $0, -16(%rbp)      # Initializes b to 0
+                movq $0, -8(%rbp)       # Initializes a to 0
+                movq $5, %r9            # Moves integer into reg1
+                movq %rbp, %rdx         # preparing for static link computation
+                movq %r9, -8(%rdx)      # Move param reg1 into ['fun_1_main',
+                                        # 'var_0_a'] (a)
+                movq $10, %r11          # Moves integer into reg3
+                movq %rbp, %rdx         # preparing for static link computation
+                movq %r11, -16(%rdx)    # Move param reg3 into ['fun_1_main',
+                                        # 'var_1_b'] (b)
+                movq $2, %r13           # Moves integer into reg5
+                movq $5, %r14           # Moves integer into reg6
+                movq $2, %r15           # Moves integer into reg7
+                movq %r15, %rcx         # Moves reg7 out into %rcx for
+                                        # operation
+                movq %r14, %rax         # Moves reg6 out into %rax for
+                                        # operation
+                imulq %rcx, %rax        # Operation: reg6 * reg8
+                movq %rax, 0(%rbx)      # Moves result into reg8
+                movq 0(%rbx), %rcx      # Moves reg8 out of the stack for
+                                        # operation
+                movq %r13, %rax         # Moves reg5 out into %rax for
+                                        # operation
+                addq %rcx, %rax         # Operation: reg5 + reg9
+                movq %rax, -8(%rbx)     # Moves result into reg9
+                movq $3, -16(%rbx)      # Moves integer into reg10
+                movq -16(%rbx), %rcx    # Moves reg10 out of the stack for
+                                        # operation
+                movq -8(%rbx), %rax     # Moves reg9 out of the stack for
+                                        # operation
+                addq %rcx, %rax         # Operation: reg9 + reg11
+                movq %rax, -24(%rbx)    # Moves result into reg11
+                movq %rbp, %rdx         # preparing for static link computation
+                movq -24(%rbx), %rcx    # 
+                movq %rcx, -24(%rdx)    # Move param reg11 into ['fun_1_main',
+                                        # 'var_2_c'] (c)
+                movq %rbp, %rdx         # preparing for static link computation
+                movq -24(%rdx), %rcx    # 
+                movq %rcx, -32(%rbx)    # Move param var_2_c (c) into reg12
+                movq -32(%rbx), %rcx    # Moves reg12 out of the stack for
+                                        # print
+                                        # PRINTING
+                leaq form(%rip), %rdi   # pass 1. argument in %rdi
+                movq %rcx, %rsi         # Moves printable object to rsi
+                xorq %rax, %rax         # No floating point arguments
+
+                callq printf@plt        # calls the printf method
+                                        # END OF PRINTING
+end_main:
+
+                popq %r15               # restore callee save register %r15
+                popq %r14               # restore callee save register %r14
+                popq %r13               # restore callee save register %r13
+                popq %r12               # restore callee save register %r12
+                popq %r11               # restore callee save register %r11
+                popq %r10               # restore callee save register %r10
+                popq %r9                # restore callee save register %r9
+                popq %r8                # restore callee save register %r8
+
+                addq $40, %rsp          # deallocate stack space for extra
+                                        # intermediate stack memory
+
+
+                                        # CALLEE EPILOGUE
+                movq %rbp, %rsp         # restore stack pointer
+                popq %rbp               # restore base pointer
+                ret                     # return from call
+
+mmap_error:
+                leaq mmapEr(%rip), %rdi # pass 1. arg in %rdi
+                xor %rax, %rax          # no floating point arguments
+                callq printf            # calls printf method
+
+                movq $60, %rax          # prepare for exit syscall
+                xor %rdi, %rdi          # exit status 0
+                syscall                 # exit
+
+

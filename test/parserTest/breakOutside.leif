@@ -1,0 +1,11 @@
+var int a,b;
+a = 0;
+b = 5;
+
+while (a < b) {
+    if (a == 3) {
+    }
+    break;
+    print(a);
+    a = a + 1;
+}
