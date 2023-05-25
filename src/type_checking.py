@@ -1,7 +1,6 @@
 
 from visitors_base import VisitorsBase
 from errors import error_message
-from symbols import NameCategory
 
 # This module performs type checking.
 # It is based on the visitors_base and AST modules that together implement

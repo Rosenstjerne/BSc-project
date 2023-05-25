@@ -122,7 +122,6 @@ def t_error(t):
     error_message("Lexical Analysis",
                   f"Illegal character '{t.value[0]}'.",
                   t.lexer.lineno)
-    t.lexer.skip(1)
 
 
 # PARSING RULES AND BUILDING THE AST

@@ -2,7 +2,6 @@ from enum import Enum, auto
 
 from errors import error_message
 from visitors_base import VisitorsBase
-import AST
 
 class NameCategory(Enum):
     """Categories for the names (symbols) collected and inserted into
