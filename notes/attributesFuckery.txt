@@ -1,0 +1,23 @@
+class bob{
+  var int flemming;
+  var bool a,b,c,d,e,f,g,h,i,j;
+}
+var bob b;
+
+b = new bob;
+
+{
+  class bob{
+    var int peter;
+  }
+
+  print(b.flemming);
+  b.peter = 42;
+  print(b.flemming);
+
+  c = new bob;
+
+  c.h = 5;
+
+}
+
