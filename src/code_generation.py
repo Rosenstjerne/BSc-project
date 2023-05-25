@@ -1,10 +1,3 @@
-
-# This module performs the compilation from an abstract syntax tree to
-# an intermediate representation close to linear 64 bit x86 code. See the
-# documentation for a definition of the intermediate representation.
-# It is based on the visitors_base and AST modules that together implement
-# the recursive traversal and visit functionality.
-
 from enum import Enum, auto
 
 from visitors_base import VisitorsBase
@@ -17,7 +10,6 @@ class Operation(Enum):
     PUSH = auto()
     POP = auto()
     CALL = auto()
-    RET = auto()
     CMP = auto()
     JMP = auto()
     JE = auto()
@@ -33,7 +25,6 @@ class Operation(Enum):
     MOD = auto()
     AND = auto()
     OR = auto()
-    SHL = auto()
     LABEL = auto()
     META = auto()
 
@@ -42,10 +33,8 @@ class TargetType(Enum):
     """Defines an enumeration type for instruction argument targets. """
     IMI = auto()  # immediate integer
     IMB = auto()  # immediate boolean
-    IML = auto()  # immediate label
     MEM = auto()  # memory (a label)
     RBP = auto()  # register: base (frame) pointer
-    RSP = auto()  # register: stack pointer
     RRT = auto()  # register: return value
     RSL = auto()  # register: static link computation
     RBX = auto()  # register: intermediate values stack pointer
@@ -56,7 +45,6 @@ class TargetType(Enum):
 class AddressingMode(Enum):
     """Defines an enumeration type for addressing modes. """
     DIR = auto()  # direct
-    IND = auto()  # indirect
     IRL = auto()  # indirect relative
     IRR = auto()  # indirect relative by register
 
@@ -95,22 +83,14 @@ class Ins:
         self.comment = c
 
 class Meta(Enum):
-    PROGRAM_PROLOGUE = auto()
-    PROGRAM_EPILOGUE = auto()
     MAIN_CALLEE_SAVE = auto()
     MAIN_CALLEE_RESTORE = auto()
     CALLEE_PROLOGUE = auto()
     CALLEE_EPILOGUE = auto()
-    CALLEE_SAVE = auto()
-    CALLEE_RESTORE = auto()
     CALLER_PROLOGUE = auto()
     CALLER_EPILOGUE = auto()
-    CALLER_SAVE = auto()
-    CALLER_RESTORE = auto()
     CALL_PRINTF = auto()
     ALLOCATE_STACK_SPACE = auto()
-    DEALLOCATE_STACK_SPACE = auto()
-    REVERSE_PUSH_ARGUMENTS = auto()
     ALLOCATE_HEAP_SPACE = auto()  # For Classes and Arrays
 
 # Code generation
@@ -177,9 +157,6 @@ class ASTCodeGenerationVisitor(VisitorsBase):
         if len(self._function_stack) == 1:
             # In the body of main:
             self._app(Ins(Operation.META, Meta.MAIN_CALLEE_SAVE))
-        else:
-            # In the body of a function:
-            self._app(Ins(Operation.META, Meta.CALLEE_SAVE))
 
 
     def postVisit_function(self, t):
@@ -187,15 +164,11 @@ class ASTCodeGenerationVisitor(VisitorsBase):
         if len(self._function_stack) == 1:
             # In the body of main:
             self._app(Ins(Operation.META, Meta.MAIN_CALLEE_RESTORE))
-        else:
-            # In the body of a function:
-            self._app(Ins(Operation.META, Meta.CALLEE_RESTORE))
         self._app(Ins(Operation.META, Meta.CALLEE_EPILOGUE))
 
         self._function_stack.pop()
 
     def preVisit_expression_call(self, t):
-        self._app(Ins(Operation.META, Meta.CALLER_SAVE))
         self._app(Ins(Operation.META, Meta.CALLER_PROLOGUE))
 
     def postVisit_expression_list(self, t):
@@ -246,9 +219,6 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                           ))
 
         self._app(Ins(Operation.META, Meta.CALLER_EPILOGUE))
-        self._app(Ins(Operation.META, Meta.CALLER_RESTORE))
-
-
 
 
     def postVisit_statement_return(self, t):
@@ -569,11 +539,6 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                               Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.indexReg.offset)),
                               Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
                               c=f"Moves {t.indexReg.name} out for indexing in"))
-
-            # self._app(Ins(Operation.SHL,
-            #               Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
-            #               Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
-            #               c="Gets the index variable into %rax"))
 
             self._app(Ins(Operation.MOVE,
                           Arg(Target(TargetType.RRT), Mode(AddressingMode.IRR)),

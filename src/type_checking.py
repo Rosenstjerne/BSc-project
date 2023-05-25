@@ -3,11 +3,6 @@ from visitors_base import VisitorsBase
 from errors import error_message
 from symbols import NameCategory
 
-# This module performs type checking. Since there is only one primitive
-# type, integer, not much has to be done.
-# It is based on the visitors_base and AST modules that together implement
-# the recursive traversal and visit functionality.
-
 
 class ASTTypeCheckingVisitor(VisitorsBase):
     def __init__(self):

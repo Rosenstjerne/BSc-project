@@ -1,9 +1,3 @@
-
-# This module defines symbol tables and the symbol collection phase.
-# It is based on the visitors_base and AST modules that together implement
-# the recursive traversal and visit functionality.
-
-
 from enum import Enum, auto
 
 from errors import error_message
@@ -110,15 +104,15 @@ class ASTSymbolVisitor(VisitorsBase):
 
     def preMidVisit_body(self, t):
         for attLst in [b for b in self._current_scope._types.values()]:
-            for atribute in attLst.values():
-                atribute.type_scope = self._current_scope.type_lookup(atribute.rtype.replace('[]',''))
-                if atribute.type_scope is not None:
+            for a in attLst.keys():
+                attLst[a].type_scope = self._current_scope.type_lookup(attLst[a].rtype.replace('[]',''))
+                if attLst[a].type_scope is not None:
                     pass
                 else:
                     error_message(
                             "Symbol Collection",
-                            f"Type '{atribute.rtype.replace('[]','')}', for class atribute '{atribute.info.name}' was not declared in this scope",
-                            atribute.info.lineno
+                            f"Type '{attLst[a].rtype.replace('[]','')}', for class atribute '{a}' was not declared in this scope",
+                            t.class_decl.lineno
                             )
 
     def midVisit_body(self, t):
@@ -131,7 +125,7 @@ class ASTSymbolVisitor(VisitorsBase):
             else:
                 error_message(
                         "Symbol Collection",
-                        f"Type '{variable.rtype.replace('[]','')}', for variable '{variable.info.name}' was not declared in this scope",
+                        f"Type '{variable.rtype.replace('[]','')}', for variable '{variable.info.variable}' was not declared in this scope",
                         variable.info.lineno
                         )
 
@@ -215,12 +209,6 @@ class ASTSymbolVisitor(VisitorsBase):
 
 
     def preVisit_variables_list(self, t):  
-        # Recording local variable names in the symbol table:
-        if self._current_scope.lookup_this_scope(t.variable):
-            error_message(
-                "Symbol Collection",
-                f"Redeclaration of '{t.variable}' in the same scope.",
-                t.lineno)
 
         # if the variable is part of a class declaration, dont add it to the symbol table 
         # but rather append it to a atribute list of the parent
@@ -229,6 +217,13 @@ class ASTSymbolVisitor(VisitorsBase):
             if t.next:
                 t.next.attLst = t.attLst
         else:
+            # Recording local variable names in the symbol table:
+            if self._current_scope.lookup_this_scope(t.variable):
+                error_message(
+                    "Symbol Collection",
+                    f"Redeclaration of '{t.variable}' in the same scope.",
+                    t.lineno)
+
             self._current_scope.insert(
                 t.variable, SymVal(NameCategory.VARIABLE,
                                    t,

@@ -1,6 +1,7 @@
 var int[] array;
 var int N;
 var int i;
+var bool sorted;
 
 function int partition(int[] array, int low, int high) {
     var int pivot;
@@ -47,24 +48,33 @@ function null quicksort(int[] array, int low, int high) {
 }
 
 i = 0;
-N = 1000;
+N = 5000000;
 
 array = new int[N];
 while (i < N) {
-    array[i] = (i+5) * 431 % 1009;
+    array[i] = (i+5) * 1009 % N;
     i = i + 1;
   }
 
+#*
 i = 0;
 while (i < N) {
     print(array[i]);
     i = i + 1;
 }
 print(true);
+*#
+
 quicksort(array, 0, N - 1);
 
+sorted = true;
+
 i = 0;
-while (i < N) {
-    print(array[i]);
+while (i < N - 1) {
+    if (array[i] > array[i+1]){
+      sorted = false;
+    }
     i = i + 1;
 }
+
+print(sorted);

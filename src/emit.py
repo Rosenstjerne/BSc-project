@@ -1,26 +1,4 @@
-
-# This module takes the intermediate code and outputs 64 bit x86 assembler.
-
-
 from code_generation import Operation, TargetType, AddressingMode, Meta
-
-# The code generation strategy does not use registers for storing values
-# over function calls. All longer term values are on the stack. Thus,
-# the caller/calle save protocols are not required. They are available
-# in case we decide to implement optimizations and change the code.
-
-_full_caller_callee_save = False
-
-
-# The number of caller-save registers are relevant since computed values
-# for function calls must be obtained from below the caller-saved
-# registers to be pushed on the stack (in reverse order).
-
-if _full_caller_callee_save:
-    _caller_registers = 8
-else:
-    _caller_registers = 0
-
 
 _intermediate_to_x86 = {
     Operation.MOVE: "movq",
@@ -40,7 +18,6 @@ _intermediate_to_x86 = {
     Operation.MUL: "imulq",
     Operation.AND: "andq",
     Operation.OR: "orq",
-    Operation.SHL: "shlq"
     }
 
 
@@ -120,17 +97,11 @@ class Emit:
             self._div(instr)
         elif instr.opcode is Operation.MOD:
             self._mod(instr)
-        elif instr.opcode is Operation.RET:
-            self._ret(instr)
         elif instr.opcode is Operation.LABEL:
             self._label(instr)
         elif instr.opcode is Operation.META:
             method = instr.args[0]
-            if method is Meta.PROGRAM_PROLOGUE:
-                self.program_prologue()
-            elif method is Meta.PROGRAM_EPILOGUE:
-                self.program_epilogue()
-            elif method is Meta.MAIN_CALLEE_SAVE:
+            if method is Meta.MAIN_CALLEE_SAVE:
                 self.main_callee_save()
             elif method is Meta.MAIN_CALLEE_RESTORE:
                 self.main_callee_restore()
@@ -138,26 +109,14 @@ class Emit:
                 self.callee_prologue()
             elif method is Meta.CALLEE_EPILOGUE:
                 self.callee_epilogue()
-            elif method is Meta.CALLEE_SAVE:
-                self.callee_save()
-            elif method is Meta.CALLEE_RESTORE:
-                self.callee_restore()
             elif method is Meta.CALLER_PROLOGUE:
                 self.caller_prologue()
             elif method is Meta.CALLER_EPILOGUE:
                 self.caller_epilogue()
-            elif method is Meta.CALLER_SAVE:
-                self.caller_save()
-            elif method is Meta.CALLER_RESTORE:
-                self.caller_restore()
             elif method is Meta.CALL_PRINTF:
                 self.call_printf(instr)
             elif method is Meta.ALLOCATE_STACK_SPACE:
                 self.allocate_stack_space(instr.args[1])
-            elif method is Meta.DEALLOCATE_STACK_SPACE:
-                self.deallocate_stack_space(instr.args[1])
-            elif method is Meta.REVERSE_PUSH_ARGUMENTS:
-                self.reverse_push_arguments(instr.args[1])
             elif method is Meta.ALLOCATE_HEAP_SPACE:
                 self.allocate_heap_space()
 
@@ -165,7 +124,7 @@ class Emit:
         """Formats one instruction argument."""
         target = arg.target
         text = ""
-        if target.spec is TargetType.IMI or target.spec is TargetType.IML:  # Immidiate Integer or Lable
+        if target.spec is TargetType.IMI:  # Immidiate Integer or Lable
             text = f"${target.val}"
         elif target.spec is TargetType.IMB:
             text = f"${1 if target.val == True else 0}"  # Immidiate boolean
@@ -173,8 +132,6 @@ class Emit:
             text = f"{target.val}"
         elif target.spec is TargetType.RBP:
             text = "%rbp"
-        elif target.spec is TargetType.RSP:
-            text = "%rsp"
         elif target.spec is TargetType.RRT:
             text = "%rax"
         elif target.spec is TargetType.RSL:
@@ -189,8 +146,6 @@ class Emit:
         addressing = arg.addressing
         if addressing.mode is AddressingMode.DIR:
             pass
-        elif addressing.mode is AddressingMode.IND:
-            text = f"({text})"
         elif addressing.mode is AddressingMode.IRL:
             text = f"{-8*addressing.offset}({text})"
         elif addressing.mode is AddressingMode.IRR:
@@ -230,9 +185,6 @@ class Emit:
     def _label(self, instr):
         self._lbl(self._do_arg(instr.args[0]))
 
-    def _ret(self, instr):
-        self._ins("popq %rax", "move return value to return register")
-        # self._ins(f"jmp {instr.args[0]}", "jump to function epiloque")
 
     # Block code for prologues, epilogues, printing, etc.:
 
@@ -283,10 +235,6 @@ class Emit:
         self._ins("pushq %r15", "%r15 is callee save")
         self._raw("")
 
-    def callee_save(self):
-        if _full_caller_callee_save:
-            self.main_callee_save()
-
     def main_callee_restore(self):
         self._raw("")
         self._ins("popq %r15", "restore callee save register %r15")
@@ -302,10 +250,6 @@ class Emit:
                   "deallocate stack space for extra intermediate stack memory")
         self._raw("")
 
-    def callee_restore(self):
-        if _full_caller_callee_save:
-            self.main_callee_restore()
-
     def callee_prologue(self):
         self._raw("")
         self._ins("", "CALLEE PROLOGUE")
@@ -320,40 +264,6 @@ class Emit:
         self._ins("popq %rbp", "restore base pointer")
         self._ins("ret", "return from call")
         self._raw("")
-
-    def caller_save(self):
-        if _full_caller_callee_save:
-            self._raw("")
-            # self._ins("pushq %rcx", "%rcx is caller save")
-            self._ins("pushq %rdx", "%rdx is caller save")
-            self._ins("pushq %rsi", "%rsi is caller save")
-            self._ins("pushq %rdi", "%rdi is caller save")
-            self._ins("pushq %r8",  "%r8  is caller save")
-            self._ins("pushq %r9",  "%r9  is caller save")
-            self._ins("pushq %r10", "%r10 is caller save")
-            self._ins("pushq %r11", "%r11 is caller save")
-            self._ins("pushq %r12", "%r12 is caller save")
-            self._ins("pushq %r13", "%r13 is caller save")
-            self._ins("pushq %r14", "%r14 is caller save")
-            self._ins("pushq %r15", "%r15 is caller save")
-            self._raw("")
-
-    def caller_restore(self):
-        if _full_caller_callee_save:
-            self._raw("")
-            self._ins("popq %r15", "restore callee save register %r15")
-            self._ins("popq %r14", "restore callee save register %r14")
-            self._ins("popq %r13", "restore callee save register %r13")
-            self._ins("popq %r12", "restore callee save register %r12")
-            self._ins("popq %r11", "restore caller save register %r11")
-            self._ins("popq %r10", "restore caller save register %r10")
-            self._ins("popq %r9",  "restore caller save register %r9 ")
-            self._ins("popq %r8",  "restore caller save register %r8 ")
-            self._ins("popq %rdi", "restore caller save register %rdi")
-            self._ins("popq %rsi", "restore caller save register %rsi")
-            self._ins("popq %rdx", "restore caller save register %rdx")
-            # self._ins("popq %rcx", "restore caller save register %rcx")
-            self._raw("")
 
     def caller_prologue(self):
         self._ins("", "CALLER PROLOGUE: empty")
@@ -379,7 +289,6 @@ class Emit:
         else:
             self._ins("leaq form(%rip), %rdi", "pass 1. argument in %rdi")
         # By-passing caller save values on the stack:
-        # self._ins(f"movq {instr.args[1].target.val.getReg()}, %rsi","Moves printable object to rsi")
         self._ins(f"movq %rcx, %rsi","Moves printable object to rsi")
         self._ins("xorq %rax, %rax","No floating point arguments") 
         self._raw("")
@@ -393,21 +302,6 @@ class Emit:
                   "allocate space for local variables")
         self._raw("")
 
-    def deallocate_stack_space(self, words):
-        self._ins(f"addq ${8*words}, %rsp",
-                  "deallocate stack space for parameters or local variables")
-        self._raw("")
-
-    def reverse_push_arguments(self, number_of_arguments):
-        """By-passing the caller-saved values on the stack, moving down
-           in the stack for the next actual parameter, remembering that
-           the stack grows for each push.
-        """
-        for i in range(number_of_arguments):
-            offset = 8 * (_caller_registers + 2 * i)
-            self._ins(f"pushq {offset}(%rsp)",
-                      "push arguments in reverse order")
-
     def allocate_heap_space(self):
             self._ins("pushq %rdx", "%rdx is caller save")
             self._ins("pushq %rsi", "%rsi is caller save")
@@ -416,6 +310,7 @@ class Emit:
             self._ins("pushq %r9",  "%r9  is caller save")
             self._ins("pushq %r10",  "%r10  is caller save")
             self._ins("pushq %r15",  "%r15  is caller save")
+            self._raw("")
 
             self._ins("movq %rcx, %rsi", "moves size form %rxc into %rsi")
             self._ins("movq %rcx, %r15", "moves size form %rxc into %r15")
@@ -430,7 +325,7 @@ class Emit:
             self._raw("")
             self._ins("cmpq $-22, %rax", "checks if mmap was successful")
             self._ins("je mmap_error", "jumps to mmap error if not")
-
+            self._raw("")
             start_lbl = self.getLbl()
             end_lbl = self.getLbl()
 
@@ -442,6 +337,7 @@ class Emit:
             self._ins("incq %r10","increment the index")
             self._ins(f"jmp {start_lbl}","")
             self._ins(f"{end_lbl}:","")
+            self._raw("")
 
             self._ins("popq %r15",  "restore caller save register %r15 ")
             self._ins("popq %r10",  "restore caller save register %r10 ")
