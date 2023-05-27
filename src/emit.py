@@ -109,10 +109,6 @@ class Emit:
                 self.callee_prologue()
             elif method is Meta.CALLEE_EPILOGUE:
                 self.callee_epilogue()
-            elif method is Meta.CALLER_PROLOGUE:
-                self.caller_prologue()
-            elif method is Meta.CALLER_EPILOGUE:
-                self.caller_epilogue()
             elif method is Meta.CALL_PRINTF:
                 self.call_printf(instr)
             elif method is Meta.ALLOCATE_STACK_SPACE:
@@ -263,14 +259,6 @@ class Emit:
         self._ins("movq %rbp, %rsp", "restore stack pointer")
         self._ins("popq %rbp", "restore base pointer")
         self._ins("ret", "return from call")
-        self._raw("")
-
-    def caller_prologue(self):
-        self._ins("", "CALLER PROLOGUE: empty")
-        self._raw("")
-
-    def caller_epilogue(self):
-        self._ins("", "CALLER EPILOGUE: empty")
         self._raw("")
 
     def call_printf(self, instr):

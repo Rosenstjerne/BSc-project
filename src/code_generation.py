@@ -87,8 +87,6 @@ class Meta(Enum):
     MAIN_CALLEE_RESTORE = auto()
     CALLEE_PROLOGUE = auto()
     CALLEE_EPILOGUE = auto()
-    CALLER_PROLOGUE = auto()
-    CALLER_EPILOGUE = auto()
     CALL_PRINTF = auto()
     ALLOCATE_STACK_SPACE = auto()
     ALLOCATE_HEAP_SPACE = auto()  # For Classes and Arrays
@@ -166,9 +164,6 @@ class ASTCodeGenerationVisitor(VisitorsBase):
 
         self._function_stack.pop()
 
-    def preVisit_expression_call(self, t):
-        self._app(Ins(Operation.META, Meta.CALLER_PROLOGUE))
-
     def postVisit_expression_list(self, t):
         if t.inReg.regType == 0:
             self._app(Ins(Operation.PUSH,
@@ -215,8 +210,6 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                           Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
                           c="Pops argument from stack"
                           ))
-
-        self._app(Ins(Operation.META, Meta.CALLER_EPILOGUE))
 
 
     def postVisit_statement_return(self, t):
@@ -429,7 +422,7 @@ class ASTCodeGenerationVisitor(VisitorsBase):
             self._app(Ins(Operation.MOVE,
                           Arg(Target(TargetType.RSL), Mode(AddressingMode.DIR)),
                           Arg(Target(TargetType.RRT), Mode(AddressingMode.IRR)),
-                          c=f"Moves {t.inReg.name} into the dot variable"))
+                          c=f"Moves {t.inReg.name} into the indexed variable"))
 
 
     def postVisit_expression_new(self, t):
