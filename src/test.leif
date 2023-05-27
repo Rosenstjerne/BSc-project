@@ -1,13 +1,31 @@
-class bob{
-  var int jen;
-  var bool a, b, c, d, e, f, g;
+class bob {
+  var int[] a;
 }
 
+var int i;
 var bob b;
-var int a;
+
+function null f(bob b) {
+  class lst {var int a, b, c, d, e, f;}
+  class bob {var lst l;}
+
+  b.l = new lst;
+
+  b.l.a = 1;
+  b.l.b = 2;
+  b.l.c = 3;
+  b.l.d = 4;
+  b.l.e = 5;
+  b.l.f = 6;
+
+}
 
 
 b = new bob;
+f(b);
 
-
-print(a);
+i = 0;
+while(i<6) {
+  print(b.a[i]);
+  i = i + 1;
+}
