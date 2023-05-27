@@ -271,9 +271,9 @@ class Emit:
             self._ins(f"je {true_lbl}","")
             self._ins("leaq formFalse(%rip), %rdi", "pass 1. argument in %rdi")
             self._ins(f"jmp {end_lbl}","")
-            self._ins(f"{true_lbl}:","")
+            self._lbl(true_lbl)
             self._ins("leaq formTrue(%rip), %rdi", "pass 1. argument in %rdi")
-            self._ins(f"{end_lbl}:","")
+            self._lbl(end_lbl)
         else:
             self._ins("leaq form(%rip), %rdi", "pass 1. argument in %rdi")
         # By-passing caller save values on the stack:
@@ -318,13 +318,13 @@ class Emit:
             end_lbl = self.getLbl()
 
             self._ins("movq $0, %r10","initializes the index")
-            self._ins(f"{start_lbl}:","")
+            self._lbl(start_lbl)
             self._ins("cmpq %r15, %r10","if the index is at the end")
             self._ins(f"je {end_lbl}","Jumps to end when all is initializes")
             self._ins("movq $0, (%rax, %r10, 8)","initializes the index")
             self._ins("incq %r10","increment the index")
             self._ins(f"jmp {start_lbl}","")
-            self._ins(f"{end_lbl}:","")
+            self._lbl(end_lbl)
             self._raw("")
 
             self._ins("popq %r15",  "restore caller save register %r15 ")
