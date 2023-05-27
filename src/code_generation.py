@@ -108,7 +108,6 @@ class ASTCodeGenerationVisitor(VisitorsBase):
         self._code = []
 
         self.flatTab = flatTab
-        self.lineno = 1
 
     
     def get_code(self):
@@ -116,7 +115,6 @@ class ASTCodeGenerationVisitor(VisitorsBase):
 
     def _app(self, instruction):
         self._code.append(instruction)
-        self.lineno = self.lineno + 1
 
     
     def _follow_static_link(self, level_difference):
