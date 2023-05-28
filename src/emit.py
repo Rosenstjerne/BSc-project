@@ -105,6 +105,10 @@ class Emit:
                 self.main_callee_save()
             elif method is Meta.MAIN_CALLEE_RESTORE:
                 self.main_callee_restore()
+            if method is Meta.CALLER_SAVE:
+                self.caller_save()
+            elif method is Meta.CALLER_RESTORE:
+                self.caller_restore()
             elif method is Meta.CALLEE_PROLOGUE:
                 self.callee_prologue()
             elif method is Meta.CALLEE_EPILOGUE:
@@ -205,6 +209,7 @@ class Emit:
         self._raw("")
 
     def program_epilogue(self):
+        self._raw("")
         self._raw("mmap_error:")
         self._ins("leaq mmapEr(%rip), %rdi", " pass 1. arg in %rdi")
         self._ins("xor %rax, %rax", "no floating point arguments")
@@ -246,6 +251,34 @@ class Emit:
                   "deallocate stack space for extra intermediate stack memory")
         self._raw("")
 
+    def caller_save(self):
+        self._raw("")
+        self._ins("pushq %r8",  "%r8  is callee save")
+        self._ins("pushq %r9",  "%r9  is callee save")
+        self._ins("pushq %r10", "%r10 is callee save")
+        self._ins("pushq %r11", "%r11 is callee save")
+        self._ins("pushq %r12", "%r12 is callee save")
+        self._ins("pushq %r13", "%r13 is callee save")
+        self._ins("pushq %r14", "%r14 is callee save")
+        self._ins("pushq %r15", "%r15 is callee save")
+        for i in range(self.extra_intermediate_regs-1,-1,-1):
+            self._ins(f"pushq {-8*i}(%rbx)", "stack reg save")
+        self._raw("")
+
+    def caller_restore(self):
+        self._raw("")
+        for i in range(self.extra_intermediate_regs):
+            self._ins(f"popq {-8*i}(%rbx)", "stack reg save")
+        self._ins("popq %r15", "restore callee save register %r15")
+        self._ins("popq %r14", "restore callee save register %r14")
+        self._ins("popq %r13", "restore callee save register %r13")
+        self._ins("popq %r12", "restore callee save register %r12")
+        self._ins("popq %r11", "restore callee save register %r11")
+        self._ins("popq %r10", "restore callee save register %r10")
+        self._ins("popq %r9",  "restore callee save register %r9 ")
+        self._ins("popq %r8",  "restore callee save register %r8 ")
+        self._raw("")
+
     def callee_prologue(self):
         self._raw("")
         self._ins("", "CALLEE PROLOGUE")
@@ -263,7 +296,7 @@ class Emit:
 
     def call_printf(self, instr):
         self._ins("", "PRINTING")
-        if instr.args[2] == "bool":
+        if instr.args[1] == "bool":
             self._ins(f"movq $1, %rax", "Moves true into %rax")
             self._ins(f"cmpq %rcx, %rax","")
             true_lbl = self.getLbl()

@@ -85,6 +85,8 @@ class Ins:
 class Meta(Enum):
     MAIN_CALLEE_SAVE = auto()
     MAIN_CALLEE_RESTORE = auto()
+    CALLER_SAVE = auto()
+    CALLER_RESTORE = auto()
     CALLEE_PROLOGUE = auto()
     CALLEE_EPILOGUE = auto()
     CALL_PRINTF = auto()
@@ -150,16 +152,20 @@ class ASTCodeGenerationVisitor(VisitorsBase):
         self._app(Ins(Operation.META,
                       Meta.ALLOCATE_STACK_SPACE,
                       self.flatTab[t.metaName].varCount))
-        if len(self._function_stack) == 1:
+        if t.name == "main":
             # In the body of main:
             self._app(Ins(Operation.META, Meta.MAIN_CALLEE_SAVE))
+        # else:
+        #     self._app(Ins(Operation.META, Meta.CALLEE_SAVE))
 
 
     def postVisit_function(self, t):
         self._app(Ins(Operation.LABEL, Arg(Target(TargetType.MEM, t.end_label), Mode(AddressingMode.DIR))))
-        if len(self._function_stack) == 1:
+        if t.name == "main":
             # In the body of main:
             self._app(Ins(Operation.META, Meta.MAIN_CALLEE_RESTORE))
+        # else:
+        #     self._app(Ins(Operation.META, Meta.CALLEE_RESTORE))
         self._app(Ins(Operation.META, Meta.CALLEE_EPILOGUE))
 
         self._function_stack.pop()
@@ -175,6 +181,10 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                           Arg(Target(TargetType.RBX), Mode(AddressingMode.IRL, t.inReg.offset)),
                           c="push arguement to stack"
                           )) 
+
+
+    def preVisit_expression_call(self, t):
+        self._app(Ins(Operation.META, Meta.CALLER_SAVE))
 
     def postVisit_expression_call(self, t):
         level_difference = self.flatTab[self._function_stack[-1].metaName].getStaticLinkFunClimb(t.call_meta_function)
@@ -192,6 +202,19 @@ class ASTCodeGenerationVisitor(VisitorsBase):
         self._app(Ins(Operation.CALL,
                       Arg(Target(TargetType.MEM, t.call_label), Mode(AddressingMode.DIR))))
 
+        self._app(Ins(Operation.POP,
+                      Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                      c="Pops parent base pointer from stack"
+                      ))
+
+        for i in range(t.number_of_parameters):
+            self._app(Ins(Operation.POP,
+                          Arg(Target(TargetType.RCX), Mode(AddressingMode.DIR)),
+                          c="Pops argument from stack"
+                          ))
+
+        self._app(Ins(Operation.META, Meta.CALLER_RESTORE))
+
         if t.retReg.regType == 0:
             self._app(Ins(Operation.MOVE,
                           Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
@@ -205,11 +228,7 @@ class ASTCodeGenerationVisitor(VisitorsBase):
                           c=f"Moves the return value from %rax into {t.retReg.name}"
                           ))
 
-        for i in range(t.number_of_parameters):
-            self._app(Ins(Operation.POP,
-                          Arg(Target(TargetType.RRT), Mode(AddressingMode.DIR)),
-                          c="Pops argument from stack"
-                          ))
+
 
 
     def postVisit_statement_return(self, t):
@@ -240,7 +259,6 @@ class ASTCodeGenerationVisitor(VisitorsBase):
 
         self._app(Ins(Operation.META, 
                       Meta.CALL_PRINTF,
-                      Arg(Target(TargetType.REG, t.inReg), Mode(AddressingMode.DIR)),
                       t.printType))
 
     
