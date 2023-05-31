@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # This script runs all the tests in the parserTest directory, compares the output to the existing .out files, and logs the results
-COMPILER_COMMAND="python ../src/compiler.py -a -i"
+COMPILER_COMMAND="python ../src/compiler.py -s -i"
 PARSER_TEST_DIR="./parserTest"
 
 # Get all the test files

@@ -1,1 +1,257 @@
-not yet implimented
+
+.data
+mmapEr:
+                .string "mmap failed\n" # error message string for mmap
+
+form:
+                .string "%d\n"          # form string for C printf
+
+formTrue:
+                .string "true\n"        # form string for C printf
+
+formFalse:
+                .string "false\n"       # form string for C printf
+
+.text
+
+.globl main
+
+main:
+
+                                        # CALLEE PROLOGUE
+                pushq %rbp              # save caller's base pointer
+                movq %rsp, %rbp         # make stack pointer new base pointer
+
+                addq $-8, %rsp          # allocate space for local variables
+
+
+                movq %rsp, %rbx         # Saves stack pointer in %rbx
+                addq $0, %rsp           # allocate space for extra intermediate
+                                        # stack memory
+
+                pushq %r8               # %r8 is callee save
+                pushq %r9               # %r9 is callee save
+                pushq %r10              # %r10 is callee save
+                pushq %r11              # %r11 is callee save
+                pushq %r12              # %r12 is callee save
+                pushq %r13              # %r13 is callee save
+                pushq %r14              # %r14 is callee save
+                pushq %r15              # %r15 is callee save
+
+                movq $0, -8(%rbp)       # Initializes ll to 0
+                movq $2, %rcx           # Moves size out into %rcx for
+                                        # allication
+                pushq %rdx              # %rdx is caller save
+                pushq %rsi              # %rsi is caller save
+                pushq %rdi              # %rdi is caller save
+                pushq %r8               # %r8 is caller save
+                pushq %r9               # %r9 is caller save
+                pushq %r10              # %r10 is caller save
+                pushq %r15              # %r15 is caller save
+
+                movq %rcx, %rsi         # moves size form %rxc into %rsi
+                movq %rcx, %r15         # moves size form %rxc into %r15
+                shlq $3, %rsi           # 
+                xorq %rdi, %rdi         # 
+                movq $9, %rax           # prepare mmap syscall
+                movq $0x3, %rdx         # 
+                xorq %r8, %r8           # 
+                xorq %r9, %r9           # 
+                movq $0x22, %r10        # 
+                syscall                 # allocates the memory
+
+                cmpq $-22, %rax         # checks if mmap was successful
+                je mmap_error           # jumps to mmap error if not
+
+                movq $0, %r10           # initializes the index
+LBL_0:
+                cmpq %r15, %r10         # if the index is at the end
+                je LBL_1                # Jumps to end when all is initializes
+                movq $0, (%rax, %r10, 8)# initializes the index
+                incq %r10               # increment the index
+                jmp LBL_0               # 
+LBL_1:
+
+                popq %r15               # restore caller save register %r15
+                popq %r10               # restore caller save register %r10
+                popq %r9                # restore caller save register %r9
+                popq %r8                # restore caller save register %r8
+                popq %rdi               # restore caller save register %rdi
+                popq %rsi               # restore caller save register %rsi
+                popq %rdx               # restore caller save register %rdx
+                movq %rax, %r8          # Moves new array into reg1
+                movq %rbp, %rdx         # preparing for static link computation
+                movq %r8, -8(%rdx)      # Move param reg1 into ['fun_1_main',
+                                        # 'var_0_ll'] (ll)
+                movq %rbp, %rdx         # preparing for static link computation
+                movq -8(%rdx), %r8      # Move param var_0_ll (ll) into reg2
+                movq $5, %r9            # Moves integer into reg4
+                movq %r9, %rcx          # Moves reg4 out for insert
+                movq %r8, %rax          # Moves reg2 for indexing
+                movq %rcx, 0(%rax)      # Moves reg4 into the dot variable
+                movq %rbp, %rdx         # preparing for static link computation
+                movq -8(%rdx), %r8      # Move param var_0_ll (ll) into reg5
+                movq $2, %rcx           # Moves size out into %rcx for
+                                        # allication
+                pushq %rdx              # %rdx is caller save
+                pushq %rsi              # %rsi is caller save
+                pushq %rdi              # %rdi is caller save
+                pushq %r8               # %r8 is caller save
+                pushq %r9               # %r9 is caller save
+                pushq %r10              # %r10 is caller save
+                pushq %r15              # %r15 is caller save
+
+                movq %rcx, %rsi         # moves size form %rxc into %rsi
+                movq %rcx, %r15         # moves size form %rxc into %r15
+                shlq $3, %rsi           # 
+                xorq %rdi, %rdi         # 
+                movq $9, %rax           # prepare mmap syscall
+                movq $0x3, %rdx         # 
+                xorq %r8, %r8           # 
+                xorq %r9, %r9           # 
+                movq $0x22, %r10        # 
+                syscall                 # allocates the memory
+
+                cmpq $-22, %rax         # checks if mmap was successful
+                je mmap_error           # jumps to mmap error if not
+
+                movq $0, %r10           # initializes the index
+LBL_2:
+                cmpq %r15, %r10         # if the index is at the end
+                je LBL_3                # Jumps to end when all is initializes
+                movq $0, (%rax, %r10, 8)# initializes the index
+                incq %r10               # increment the index
+                jmp LBL_2               # 
+LBL_3:
+
+                popq %r15               # restore caller save register %r15
+                popq %r10               # restore caller save register %r10
+                popq %r9                # restore caller save register %r9
+                popq %r8                # restore caller save register %r8
+                popq %rdi               # restore caller save register %rdi
+                popq %rsi               # restore caller save register %rsi
+                popq %rdx               # restore caller save register %rdx
+                movq %rax, %r9          # Moves new array into reg7
+                movq %r9, %rcx          # Moves reg7 out for insert
+                movq %r8, %rax          # Moves reg5 for indexing
+                movq %rcx, 8(%rax)      # Moves reg7 into the dot variable
+                movq %rbp, %rdx         # preparing for static link computation
+                movq -8(%rdx), %r8      # Move param var_0_ll (ll) into reg8
+                movq %r8, %rcx          # Moves reg8 out for indexing
+                movq 8(%rcx), %rax      # Gets the dot variable into %rax
+                movq %rax, %r9          # Moves new array into reg9
+                movq $6, %r8            # Moves integer into reg11
+                movq %r8, %rcx          # Moves reg11 out for insert
+                movq %r9, %rax          # Moves reg9 for indexing
+                movq %rcx, 0(%rax)      # Moves reg11 into the dot variable
+                movq %rbp, %rdx         # preparing for static link computation
+                movq -8(%rdx), %r8      # Move param var_0_ll (ll) into reg12
+                movq %r8, %rcx          # Moves reg12 out for indexing
+                movq 8(%rcx), %rax      # Gets the dot variable into %rax
+                movq %rax, %r9          # Moves new array into reg13
+                movq $2, %rcx           # Moves size out into %rcx for
+                                        # allication
+                pushq %rdx              # %rdx is caller save
+                pushq %rsi              # %rsi is caller save
+                pushq %rdi              # %rdi is caller save
+                pushq %r8               # %r8 is caller save
+                pushq %r9               # %r9 is caller save
+                pushq %r10              # %r10 is caller save
+                pushq %r15              # %r15 is caller save
+
+                movq %rcx, %rsi         # moves size form %rxc into %rsi
+                movq %rcx, %r15         # moves size form %rxc into %r15
+                shlq $3, %rsi           # 
+                xorq %rdi, %rdi         # 
+                movq $9, %rax           # prepare mmap syscall
+                movq $0x3, %rdx         # 
+                xorq %r8, %r8           # 
+                xorq %r9, %r9           # 
+                movq $0x22, %r10        # 
+                syscall                 # allocates the memory
+
+                cmpq $-22, %rax         # checks if mmap was successful
+                je mmap_error           # jumps to mmap error if not
+
+                movq $0, %r10           # initializes the index
+LBL_4:
+                cmpq %r15, %r10         # if the index is at the end
+                je LBL_5                # Jumps to end when all is initializes
+                movq $0, (%rax, %r10, 8)# initializes the index
+                incq %r10               # increment the index
+                jmp LBL_4               # 
+LBL_5:
+
+                popq %r15               # restore caller save register %r15
+                popq %r10               # restore caller save register %r10
+                popq %r9                # restore caller save register %r9
+                popq %r8                # restore caller save register %r8
+                popq %rdi               # restore caller save register %rdi
+                popq %rsi               # restore caller save register %rsi
+                popq %rdx               # restore caller save register %rdx
+                movq %rax, %r8          # Moves new array into reg15
+                movq %r8, %rcx          # Moves reg15 out for insert
+                movq %r9, %rax          # Moves reg13 for indexing
+                movq %rcx, 8(%rax)      # Moves reg15 into the dot variable
+                movq %rbp, %rdx         # preparing for static link computation
+                movq -8(%rdx), %r8      # Move param var_0_ll (ll) into reg16
+                movq %r8, %rcx          # Moves reg16 out for indexing
+                movq 8(%rcx), %rax      # Gets the dot variable into %rax
+                movq %rax, %r9          # Moves new array into reg17
+                movq %r9, %rcx          # Moves reg17 out for indexing
+                movq 8(%rcx), %rax      # Gets the dot variable into %rax
+                movq %rax, %r8          # Moves new array into reg18
+                movq $7, %r9            # Moves integer into reg20
+                movq %r9, %rcx          # Moves reg20 out for insert
+                movq %r8, %rax          # Moves reg18 for indexing
+                movq %rcx, 0(%rax)      # Moves reg20 into the dot variable
+                movq %rbp, %rdx         # preparing for static link computation
+                movq -8(%rdx), %r8      # Move param var_0_ll (ll) into reg21
+                movq %r8, %rcx          # Moves reg21 out for indexing
+                movq 8(%rcx), %rax      # Gets the dot variable into %rax
+                movq %rax, %r9          # Moves new array into reg22
+                movq %r9, %rcx          # Moves reg22 out for indexing
+                movq 8(%rcx), %rax      # Gets the dot variable into %rax
+                movq %rax, %r8          # Moves new array into reg23
+                movq %r8, %rcx          # Moves reg23 out for indexing
+                movq 0(%rcx), %rax      # Gets the dot variable into %rax
+                movq %rax, %r9          # Moves new array into reg24
+                movq %r9, %rcx          # Moves reg24 out into %rcx for print
+                                        # PRINTING
+                leaq form(%rip), %rdi   # pass 1. argument in %rdi
+                movq %rcx, %rsi         # Moves printable object to rsi
+                xorq %rax, %rax         # No floating point arguments
+
+                callq printf@plt        # calls the printf method
+                                        # END OF PRINTING
+end_main:
+
+                popq %r15               # restore callee save register %r15
+                popq %r14               # restore callee save register %r14
+                popq %r13               # restore callee save register %r13
+                popq %r12               # restore callee save register %r12
+                popq %r11               # restore callee save register %r11
+                popq %r10               # restore callee save register %r10
+                popq %r9                # restore callee save register %r9
+                popq %r8                # restore callee save register %r8
+
+                addq $0, %rsp           # deallocate stack space for extra
+                                        # intermediate stack memory
+
+
+                                        # CALLEE EPILOGUE
+                movq %rbp, %rsp         # restore stack pointer
+                popq %rbp               # restore base pointer
+                ret                     # return from call
+
+
+mmap_error:
+                leaq mmapEr(%rip), %rdi # pass 1. arg in %rdi
+                xor %rax, %rax          # no floating point arguments
+                callq printf            # calls printf method
+
+                movq $60, %rax          # prepare for exit syscall
+                xor %rdi, %rdi          # exit status 0
+                syscall                 # exit
+
+

@@ -1,20 +1,20 @@
 
-Running test: ./typeCheckingTest/wrongAttributeType.leif
-Running test: ./typeCheckingTest/wrongIfThenElseStatement.leif
-Running test: ./typeCheckingTest/wrongArrAssignation.leif
-Running test: ./typeCheckingTest/functionCall.leif
-Running test: ./typeCheckingTest/recursiveClass.leif
-Running test: ./typeCheckingTest/multiOperators.leif
 Running test: ./typeCheckingTest/boolStuff.leif
-Running test: ./typeCheckingTest/wrongIndexing.leif
-Running test: ./typeCheckingTest/wrongIfStatement.leif
-Running test: ./typeCheckingTest/unprintableStatements.leif
+Running test: ./typeCheckingTest/functionCall.leif
 Running test: ./typeCheckingTest/ifThen.leif
-Running test: ./typeCheckingTest/wrongAssigniation.leif
-Running test: ./typeCheckingTest/wrongWhileStatement.leif
-Running test: ./typeCheckingTest/wrongArrayAllocation.leif
+Running test: ./typeCheckingTest/multiOperators.leif
+Running test: ./typeCheckingTest/recursiveClass.leif
+Running test: ./typeCheckingTest/unprintableStatements.leif
 Running test: ./typeCheckingTest/whileThen.leif
 Running test: ./typeCheckingTest/wrongArgumentTypes.leif
+Running test: ./typeCheckingTest/wrongArrAssignation.leif
+Running test: ./typeCheckingTest/wrongArrayAllocation.leif
+Running test: ./typeCheckingTest/wrongAssigniation.leif
+Running test: ./typeCheckingTest/wrongAttributeType.leif
+Running test: ./typeCheckingTest/wrongIfStatement.leif
+Running test: ./typeCheckingTest/wrongIfThenElseStatement.leif
+Running test: ./typeCheckingTest/wrongIndexing.leif
+Running test: ./typeCheckingTest/wrongWhileStatement.leif
 All tests completed.
 failed test: 11  
 Total tests run: 16
