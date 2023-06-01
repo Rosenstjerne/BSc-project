@@ -40,6 +40,7 @@ Running test: ./parserTest/instNonSimpleType.leif
 Running test: ./parserTest/logicExp.leif
 Running test: ./parserTest/multiCommentLine.leif
 Running test: ./parserTest/multilLineAsSingle.leif
+Running test: ./parserTest/multiSingleCom.leif
 Running test: ./parserTest/negationInt.leif
 
 Error in phase Type Checking, line 3:
@@ -78,4 +79,4 @@ Error in phase Syntax Analysis, line 1:
     Problem detected at 'int'.
 All tests completed.
 failed test: 11  
-Total tests run: 44
+Total tests run: 45
