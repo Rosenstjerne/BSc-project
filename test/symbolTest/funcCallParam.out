@@ -1,1 +1,13 @@
-not yet implimented
+function null main() {
+	var int a, b;
+	
+	function int add(int x, int y) {
+		return (x + y);
+		
+	}
+	
+	a = 5;
+	b = 10;
+	print(add(a, b));
+	
+}

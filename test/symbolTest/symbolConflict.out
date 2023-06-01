@@ -1,3 +1,15 @@
-
-Error in phase Symbol Collection, line 10:
-    Redeclaration of function 'x' in the same scope.
+function null main() {
+	class x {
+		var int y;
+		}
+	
+	var int x;
+	
+	function int x() {
+		return 42;
+		
+	}
+	
+	x = 5;
+	
+}

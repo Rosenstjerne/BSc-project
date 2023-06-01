@@ -1,1 +1,15 @@
-not yet implimented
+function null main() {
+	class Point {
+		var int x;
+		var int y;
+		}
+	
+	var Point p;
+	
+	p = (new Point);
+	(p.x) = 3;
+	(p.y) = 4;
+	print((p.x));
+	print((p.y));
+	
+}

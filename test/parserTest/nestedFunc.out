@@ -45,7 +45,20 @@ main:
                 movq 0(%rbx), %rcx      # 
                 movq %rcx, -8(%rdx)     # Move param reg8 into ['fun_1_main',
                                         # 'var_0_input'] (input)
-                                        # CALLER PROLOGUE: empty
+
+                pushq %r8               # %r8 is callee save
+                pushq %r9               # %r9 is callee save
+                pushq %r10              # %r10 is callee save
+                pushq %r11              # %r11 is callee save
+                pushq %r12              # %r12 is callee save
+                pushq %r13              # %r13 is callee save
+                pushq %r14              # %r14 is callee save
+                pushq %r15              # %r15 is callee save
+                pushq -32(%rbx)         # stack reg save
+                pushq -24(%rbx)         # stack reg save
+                pushq -16(%rbx)         # stack reg save
+                pushq -8(%rbx)          # stack reg save
+                pushq 0(%rbx)           # stack reg save
 
                 movq %rbp, %rdx         # preparing for static link computation
                 movq -8(%rdx), %rcx     # 
@@ -54,11 +67,25 @@ main:
                 pushq -16(%rbx)         # push arguement to stack
                 pushq %rbp              # set up static link for inner function
                 callq fun_2_outer       # 
+                popq %rcx               # Pops parent base pointer from stack
+                popq %rcx               # Pops argument from stack
+
+                popq 0(%rbx)            # stack reg save
+                popq -8(%rbx)           # stack reg save
+                popq -16(%rbx)          # stack reg save
+                popq -24(%rbx)          # stack reg save
+                popq -32(%rbx)          # stack reg save
+                popq %r15               # restore callee save register %r15
+                popq %r14               # restore callee save register %r14
+                popq %r13               # restore callee save register %r13
+                popq %r12               # restore callee save register %r12
+                popq %r11               # restore callee save register %r11
+                popq %r10               # restore callee save register %r10
+                popq %r9                # restore callee save register %r9
+                popq %r8                # restore callee save register %r8
+
                 movq %rax, -24(%rbx)    # Moves the return value from %rax into
                                         # reg11
-                popq %rax               # Pops argument from stack
-                                        # CALLER EPILOGUE: empty
-
                 movq %rbp, %rdx         # preparing for static link computation
                 movq -24(%rbx), %rcx    # 
                 movq %rcx, -16(%rdx)    # Move param reg11 into ['fun_1_main',
@@ -105,10 +132,6 @@ fun_2_outer:
                 addq $0, %rsp           # allocate space for local variables
 
 
-                movq %rsp, %rbx         # Saves stack pointer in %rbx
-                addq $-40, %rsp         # allocate space for extra intermediate
-                                        # stack memory
-
                 pushq %r8               # %r8 is callee save
                 pushq %r9               # %r9 is callee save
                 pushq %r10              # %r10 is callee save
@@ -117,29 +140,25 @@ fun_2_outer:
                 pushq %r13              # %r13 is callee save
                 pushq %r14              # %r14 is callee save
                 pushq %r15              # %r15 is callee save
-
-                                        # CALLER PROLOGUE: empty
+                pushq -32(%rbx)         # stack reg save
+                pushq -24(%rbx)         # stack reg save
+                pushq -16(%rbx)         # stack reg save
+                pushq -8(%rbx)          # stack reg save
+                pushq 0(%rbx)           # stack reg save
 
                 movq %rbp, %rdx         # preparing for static link computation
                 movq 24(%rdx), %r11     # Move param param_2_x (x) into reg3
                 pushq %r11              # push arguement to stack
                 pushq %rbp              # set up static link for inner function
                 callq fun_3_inner       # 
-                movq %rax, %r12         # Moves the return value from %rax into
-                                        # reg4
-                popq %rax               # Pops argument from stack
-                                        # CALLER EPILOGUE: empty
+                popq %rcx               # Pops parent base pointer from stack
+                popq %rcx               # Pops argument from stack
 
-                movq $1, %r13           # Moves integer into reg5
-                movq %r13, %rcx         # Moves reg5 out into %rcx for
-                                        # operation
-                movq %r12, %rax         # Moves reg4 out into %rax for
-                                        # operation
-                addq %rcx, %rax         # Operation: reg4 + reg6
-                movq %rax, %r14         # Moves result into reg6
-                movq %r14, %rax         # Moves reg6 out into %rax for return
-end_fun_2_outer:
-
+                popq 0(%rbx)            # stack reg save
+                popq -8(%rbx)           # stack reg save
+                popq -16(%rbx)          # stack reg save
+                popq -24(%rbx)          # stack reg save
+                popq -32(%rbx)          # stack reg save
                 popq %r15               # restore callee save register %r15
                 popq %r14               # restore callee save register %r14
                 popq %r13               # restore callee save register %r13
@@ -149,9 +168,17 @@ end_fun_2_outer:
                 popq %r9                # restore callee save register %r9
                 popq %r8                # restore callee save register %r8
 
-                addq $40, %rsp          # deallocate stack space for extra
-                                        # intermediate stack memory
-
+                movq %rax, %r12         # Moves the return value from %rax into
+                                        # reg4
+                movq $1, %r13           # Moves integer into reg5
+                movq %r13, %rcx         # Moves reg5 out into %rcx for
+                                        # operation
+                movq %r12, %rax         # Moves reg4 out into %rax for
+                                        # operation
+                addq %rcx, %rax         # Operation: reg4 + reg6
+                movq %rax, %r14         # Moves result into reg6
+                movq %r14, %rax         # Moves reg6 out into %rax for return
+end_fun_2_outer:
 
                                         # CALLEE EPILOGUE
                 movq %rbp, %rsp         # restore stack pointer
@@ -166,20 +193,6 @@ fun_3_inner:
 
                 addq $0, %rsp           # allocate space for local variables
 
-
-                movq %rsp, %rbx         # Saves stack pointer in %rbx
-                addq $-40, %rsp         # allocate space for extra intermediate
-                                        # stack memory
-
-                pushq %r8               # %r8 is callee save
-                pushq %r9               # %r9 is callee save
-                pushq %r10              # %r10 is callee save
-                pushq %r11              # %r11 is callee save
-                pushq %r12              # %r12 is callee save
-                pushq %r13              # %r13 is callee save
-                pushq %r14              # %r14 is callee save
-                pushq %r15              # %r15 is callee save
-
                 movq %rbp, %rdx         # preparing for static link computation
                 movq 24(%rdx), %r8      # Move param param_3_y (y) into reg0
                 movq $2, %r9            # Moves integer into reg1
@@ -192,23 +205,11 @@ fun_3_inner:
                 movq %r10, %rax         # Moves reg2 out into %rax for return
 end_fun_3_inner:
 
-                popq %r15               # restore callee save register %r15
-                popq %r14               # restore callee save register %r14
-                popq %r13               # restore callee save register %r13
-                popq %r12               # restore callee save register %r12
-                popq %r11               # restore callee save register %r11
-                popq %r10               # restore callee save register %r10
-                popq %r9                # restore callee save register %r9
-                popq %r8                # restore callee save register %r8
-
-                addq $40, %rsp          # deallocate stack space for extra
-                                        # intermediate stack memory
-
-
                                         # CALLEE EPILOGUE
                 movq %rbp, %rsp         # restore stack pointer
                 popq %rbp               # restore base pointer
                 ret                     # return from call
+
 
 mmap_error:
                 leaq mmapEr(%rip), %rdi # pass 1. arg in %rdi

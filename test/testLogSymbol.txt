@@ -1,17 +1,17 @@
 
-Running test: ./symbolTest/shadowingVar.leif
-Running test: ./symbolTest/classAttri.leif
-Running test: ./symbolTest/nestedFunc.leif
 Running test: ./symbolTest/classAndObjdecl.leif
-Running test: ./symbolTest/varScope.leif
-Running test: ./symbolTest/funcCallParam.leif
+Running test: ./symbolTest/classArr.leif
+Running test: ./symbolTest/classAttri.leif
+Running test: ./symbolTest/elseIf.leif
 Running test: ./symbolTest/expWithOpeAndFunc.leif
+Running test: ./symbolTest/funcCallParam.leif
+Running test: ./symbolTest/nestedFunc.leif
 Running test: ./symbolTest/nestedScopes.leif
 Running test: ./symbolTest/shadowing.leif
-Running test: ./symbolTest/varDecl.leif
-Running test: ./symbolTest/classArr.leif
+Running test: ./symbolTest/shadowingVar.leif
 Running test: ./symbolTest/symbolConflict.leif
-Running test: ./symbolTest/elseIf.leif
+Running test: ./symbolTest/varDecl.leif
+Running test: ./symbolTest/varScope.leif
 All tests completed.
-failed test: 1  
+failed test: 0  
 Total tests run: 13

@@ -1,1 +1,12 @@
-not yet implimented
+function null main() {
+	var int result;
+	
+	function int multiply(int x, int y) {
+		return (x * y);
+		
+	}
+	
+	result = ((2 + 3) * multiply(4, 5));
+	print(result);
+	
+}

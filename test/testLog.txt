@@ -40,7 +40,7 @@ Running test: ./parserTest/instNonSimpleType.leif
 Running test: ./parserTest/logicExp.leif
 Running test: ./parserTest/multiCommentLine.leif
 Running test: ./parserTest/multilLineAsSingle.leif
-Running test: ./parserTest/negation.leif
+Running test: ./parserTest/negationInt.leif
 
 Error in phase Type Checking, line 3:
     Can not negate expression of 'int'. Must be of type 'bool'
@@ -72,6 +72,10 @@ Running test: ./parserTest/unfinishedMultiCom.leif
 
 Error in phase Lexical Analysis, line 4:
     Illegal character '#'.
+Running test: ./parserTest/wrgDeclOrder.leif
+
+Error in phase Syntax Analysis, line 1:
+    Problem detected at 'int'.
 All tests completed.
-failed test: 10  
-Total tests run: 43
+failed test: 11  
+Total tests run: 44

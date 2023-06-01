@@ -85,9 +85,9 @@ lbl3_exp_neg_end:
                 je LBL_0                # 
                 leaq formFalse(%rip), %rdi# pass 1. argument in %rdi
                 jmp LBL_1               # 
-                LBL_0:                  # 
+LBL_0:
                 leaq formTrue(%rip), %rdi# pass 1. argument in %rdi
-                LBL_1:                  # 
+LBL_1:
                 movq %rcx, %rsi         # Moves printable object to rsi
                 xorq %rax, %rax         # No floating point arguments
 
@@ -112,6 +112,7 @@ end_main:
                 movq %rbp, %rsp         # restore stack pointer
                 popq %rbp               # restore base pointer
                 ret                     # return from call
+
 
 mmap_error:
                 leaq mmapEr(%rip), %rdi # pass 1. arg in %rdi

@@ -1,1 +1,16 @@
-not yet implimented
+function null main() {
+	var int x;
+	
+	x = 10;
+	if((x > 5))
+	#bein if
+		print(6);
+		
+	#end if
+	#begin else
+	else
+		print(4);
+		
+	#end else
+	
+}

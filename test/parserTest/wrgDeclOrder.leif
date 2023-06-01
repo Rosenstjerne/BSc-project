@@ -1,0 +1,15 @@
+Var int x,y,z
+
+function int add(int a, int b)
+{
+    return a+b
+}
+
+class A
+{
+    int x,y,z
+    function int add(int a, int b)
+    {
+        return a+b
+    }
+}

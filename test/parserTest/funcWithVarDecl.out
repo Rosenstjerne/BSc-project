@@ -51,7 +51,27 @@ main:
                 movq -48(%rbx), %rcx    # 
                 movq %rcx, -16(%rdx)    # Move param reg14 into ['fun_1_main',
                                         # 'var_1_num2'] (num2)
-                                        # CALLER PROLOGUE: empty
+
+                pushq %r8               # %r8 is callee save
+                pushq %r9               # %r9 is callee save
+                pushq %r10              # %r10 is callee save
+                pushq %r11              # %r11 is callee save
+                pushq %r12              # %r12 is callee save
+                pushq %r13              # %r13 is callee save
+                pushq %r14              # %r14 is callee save
+                pushq %r15              # %r15 is callee save
+                pushq -88(%rbx)         # stack reg save
+                pushq -80(%rbx)         # stack reg save
+                pushq -72(%rbx)         # stack reg save
+                pushq -64(%rbx)         # stack reg save
+                pushq -56(%rbx)         # stack reg save
+                pushq -48(%rbx)         # stack reg save
+                pushq -40(%rbx)         # stack reg save
+                pushq -32(%rbx)         # stack reg save
+                pushq -24(%rbx)         # stack reg save
+                pushq -16(%rbx)         # stack reg save
+                pushq -8(%rbx)          # stack reg save
+                pushq 0(%rbx)           # stack reg save
 
                 movq %rbp, %rdx         # preparing for static link computation
                 movq -8(%rdx), %rcx     # 
@@ -65,12 +85,33 @@ main:
                 pushq -64(%rbx)         # push arguement to stack
                 pushq %rbp              # set up static link for inner function
                 callq fun_2_addAndMultiply# 
+                popq %rcx               # Pops parent base pointer from stack
+                popq %rcx               # Pops argument from stack
+                popq %rcx               # Pops argument from stack
+
+                popq 0(%rbx)            # stack reg save
+                popq -8(%rbx)           # stack reg save
+                popq -16(%rbx)          # stack reg save
+                popq -24(%rbx)          # stack reg save
+                popq -32(%rbx)          # stack reg save
+                popq -40(%rbx)          # stack reg save
+                popq -48(%rbx)          # stack reg save
+                popq -56(%rbx)          # stack reg save
+                popq -64(%rbx)          # stack reg save
+                popq -72(%rbx)          # stack reg save
+                popq -80(%rbx)          # stack reg save
+                popq -88(%rbx)          # stack reg save
+                popq %r15               # restore callee save register %r15
+                popq %r14               # restore callee save register %r14
+                popq %r13               # restore callee save register %r13
+                popq %r12               # restore callee save register %r12
+                popq %r11               # restore callee save register %r11
+                popq %r10               # restore callee save register %r10
+                popq %r9                # restore callee save register %r9
+                popq %r8                # restore callee save register %r8
+
                 movq %rax, -80(%rbx)    # Moves the return value from %rax into
                                         # reg18
-                popq %rax               # Pops argument from stack
-                popq %rax               # Pops argument from stack
-                                        # CALLER EPILOGUE: empty
-
                 movq %rbp, %rdx         # preparing for static link computation
                 movq -80(%rbx), %rcx    # 
                 movq %rcx, -24(%rdx)    # Move param reg18 into ['fun_1_main',
@@ -115,20 +156,6 @@ fun_2_addAndMultiply:
                 movq %rsp, %rbp         # make stack pointer new base pointer
 
                 addq $-16, %rsp         # allocate space for local variables
-
-
-                movq %rsp, %rbx         # Saves stack pointer in %rbx
-                addq $-96, %rsp         # allocate space for extra intermediate
-                                        # stack memory
-
-                pushq %r8               # %r8 is callee save
-                pushq %r9               # %r9 is callee save
-                pushq %r10              # %r10 is callee save
-                pushq %r11              # %r11 is callee save
-                pushq %r12              # %r12 is callee save
-                pushq %r13              # %r13 is callee save
-                pushq %r14              # %r14 is callee save
-                pushq %r15              # %r15 is callee save
 
                 movq $0, -16(%rbp)      # Initializes product to 0
                 movq $0, -8(%rbp)       # Initializes sum to 0
@@ -177,23 +204,11 @@ fun_2_addAndMultiply:
                                         # return
 end_fun_2_addAndMultiply:
 
-                popq %r15               # restore callee save register %r15
-                popq %r14               # restore callee save register %r14
-                popq %r13               # restore callee save register %r13
-                popq %r12               # restore callee save register %r12
-                popq %r11               # restore callee save register %r11
-                popq %r10               # restore callee save register %r10
-                popq %r9                # restore callee save register %r9
-                popq %r8                # restore callee save register %r8
-
-                addq $96, %rsp          # deallocate stack space for extra
-                                        # intermediate stack memory
-
-
                                         # CALLEE EPILOGUE
                 movq %rbp, %rsp         # restore stack pointer
                 popq %rbp               # restore base pointer
                 ret                     # return from call
+
 
 mmap_error:
                 leaq mmapEr(%rip), %rdi # pass 1. arg in %rdi

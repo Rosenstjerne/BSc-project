@@ -51,7 +51,28 @@ main:
                 movq -32(%rbx), %rcx    # 
                 movq %rcx, -16(%rdx)    # Move param reg12 into ['fun_1_main',
                                         # 'var_1_y'] (y)
-                                        # CALLER PROLOGUE: empty
+
+                pushq %r8               # %r8 is callee save
+                pushq %r9               # %r9 is callee save
+                pushq %r10              # %r10 is callee save
+                pushq %r11              # %r11 is callee save
+                pushq %r12              # %r12 is callee save
+                pushq %r13              # %r13 is callee save
+                pushq %r14              # %r14 is callee save
+                pushq %r15              # %r15 is callee save
+                pushq -96(%rbx)         # stack reg save
+                pushq -88(%rbx)         # stack reg save
+                pushq -80(%rbx)         # stack reg save
+                pushq -72(%rbx)         # stack reg save
+                pushq -64(%rbx)         # stack reg save
+                pushq -56(%rbx)         # stack reg save
+                pushq -48(%rbx)         # stack reg save
+                pushq -40(%rbx)         # stack reg save
+                pushq -32(%rbx)         # stack reg save
+                pushq -24(%rbx)         # stack reg save
+                pushq -16(%rbx)         # stack reg save
+                pushq -8(%rbx)          # stack reg save
+                pushq 0(%rbx)           # stack reg save
 
                 movq %rbp, %rdx         # preparing for static link computation
                 movq -8(%rdx), %rcx     # 
@@ -63,12 +84,34 @@ main:
                 pushq -48(%rbx)         # push arguement to stack
                 pushq %rbp              # set up static link for inner function
                 callq fun_2_createPair  # 
+                popq %rcx               # Pops parent base pointer from stack
+                popq %rcx               # Pops argument from stack
+                popq %rcx               # Pops argument from stack
+
+                popq 0(%rbx)            # stack reg save
+                popq -8(%rbx)           # stack reg save
+                popq -16(%rbx)          # stack reg save
+                popq -24(%rbx)          # stack reg save
+                popq -32(%rbx)          # stack reg save
+                popq -40(%rbx)          # stack reg save
+                popq -48(%rbx)          # stack reg save
+                popq -56(%rbx)          # stack reg save
+                popq -64(%rbx)          # stack reg save
+                popq -72(%rbx)          # stack reg save
+                popq -80(%rbx)          # stack reg save
+                popq -88(%rbx)          # stack reg save
+                popq -96(%rbx)          # stack reg save
+                popq %r15               # restore callee save register %r15
+                popq %r14               # restore callee save register %r14
+                popq %r13               # restore callee save register %r13
+                popq %r12               # restore callee save register %r12
+                popq %r11               # restore callee save register %r11
+                popq %r10               # restore callee save register %r10
+                popq %r9                # restore callee save register %r9
+                popq %r8                # restore callee save register %r8
+
                 movq %rax, -64(%rbx)    # Moves the return value from %rax into
                                         # reg16
-                popq %rax               # Pops argument from stack
-                popq %rax               # Pops argument from stack
-                                        # CALLER EPILOGUE: empty
-
                 movq %rbp, %rdx         # preparing for static link computation
                 movq -64(%rbx), %rcx    # 
                 movq %rcx, -24(%rdx)    # Move param reg16 into ['fun_1_main',
@@ -133,20 +176,6 @@ fun_2_createPair:
 
                 addq $-8, %rsp          # allocate space for local variables
 
-
-                movq %rsp, %rbx         # Saves stack pointer in %rbx
-                addq $-104, %rsp        # allocate space for extra intermediate
-                                        # stack memory
-
-                pushq %r8               # %r8 is callee save
-                pushq %r9               # %r9 is callee save
-                pushq %r10              # %r10 is callee save
-                pushq %r11              # %r11 is callee save
-                pushq %r12              # %r12 is callee save
-                pushq %r13              # %r13 is callee save
-                pushq %r14              # %r14 is callee save
-                pushq %r15              # %r15 is callee save
-
                 movq $0, -8(%rbp)       # Initializes p to 0
                 movq $2, %rcx           # Moves size out into %rcx for
                                         # allication
@@ -157,6 +186,7 @@ fun_2_createPair:
                 pushq %r9               # %r9 is caller save
                 pushq %r10              # %r10 is caller save
                 pushq %r15              # %r15 is caller save
+
                 movq %rcx, %rsi         # moves size form %rxc into %rsi
                 movq %rcx, %r15         # moves size form %rxc into %r15
                 shlq $3, %rsi           # 
@@ -170,14 +200,16 @@ fun_2_createPair:
 
                 cmpq $-22, %rax         # checks if mmap was successful
                 je mmap_error           # jumps to mmap error if not
+
                 movq $0, %r10           # initializes the index
-                LBL_0:                  # 
+LBL_0:
                 cmpq %r15, %r10         # if the index is at the end
                 je LBL_1                # Jumps to end when all is initializes
                 movq $0, (%rax, %r10, 8)# initializes the index
                 incq %r10               # increment the index
                 jmp LBL_0               # 
-                LBL_1:                  # 
+LBL_1:
+
                 popq %r15               # restore caller save register %r15
                 popq %r10               # restore caller save register %r10
                 popq %r9                # restore caller save register %r9
@@ -210,23 +242,11 @@ fun_2_createPair:
                                         # return
 end_fun_2_createPair:
 
-                popq %r15               # restore callee save register %r15
-                popq %r14               # restore callee save register %r14
-                popq %r13               # restore callee save register %r13
-                popq %r12               # restore callee save register %r12
-                popq %r11               # restore callee save register %r11
-                popq %r10               # restore callee save register %r10
-                popq %r9                # restore callee save register %r9
-                popq %r8                # restore callee save register %r8
-
-                addq $104, %rsp         # deallocate stack space for extra
-                                        # intermediate stack memory
-
-
                                         # CALLEE EPILOGUE
                 movq %rbp, %rsp         # restore stack pointer
                 popq %rbp               # restore base pointer
                 ret                     # return from call
+
 
 mmap_error:
                 leaq mmapEr(%rip), %rdi # pass 1. arg in %rdi

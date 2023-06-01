@@ -1,1 +1,16 @@
-not yet implimented
+function null main() {
+	var int x;
+	
+	function int test_scope() {
+		var int x;
+		
+		x = 10;
+		return x;
+		
+	}
+	
+	x = 5;
+	print(test_scope());
+	print(x);
+	
+}
